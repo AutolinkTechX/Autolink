@@ -1,0 +1,47 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Edit Admin - Autolink{% endblock %}
+
+{% block page_title %}Edit Admin{% endblock %}
+
+{% block content %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Edit Admin</h6>
+        </div>
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form_row(form.nom, { 'attr': {'class': 'form-control'} }) }}
+                </div>
+                <div class="col-md-6">
+                    {{ form_row(form.prenom, { 'attr': {'class': 'form-control'} }) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form_row(form.email, { 'attr': {'class': 'form-control'} }) }}
+                </div>
+                <div class="col-md-6">
+                    {{ form_row(form.password, { 'attr': {'class': 'form-control'} }) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form_row(form.numeroTel, { 'attr': {'class': 'form-control'} }) }}
+                </div>
+                <div class="col-md-6">
+                    {{ form_row(form.role, { 'attr': {'class': 'form-control'} }) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="{{ path('list_admin') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

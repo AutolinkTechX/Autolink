@@ -1,0 +1,14 @@
+# translations/messages.en.yaml
+Email: 'Email'
+Password: 'Password'
+Connexion: 'Login'
+
+Nom: "Last Name"
+Prénom: "First Name"
+Téléphone: "Phone Number"
+Enter last name: "Enter your last name"
+Enter first name: "Enter your first name"
+Enter email: "Enter your email"
+Enter password: "Enter your password"
+Enter phone number: "Enter your phone number"
+Add Admin: "Add Admin"
