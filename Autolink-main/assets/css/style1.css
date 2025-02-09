@@ -1,0 +1,28 @@
+/* Modifier la couleur de fond de la page */
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+/* Styliser la barre de navigation */
+.header__menu ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+}
+
+.header__menu ul li {
+    margin-right: 20px;
+}
+
+.header__menu ul li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Styliser le bouton du panier */
+.header__cart ul li a {
+    color: red;
+    font-size: 20px;
+}

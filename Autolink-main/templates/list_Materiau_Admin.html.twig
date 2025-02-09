@@ -1,0 +1,96 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Recyclable Materials{% endblock %}
+
+{% block page_title %}Recyclable Materials{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Recyclable Materials List</h6>
+            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addMaterialModal">Add Material</a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="materialTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Creation Date</th>
+                            <th>Image</th>
+                            <th>Status</th>
+                            <th>Material Type</th>
+                            <th>User ID</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for material in materiauRecyclable %}
+                        <tr>
+                            <td>{{ material.id_materiau_recyclable }}</td>
+                            <td>{{ material.nom }}</td>
+                            <td>{{ material.description }}</td>
+                            <td>{{ material.date_creation }}</td>
+                            <td><img src="{{ material.image }}" alt="Material Image" width="50"></td>
+                            <td>{{ material.statut }}</td>
+                            <td>{{ material.type_materiau }}</td>
+                            <td>{{ material.id_user }}</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-warning">Edit</a>
+                                <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Material Modal -->
+<div class="modal fade" id="addMaterialModal" tabindex="-1" role="dialog" aria-labelledby="addMaterialModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addMaterialModalLabel">Add Material</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="materialName">Material Name</label>
+                        <input type="text" class="form-control" id="materialName">
+                    </div>
+                    <div class="form-group">
+                        <label for="materialDescription">Description</label>
+                        <textarea class="form-control" id="materialDescription"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="materialCreationDate">Creation Date</label>
+                        <input type="date" class="form-control" id="materialCreationDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="materialImage">Image URL</label>
+                        <input type="text" class="form-control" id="materialImage">
+                    </div>
+                    <div class="form-group">
+                        <label for="materialStatus">Status</label>
+                        <input type="text" class="form-control" id="materialStatus">
+                    </div>
+                    <div class="form-group">
+                        <label for="materialType">Material Type</label>
+                        <input type="text" class="form-control" id="materialType">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

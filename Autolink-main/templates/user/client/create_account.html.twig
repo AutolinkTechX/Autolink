@@ -1,0 +1,178 @@
+{% block body %}
+<style>
+    /* Import the fonts */
+    @import url('https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i');
+    @import url('https://fonts.googleapis.com/css?family=Rufina:400,700');
+
+    body {
+        background-image: url('/images/welcome-hero/welcome-banner.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Poppins', sans-serif; /* Apply Poppins font to body */
+        color: white; /* Set the default text color to white */
+    }
+
+    .form-container {
+        background-color: rgba(17, 17, 17, 0.9); /* Semi-transparent dark background for container */
+        padding: 3rem; /* Add more padding to make the container larger */
+        border-radius: 10px; /* Optional: adds rounded corners */
+        width: 100%;
+        max-width: 500px; /* Adjust this value to make the container bigger */
+    }
+
+    /* Title color and font */
+    h2 {
+        display: flex;
+        justify-content: center;
+        color: #edb77d; /* Warm accent color for the title */
+        font-family: 'Rufina', serif; /* Apply Rufina font to h2 title */
+    }
+
+    .form-label {
+        width: 100%; /* Makes the label take full width */
+        display: block; /* Ensures the label stretches across */
+        color: #bebebe; /* Light gray for labels */
+        font-family: 'Poppins', sans-serif; /* Use Poppins font for labels */
+    }
+
+    .form-control {
+        width: 100%; /* Ensures form input fields stretch across */
+        background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white background for inputs */
+        color: white; /* Makes the text inside the widgets white */
+        border: 2px solid #999; /* Medium gray border */
+        border-radius: 10px; /* Makes the input fields have curved borders */
+        padding: 10px; /* Adds padding inside the input fields for better readability */
+        font-family: 'Poppins', sans-serif; /* Use Poppins font for form fields */
+    }
+
+    .form-control:focus {
+        border-color: #edb77d; /* Warm accent color for focused input fields */
+    }
+
+    .form-group {
+        margin-bottom: 1rem; /* Adds space between each form element */
+    }
+
+    /* Button styling */
+    .btn-primary {
+        background-color: #edb77d; /* Warm accent color for the button */
+        border-color: #edb77d; /* Warm accent color for the button border */
+        color: #111; /* Dark text color for the button */
+        border-radius: 10px; /* Rounded corners for the button */
+        padding: 12px 21px; /* Adjust padding to make the button larger */
+        font-family: 'Poppins', sans-serif; /* Use Poppins font for the button */
+    }
+
+    .btn-primary:hover {
+        background-color: #e79e50; /* Darker shade for hover effect */
+        border-color: #e79e50; /* Darker border on hover */
+    }
+
+    .d-grid .btn-primary {
+        border-radius: 10px; /* Rounded corners for the submit button */
+    }
+
+    /* Style for form errors */
+    .form-error {
+        color: #ff6b6b; /* Red color for error messages */
+        font-size: 0.875rem; /* Smaller font size for error messages */
+        margin-top: 0.25rem; /* Space between the input field and the error message */
+    }
+
+    /* Style for flash messages */
+    .flash-messages {
+        margin-bottom: 1.5rem; /* Space below flash messages */
+    }
+
+    .alert {
+        padding: 0.75rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.875rem;
+    }
+
+    .alert-success {
+        background-color: #d4edda; /* Light green background for success messages */
+        color: #155724; /* Dark green text for success messages */
+        border-color: #c3e6cb;
+    }
+
+    .alert-error {
+        background-color: #f8d7da; /* Light red background for error messages */
+        color: #721c24; /* Dark red text for error messages */
+        border-color: #f5c6cb;
+    }
+</style>
+
+<div class="row justify-content-center align-items-center" style="height: 100vh;">
+    <div class="col-md-6">
+        <div class="form-container">
+            <h2 class="mb-4 text-center font-weight-bold">Créer un compte</h2>
+
+            {# Flash messages #}
+            <div class="flash-messages">
+                {% for type, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ type }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+
+            {# Registration form #}
+            {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+                
+                <div class="mb-4 form-group">
+                    {{ form_label(form.nom, 'Nom', {'attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+                    <div class="form-error">
+                        {{ form_errors(form.nom) }}
+                    </div>
+                </div>
+
+                <div class="mb-4 form-group">
+                    {{ form_label(form.prenom, 'Prénom', {'attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.prenom, {'attr': {'class': 'form-control'}}) }}
+                    <div class="form-error">
+                        {{ form_errors(form.prenom) }}
+                    </div>
+                </div>
+
+                <div class="mb-4 form-group">
+                    {{ form_label(form.email, 'Adresse e-mail', {'attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                    <div class="form-error">
+                        {{ form_errors(form.email) }}
+                    </div>
+                </div>
+
+                <div class="mb-4 form-group">
+                    {{ form_label(form.password, 'Mot de passe', {'attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.password, {'attr': {'class': 'form-control'}}) }}
+                    <div class="form-error">
+                        {{ form_errors(form.password) }}
+                    </div>
+                </div>
+
+                <div class="mb-4 form-group">
+                    {{ form_label(form.numeroTel, 'Numéro de téléphone', {'attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.numeroTel, {'attr': {'class': 'form-control'}}) }}
+                    <div class="form-error">
+                        {{ form_errors(form.numeroTel) }}
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    {{ form_widget(form.submit, {'attr': {'class': 'btn btn-primary btn-lg'}}) }}
+                </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

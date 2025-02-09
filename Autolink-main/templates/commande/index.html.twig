@@ -1,0 +1,199 @@
+{% extends 'base.html.twig' %}
+{% block title %}Liste des Commande{% endblock %}
+{% block body %}
+    <section class="product spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-5">
+                    <div class="sidebar">
+                        <div class="sidebar__item">
+                            <h4>Department</h4>
+                            <ul>
+                                <li><a href="#">Echappement</a></li>
+                                <li><a href="#">Electronique</a></li>
+                                <li><a href="#">Freinage</a></li>
+                                <li><a href="#">Pièces de carrosserie</a></li>
+                                <li><a href="#">Roues et pneumatique</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="sidebar__item">
+                            <h4>Price</h4>
+                            <div class="price-range-wrap">
+                                <div class="price-range ui-slider ui-corner-all ui-slider-horizontal ui-widget ui-widget-content" data-min="10" data-max="540">
+                                    <div class="ui-slider-range ui-corner-all ui-widget-header"></div>
+                                    <span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default"></span>
+                                    <span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default"></span>
+                                </div>
+                                <div class="range-slider">
+                                    <div class="price-input">
+                                        <input type="text" id="minamount" placeholder="Min">
+                                        <input type="text" id="maxamount" placeholder="Max">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar__item">
+                            <h4>la liste des factures</h4>
+                            <ul>
+                                <li><a href="#">Echappement</a></li>
+                                <li><a href="#">Electronique</a></li>
+                                <li><a href="#">Freinage</a></li>
+                                <li><a href="#">Pièces de carrosserie</a></li>
+                                <li><a href="#">Roues et pneumatique</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-9 col-md-7">
+                    <div class="product__discount">
+                        <div class="section-title product__discount__title">
+                            <h2>Votre Commande</h2>
+                        </div>
+                        <div class="row">
+                           {% for panier in paniers %}
+                                <div class="col-lg-4 col-md-6 col-sm-6">
+                                    <div class="product__item">
+                                        <div class="product__item__pic set-bg" style="background-image: url('{{ asset('img/product/' ~ panier.getArticle.getImage) }}');">
+                                            <ul class="product__item__pic__hover">
+                                               <li><a href="#"><i class="fa fa-times"></i></a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="product__item__text">
+                                            <h5>{{ panier.getArticle.getNom}}</h5>
+                                            <h5>${{ panier.getPrixUnitaire}}</h5>
+                                            <h5>{{ panier.getQuantite}}</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="shoping__cart__btns">
+                <a href="{{ path('app_listarticle') }}" class="primary-btn cart-btn">CONTINUE SHOPPING</a>
+                <a href="#" class="primary-btn cart-btn cart-btn-right"><span class="icon_loading"></span>
+                    Update Cart</a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="shoping__continue">
+                <div class="shoping__discount">
+                    <h5>Votre Facture</h5>
+                    <button class="primary-btn" onclick="openInvoicePopup()">TÉLÉCHARGER LA FACTURE</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="shoping__checkout">
+                <h5>Cart Total</h5>
+                <ul>
+                    <li>Total HT: <span>$10000</span></li>
+                    <li>TVA (20%): <span>$20</span></li>
+                    <li>Total TTC: <span>$12000</span></li>
+                </ul>
+                <a href="{{ path('app_payement') }}" class="primary-btn">Procedure de payement</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Modal -->
+    <div id="invoicePopup" class="popup">
+        <span class="close" onclick="closeInvoicePopup()">&times;</span>
+        <div class="container-payment">
+            <div class="card shadow mt-4">
+                <div class="card-body">
+                    <h4 class="text-center">🧾 Facture</h4>
+                    <hr>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Produit</th>
+                                <th>Prix Unitaire</th>
+                                <th>Quantité</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>3ajla</td>
+                                <td>25000</td>
+                                <td>5</td>
+                                <td>1520</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Total HT:</strong>
+                        <span>20225</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <strong>TVA (20%):</strong>
+                        <span>123456</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <h5><strong>Total TTC:</strong></h5>
+                        <h5><strong>4560000</strong></h5>
+                    </div>
+                    <button class="primary-btn" onclick="downloadInvoice()">Télécharger PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        function openInvoicePopup() {
+            document.getElementById("invoicePopup").style.display = "block";
+        }
+
+        function closeInvoicePopup() {
+            document.getElementById("invoicePopup").style.display = "none";
+        }
+
+        function downloadInvoice() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.text("🧾 Facture", 80, 10);
+
+            doc.setFontSize(12);
+            doc.text("Entreprise: XYZ Company", 10, 30);
+            doc.text("Client: John Doe", 10, 40);
+            doc.text("Date: " + new Date().toLocaleDateString(), 10, 50);
+
+            // Table Header
+            doc.text("Produit", 10, 70);
+            doc.text("Prix Unitaire", 60, 70);
+            doc.text("Quantité", 110, 70);
+            doc.text("Total", 160, 70);
+
+            // Table Rows
+            doc.text("Logo Design", 10, 80);
+            doc.text("$100.00", 60, 80);
+            doc.text("1", 110, 80);
+            doc.text("$100.00", 160, 80);
+
+            // Summary
+            doc.text("Total HT: $100.00", 10, 100);
+            doc.text("TVA (20%): $20.00", 10, 110);
+            doc.text("Total TTC: $120.00", 10, 120);
+
+            // Download the PDF
+            doc.save("facture.pdf");
+        }
+    </script>
+{% endblock %}
