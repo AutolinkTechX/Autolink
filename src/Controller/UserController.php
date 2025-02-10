@@ -1,0 +1,466 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Role;
+use App\Entity\User;
+use App\Form\CreateAccountType;
+use App\Form\LoginType;
+use App\Form\AdminLoginType;
+use App\Form\UserType;
+use App\Form\SearchType;
+use App\Form\ProfileType;
+use App\Form\ChangePasswordType;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+
+
+final class UserController extends AbstractController
+{
+    #[Route('/user', name: 'app_user')]
+    public function index(): Response
+    {
+        return $this->render('user/index.html.twig', [
+            'controller_name' => 'UserController',
+        ]);
+    }
+
+    #[Route('/login', name: 'login')]
+    public function login(AuthenticationUtils $authenticationUtils): Response
+    {
+        $error = $authenticationUtils->getLastAuthenticationError();
+        if ($error) {
+            $this->addFlash('error', 'Email ou mot de passe invalide. Veuillez réessayer.');
+        }
+        $lastUsername = $authenticationUtils->getLastUsername();
+        $form = $this->createForm(LoginType::class);
+        return $this->render('user/login.html.twig', [
+            'form' => $form->createView(),
+            'last_username' => $lastUsername,
+        ]);
+    }
+
+    #[Route('/logout', name: 'app_logout')]
+    public function logout(): void
+    {
+        throw new \Exception('Don\'t forget to activate logout in security.yaml');
+    }
+
+    #[Route('/admin-login', name: 'admin_login')]
+    public function loginAdmin(Request $request, AuthenticationUtils $authenticationUtils, EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $error = $authenticationUtils->getLastAuthenticationError();
+        if ($error) {
+            $this->addFlash('error', 'Email ou mot de passe invalide. Veuillez réessayer.');
+        }
+        $lastUsername = $authenticationUtils->getLastUsername();
+        $form = $this->createForm(AdminLoginType::class);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $username = $form->get('_username')->getData();
+            $password = $form->get('_password')->getData();
+            $user = $entityManager->getRepository(User::class)->findUserWithRoleAndMenusByEmail($username);
+
+            if (!$user) {
+                $this->addFlash('error', 'Email ou mot de passe invalide. Veuillez réessayer.');
+                return $this->redirectToRoute('admin_login');
+            }
+
+            if (!in_array('ROLE_ADMIN', $user->getRoles())) {
+                $this->addFlash('error', 'Admin non existant');
+                return $this->redirectToRoute('admin_login');
+            }
+
+            if (!$passwordHasher->isPasswordValid($user, $password)) {
+                $this->addFlash('error', 'Email ou mot de passe invalide. Veuillez réessayer.');
+                return $this->redirectToRoute('admin_login');
+            }
+
+            $tokenStorage->setToken(null);
+            $token = new UsernamePasswordToken($user, 'admin', $user->getRoles());
+            $tokenStorage->setToken($token);
+            $this->denyAccessUnlessGranted('ROLE_ADMIN');
+            return $this->redirectToRoute('admin_dashboard');
+        }
+
+        return $this->render('user/admin/login.html.twig', [
+            'form' => $form->createView(),
+            'last_username' => $lastUsername,
+        ]);
+    }
+
+    #[Route('/admin/logoutAdmin', name: 'admin_logout')]
+    public function logoutAdmin(): void
+    {
+        // This method can remain empty - it will be intercepted by the logout handler
+    }
+
+    #[Route('/create-account', name: 'create_account')]
+    public function createAccount(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder): Response
+    {
+        $user = new User();
+        $form = $this->createForm(CreateAccountType::class, $user);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Encode the plain password
+            $user->setPassword($passwordEncoder->hashPassword($user, $user->getPassword()));
+            // Set the role to 'client'
+            $role = $entityManager->getRepository(Role::class)->findOneBy(['name' => 'ROLE_CLIENT']);
+            if (!$role) {
+                $role = new Role();
+                $role->setName('ROLE_CLIENT');
+                $entityManager->persist($role);
+            }
+            $user->setRole($role);
+            $user->setCreatedAt(new \DateTimeImmutable());
+            try {
+                $entityManager->persist($user);
+                $entityManager->flush();
+                $this->addFlash('success', 'Account created successfully!');
+                return $this->redirectToRoute('login');
+            } catch (UniqueConstraintViolationException $e) {
+                $this->addFlash('error', 'A user with this email address already exists.');
+                return $this->redirectToRoute('create_account');
+            }
+        }
+        return $this->render('user/client/create_account.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/admin/dashboard', name: 'admin_dashboard')]
+    public function dashboard(): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        return $this->render('user/admin/dashboard.html.twig', [
+            // Pass any data you need to the template
+        ]);
+    }
+
+    #[Route('/admin/listAdmins', name: 'list_admin')]
+    public function listAdmins(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $roleAdmin = $entityManager->getRepository(Role::class)->findOneBy(['name' => 'ROLE_ADMIN']);
+        $form = $this->createForm(SearchType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $query = $form->get('query')->getData();
+            if ($query) {
+                $admins = $this->filterAdmins($query, $entityManager, $roleAdmin);
+            } else {
+                $admins = $roleAdmin ? $entityManager->getRepository(User::class)->findBy(['role' => $roleAdmin]) : [];
+            }
+        } else {
+            $admins = $roleAdmin ? $entityManager->getRepository(User::class)->findBy(['role' => $roleAdmin]) : [];
+        }
+
+        $admin = new User();
+        // Create the form
+        $formx = $this->createForm(UserType::class, $admin);
+        $formx->handleRequest($request);
+
+        if ($formx->isSubmitted() && $formx->isValid()) {
+            // Check if a user with the same email already exists
+            $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $admin->getEmail()]);
+            if ($existingUser) {
+                $this->addFlash('error', 'A user with this email address already exists.');
+                return $this->redirectToRoute('list_admin');
+            }
+
+            // Generate password based on phone number
+            $generatedPassword = $admin->getPhone() . '.admin';
+            if (empty($generatedPassword)) {
+                $this->addFlash('error', 'Phone number is required to generate the password.');
+                return $this->redirectToRoute('list_admin');
+            }
+
+            // Hash the generated password
+            $hashedPassword = $passwordHasher->hashPassword($admin, $generatedPassword);
+            $admin->setPassword($hashedPassword);
+
+            // Set the role and creation date
+            $role = $entityManager->getRepository(Role::class)->findOneBy(['name' => 'ROLE_ADMIN']);
+            $admin->setRole($role);
+            $admin->setCreatedAt(new \DateTimeImmutable());
+
+            // Persist the admin user
+            $entityManager->persist($admin);
+            $entityManager->flush();
+
+            // Add a success flash message
+            $this->addFlash('success', 'Admin created successfully with the password: ' . $generatedPassword);
+            return $this->redirectToRoute('list_admin');
+        }
+
+        return $this->render('user/admin/list_Admins.html.twig', [
+            'formx' => $formx->createView(),
+            'form' => $form->createView(),
+            'admins' => $admins,
+        ]);
+    }
+
+    private function filterAdmins(string $query, EntityManagerInterface $entityManager, Role $roleAdmin): array
+    {
+        return $entityManager->getRepository(User::class)->createQueryBuilder('u')
+            ->where('u.role = :role')
+            ->andWhere('u.name LIKE :query OR u.last_name LIKE :query OR u.email LIKE :query OR u.phone LIKE :query')
+            ->setParameter('role', $roleAdmin)
+            ->setParameter('query', '%' . $query . '%')
+            ->getQuery()
+            ->getResult();
+    }
+
+    #[Route('/admin/deleteAdmin/{id}', name: 'delete_admin')]
+    public function deleteAdmin(EntityManagerInterface $entityManager, int $id): Response
+    {
+        $admin = $entityManager->getRepository(User::class)->find($id);
+        if (!$admin) {
+            throw $this->createNotFoundException('User non existant');
+        }
+        $entityManager->remove($admin);
+        $entityManager->flush();
+        return $this->redirectToRoute('list_admin');
+    }
+
+    #[Route('/admin/editAdmin/{id}', name: 'edit_admin')]
+    public function editAdmin(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, int $id): Response
+    {
+        $admin = $entityManager->getRepository(User::class)->find($id);
+        if (!$admin) {
+            throw $this->createNotFoundException('Admin not found');
+        }
+        $form = $this->createForm(UserType::class, $admin);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($form->get('password')->getData()) {
+                $hashedPassword = $passwordHasher->hashPassword($admin, $admin->getPassword());
+                $admin->setPassword($hashedPassword);
+            }
+            $entityManager->flush();
+            $this->addFlash('success', 'Admin updated successfully!');
+            return $this->redirectToRoute('list_admin');
+        }
+        return $this->render('user/admin/edit_admin.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/admin/listClients', name: 'list_client')]
+    public function listClients(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $roleClient = $entityManager->getRepository(Role::class)->findOneBy(['name' => 'ROLE_CLIENT']);
+        $form = $this->createForm(SearchType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $query = $form->get('query')->getData();
+            if ($query) {
+                $clients = $this->filterClients($query, $entityManager, $roleClient);
+            } else {
+                $clients = $roleClient ? $entityManager->getRepository(User::class)->findBy(['role' => $roleClient]) : [];
+            }
+        } else {
+            $clients = $roleClient ? $entityManager->getRepository(User::class)->findBy(['role' => $roleClient]) : [];
+        }
+
+        $client = new User();
+        // Create the form
+        $formx = $this->createForm(UserType::class, $client);
+        $formx->handleRequest($request);
+
+        if ($formx->isSubmitted() && $formx->isValid()) {
+            // Check if a user with the same email already exists
+            $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $client->getEmail()]);
+            if ($existingUser) {
+                $this->addFlash('error', 'A user with this email address already exists.');
+                return $this->redirectToRoute('list_client');
+            }
+
+            // Generate password based on phone number
+            $generatedPassword = $client->getPhone() . '.client';
+            if (empty($generatedPassword)) {
+                $this->addFlash('error', 'Phone number is required to generate the password.');
+                return $this->redirectToRoute('list_client');
+            }
+
+            // Hash the generated password
+            $hashedPassword = $passwordHasher->hashPassword($client, $generatedPassword);
+            $client->setPassword($hashedPassword);
+
+            // Set the role and creation date
+            $role = $entityManager->getRepository(Role::class)->findOneBy(['name' => 'ROLE_CLIENT']);
+            $client->setRole($role);
+            $client->setCreatedAt(new \DateTimeImmutable());
+
+            // Persist the admin user
+            $entityManager->persist($client);
+            $entityManager->flush();
+
+            // Add a success flash message
+            $this->addFlash('success', 'Client created successfully with the password: ' . $generatedPassword);
+            return $this->redirectToRoute('list_client');
+        }
+
+        return $this->render('user/admin/list_Clients.html.twig', [
+            'formx' => $formx->createView(),
+            'form' => $form->createView(),
+            'clients' => $clients,
+        ]);
+    }
+
+    private function filterClients(string $query, EntityManagerInterface $entityManager, Role $roleClient): array
+    {
+        return $entityManager->getRepository(User::class)->createQueryBuilder('u')
+            ->where('u.role = :role')
+            ->andWhere('u.name LIKE :query OR u.last_name LIKE :query OR u.email LIKE :query OR u.phone LIKE :query')
+            ->setParameter('role', $roleClient)
+            ->setParameter('query', '%' . $query . '%')
+            ->getQuery()
+            ->getResult();
+    }
+
+    #[Route('/admin/deleteClient/{id}', name: 'delete_client')]
+    public function deleteClient(EntityManagerInterface $entityManager, int $id): Response
+    {
+        $client = $entityManager->getRepository(User::class)->find($id);
+        if (!$client) {
+            throw $this->createNotFoundException('User non existant');
+        }
+        $entityManager->remove($client);
+        $entityManager->flush();
+        return $this->redirectToRoute('list_client');
+    }
+
+    #[Route('/admin/editClient/{id}', name: 'edit_client')]
+    public function editClient(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, int $id): Response
+    {
+        $client = $entityManager->getRepository(User::class)->find($id);
+        if (!$client) {
+            throw $this->createNotFoundException('Client not found');
+        }
+        $form = $this->createForm(UserType::class, $client);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($form->get('password')->getData()) {
+                $hashedPassword = $passwordHasher->hashPassword($client, $client->getPassword());
+                $client->setPassword($hashedPassword);
+            }
+            $entityManager->flush();
+            $this->addFlash('success', 'Client updated successfully!');
+            return $this->redirectToRoute('list_client');
+        }
+        return $this->render('user/admin/edit_client.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    private $uploadsDirectory;
+
+    public function __construct(string $uploadsDirectory)
+    {
+        $this->uploadsDirectory = $uploadsDirectory;
+    }
+
+    #[Route('/admin/profile', name: 'admin_profile')]
+    public function profile(TokenStorageInterface $tokenStorage, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $token = $tokenStorage->getToken();
+        if (!$token) {
+            throw $this->createAccessDeniedException('Token not found or not authenticated.');
+        }
+
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('User not found or not authenticated.');
+        }
+
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $form = $this->createForm(ProfileType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($form->get('password')->getData()) {
+                $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
+                $user->setPassword($hashedPassword);
+            }
+
+            if ($form->get('imageFile')->getData()) {
+                $file = $form->get('imageFile')->getData();
+                $fileName = md5(uniqid()) . '.' . $file->guessExtension();
+                try {
+                    $file->move($this->uploadsDirectory, $fileName);
+                    $user->setImagePath($fileName);
+                } catch (FileException $e) {
+                    // Handle file upload error
+                    $this->addFlash('error', 'There was an error uploading your profile image.');
+                    return $this->redirectToRoute('admin_profile');
+                }
+            }
+
+            $entityManager->flush();
+            $this->addFlash('success', 'Profile updated successfully!');
+            return $this->redirectToRoute('admin_profile');
+        }
+
+        return $this->render('user/admin/profile.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/admin/profile/change-password', name: 'admin_change_password')]
+    public function changePassword(TokenStorageInterface $tokenStorage, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $token = $tokenStorage->getToken();
+        if (!$token) {
+            throw $this->createAccessDeniedException('Token not found or not authenticated.');
+        }
+
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('User not found or not authenticated.');
+        }
+
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $form = $this->createForm(ChangePasswordType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $currentPassword = $form->get('currentPassword')->getData();
+            $newPassword = $form->get('newPassword')->getData();
+            $confirmNewPassword = $form->get('confirmNewPassword')->getData();
+
+            if (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
+                $this->addFlash('error', 'Current password is incorrect.');
+                return $this->redirectToRoute('admin_change_password');
+            }
+
+            if ($newPassword !== $confirmNewPassword) {
+                $this->addFlash('error', 'New password and confirm password do not match.');
+                return $this->redirectToRoute('admin_change_password');
+            }
+
+            $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+            $user->setPassword($hashedPassword);
+
+            $entityManager->flush();
+            $this->addFlash('success', 'Password changed successfully!');
+            return $this->redirectToRoute('admin_profile');
+        }
+
+        return $this->render('user/admin/change_password.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+}
