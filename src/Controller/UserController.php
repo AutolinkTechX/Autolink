@@ -2,12 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Entreprise;
 use App\Entity\Role;
 use App\Entity\User;
 use App\Form\CreateAccountType;
 use App\Form\LoginType;
 use App\Form\AdminLoginType;
 use App\Form\UserType;
+use App\Form\EntrepriseType;
 use App\Form\SearchType;
 use App\Form\ProfileType;
 use App\Form\ChangePasswordType;
@@ -364,6 +366,115 @@ final class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/admin/listEntreprises', name: 'list_entreprise')]
+    public function listEntreprises(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $roleEntreprise = $entityManager->getRepository(Role::class)->findOneBy(['name' => 'ROLE_ENTREPRISE']);
+        $form = $this->createForm(SearchType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $query = $form->get('query')->getData();
+            if ($query) {
+                $entreprises = $this->filterEntreprises($query, $entityManager, $roleEntreprise);
+            } else {
+                $entreprises = $roleEntreprise ? $entityManager->getRepository(Entreprise::class)->findBy(['role' => $roleEntreprise]) : [];
+            }
+        } else {
+            $entreprises = $roleEntreprise ? $entityManager->getRepository(Entreprise::class)->findBy(['role' => $roleEntreprise]) : [];
+        }
+
+        $entreprise = new Entreprise();
+        // Create the form
+        $formx = $this->createForm(EntrepriseType::class, $entreprise);
+        $formx->handleRequest($request);
+
+        if ($formx->isSubmitted() && $formx->isValid()) {
+            // Check if a user with the same email already exists
+            $existingUser = $entityManager->getRepository(Entreprise::class)->findOneBy(['email' => $entreprise->getEmail()]);
+            if ($existingUser) {
+                $this->addFlash('error', 'A user with this email address already exists.');
+                return $this->redirectToRoute('list_entreprise');
+            }
+
+            // Generate password based on phone number
+            $generatedPassword = $entreprise->getPhone() . '.entreprise';
+            if (empty($generatedPassword)) {
+                $this->addFlash('error', 'Phone number is required to generate the password.');
+                return $this->redirectToRoute('list_entreprise');
+            }
+
+            // Hash the generated password
+            $hashedPassword = $passwordHasher->hashPassword($entreprise, $generatedPassword);
+            $entreprise->setPassword($hashedPassword);
+
+            // Set the role and creation date
+            $role = $entityManager->getRepository(Role::class)->findOneBy(['name' => 'ROLE_ENTREPRISE']);
+            $entreprise->setRole($role);
+            $entreprise->setCreatedAt(new \DateTimeImmutable());
+
+            // Persist the admin user
+            $entityManager->persist($entreprise);
+            $entityManager->flush();
+
+            // Add a success flash message
+            $this->addFlash('success', 'Entreprise created successfully with the password: ' . $generatedPassword);
+            return $this->redirectToRoute('list_entreprise');
+        }
+
+        return $this->render('user/admin/list_Entreprises.html.twig', [
+            'formx' => $formx->createView(),
+            'form' => $form->createView(),
+            'entreprises' => $entreprises,
+        ]);
+    }
+
+    private function filterEntreprises(string $query, EntityManagerInterface $entityManager, Role $roleEntreprise): array
+    {
+        return $entityManager->getRepository(Entreprise::class)->createQueryBuilder('u')
+            ->where('u.role = :role')
+            ->andWhere('u.company_name LIKE :query OR u.email LIKE :query OR u.phone LIKE :query')
+            ->setParameter('role', $roleEntreprise)
+            ->setParameter('query', '%' . $query . '%')
+            ->getQuery()
+            ->getResult();
+    }
+
+    #[Route('/admin/deleteEntreprise/{id}', name: 'delete_entreprise')]
+    public function deleteEntreprise(EntityManagerInterface $entityManager, int $id): Response
+    {
+        $entreprise = $entityManager->getRepository(Entreprise::class)->find($id);
+        if (!$entreprise) {
+            throw $this->createNotFoundException('User non existant');
+        }
+        $entityManager->remove($entreprise);
+        $entityManager->flush();
+        return $this->redirectToRoute('list_entreprise');
+    }
+
+    #[Route('/admin/editEntreprise/{id}', name: 'edit_entreprise')]
+    public function editEntreprise(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, int $id): Response
+    {
+        $entreprise = $entityManager->getRepository(Entreprise::class)->find($id);
+        if (!$entreprise) {
+            throw $this->createNotFoundException('Entreprise not found');
+        }
+        $form = $this->createForm(EntrepriseType::class, $entreprise);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($form->get('password')->getData()) {
+                $hashedPassword = $passwordHasher->hashPassword($entreprise, $entreprise->getPassword());
+                $entreprise->setPassword($hashedPassword);
+            }
+            $entityManager->flush();
+            $this->addFlash('success', 'Entreprise updated successfully!');
+            return $this->redirectToRoute('list_entreprise');
+        }
+        return $this->render('user/admin/edit_entreprise.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
     private $uploadsDirectory;
 
     public function __construct(string $uploadsDirectory)
@@ -430,33 +541,27 @@ final class UserController extends AbstractController
         if (!$user instanceof User) {
             throw $this->createAccessDeniedException('User not found or not authenticated.');
         }
-
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $form = $this->createForm(ChangePasswordType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $currentPassword = $form->get('currentPassword')->getData();
-            $newPassword = $form->get('newPassword')->getData();
-            $confirmNewPassword = $form->get('confirmNewPassword')->getData();
+            $formData = $form->getData();
+            $currentPassword = $formData['currentPassword'];
+            $newPassword = $formData['password'];
 
             if (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
                 $this->addFlash('error', 'Current password is incorrect.');
                 return $this->redirectToRoute('admin_change_password');
             }
 
-            if ($newPassword !== $confirmNewPassword) {
-                $this->addFlash('error', 'New password and confirm password do not match.');
-                return $this->redirectToRoute('admin_change_password');
-            }
-
             $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
             $user->setPassword($hashedPassword);
-
             $entityManager->flush();
+
             $this->addFlash('success', 'Password changed successfully!');
-            return $this->redirectToRoute('admin_profile');
+            return $this->redirectToRoute('admin_change_password');
         }
 
         return $this->render('user/admin/change_password.html.twig', [

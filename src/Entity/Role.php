@@ -30,11 +30,18 @@ class Role
     #[ORM\ManyToMany(targetEntity: Menu::class, inversedBy: 'roles')]
     private Collection $menus;
 
+    /**
+     * @var Collection<int, Entreprise>
+     */
+    #[ORM\OneToMany(targetEntity: Entreprise::class, mappedBy: 'role')]
+    private Collection $entreprises;
+
 
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->menus = new ArrayCollection();
+        $this->entreprises = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -104,6 +111,36 @@ class Role
     public function removeMenu(Menu $menu): static
     {
         $this->menus->removeElement($menu);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Entreprise>
+     */
+    public function getEntreprises(): Collection
+    {
+        return $this->entreprises;
+    }
+
+    public function addEntreprise(Entreprise $entreprise): static
+    {
+        if (!$this->entreprises->contains($entreprise)) {
+            $this->entreprises->add($entreprise);
+            $entreprise->setRole($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEntreprise(Entreprise $entreprise): static
+    {
+        if ($this->entreprises->removeElement($entreprise)) {
+            // set the owning side to null (unless already changed)
+            if ($entreprise->getRole() === $this) {
+                $entreprise->setRole(null);
+            }
+        }
 
         return $this;
     }

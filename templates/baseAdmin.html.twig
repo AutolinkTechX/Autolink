@@ -41,7 +41,7 @@
 
         <!-- Nav Item - Dashboard -->
         <li class="nav-item">
-            <a class="nav-link" href="dashboard">
+            <a class="nav-link" href="{{ path('admin_dashboard') }}">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>Dashboard</span></a>
         </li>
@@ -100,8 +100,9 @@
             </a>
             <div id="userDropdownMenu" class="collapse" aria-labelledby="headingUser" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
-                    <a class="collapse-item" href="listAdmins">Admins</a>
-                    <a class="collapse-item" href="listClients">Customers</a>
+                    <a class="collapse-item" href="{{ path('list_admin') }}">Admins</a>
+                    <a class="collapse-item" href="{{ path('list_client') }}">Customers</a>
+                    <a class="collapse-item" href="{{ path('list_entreprise') }}">Entreprises</a>
                 </div>
             </div>
         </li>
@@ -320,7 +321,7 @@
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="profile">
+                                <a class="dropdown-item" href="{{ path('admin_profile') }}">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Profile
                                 </a>
@@ -399,7 +400,7 @@
                 <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="logoutAdmin">Logout</a>
+                    <a class="btn btn-primary" href="{{ path('admin_logout') }}">Logout</a>
                 </div>
             </div>
         </div>

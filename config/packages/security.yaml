@@ -29,7 +29,7 @@ security:
                 enable_csrf: true
                 csrf_token_id: admin_authenticate
             logout:
-                path: admin_logout
+                path: /admin/logoutAdmin
                 target: admin_login
             security: true
             entry_point: form_login
@@ -52,7 +52,9 @@ security:
     # Access control rules (must be defined in a single block)
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/entreprise-login, roles: PUBLIC_ACCESS }
         - { path: ^/admin-login, roles: PUBLIC_ACCESS }
         - { path: ^/create-account, roles: PUBLIC_ACCESS }
+        - { path: ^/create-account-entreprise, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/profile, roles: ROLE_USER }
