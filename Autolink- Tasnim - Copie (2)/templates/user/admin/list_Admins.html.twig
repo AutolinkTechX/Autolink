@@ -1,0 +1,96 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Admin List - Autolink{% endblock %}
+
+{% block page_title %}Admin List{% endblock %}
+
+{% block content %}
+    <!-- Form to Add a New Admin -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Add New Admin</h6>
+        </div>
+        {# Flash messages #}
+            <div class="flash-messages">
+                {% for type, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ type }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        <div class="card-body">
+            {{ form_start(formx, {'attr': {'class': 'form-horizontal'}}) }}
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form_row(formx.nom, { 'attr': {'class': 'form-control'} }) }}
+                </div>
+                <div class="col-md-6">
+                    {{ form_row(formx.prenom, { 'attr': {'class': 'form-control'} }) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form_row(formx.email, { 'attr': {'class': 'form-control'} }) }}
+                </div>
+                <div class="col-md-6">
+                    {{ form_row(formx.password, { 'attr': {'class': 'form-control'} }) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form_row(formx.numeroTel, { 'attr': {'class': 'form-control'} }) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    {{ form_row(formx.submit, { 'attr': {'class': 'btn btn-primary'} }) }}
+                </div>
+            </div>
+            {{ form_end(formx) }}
+        </div>
+    </div>
+
+    <!-- List of Admins -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">List of Admins</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Prenom</th>
+                            <th>Email</th>
+                            <th>Password</th>
+                            <th>Telephone</th>
+                            <th>Date_creation</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for admin in admins %}
+                            <tr>
+                                <td>{{ admin.id }}</td>
+                                <td>{{ admin.nom }}</td>
+                                <td>{{ admin.prenom }}</td>
+                                <td>{{ admin.email }}</td>
+                                <td>{{ admin.password }}</td>
+                                <td>{{ admin.numeroTel }}</td>
+                                <td>{{ admin.dateCreation|date('Y-m-d H:i:s') }}</td>
+                                <td>
+                                    <a href="{{ path('edit_admin', { id: admin.id }) }}" class="btn btn-primary btn-sm">Edit</a>
+                                    <a href="{{ path('delete_admin', { id: admin.id }) }}" onclick="return confirm('Are you sure you want to delete this Admin ?');" class="btn btn-danger btn-sm">Delete</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

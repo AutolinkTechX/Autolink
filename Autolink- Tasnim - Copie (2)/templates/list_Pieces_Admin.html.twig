@@ -1,0 +1,106 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Products for Selling{% endblock %}
+
+{% block page_title %}Products for Selling{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Product List</h6>
+            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addProductModal">Add Product</a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="productTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Image</th>
+                            <th>Creation Date</th>
+                            <th>Compatible Cars</th>
+                            <th>Stock</th>
+                            <th>Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in pieceRecyclee %}
+                        <tr>
+                            <td>{{ product.id_pieceRecyclee }}</td>
+                            <td>{{ product.nom }}</td>
+                            <td>{{ product.description }}</td>
+                            <td>{{ product.prix }} $</td>
+                            <td><img src="{{ product.image }}" alt="Product Image" width="50"></td>
+                            <td>{{ product.date_creation }}</td>
+                            <td>{{ product.voituresCompatible }}</td>
+                            <td>{{ product.quantiteDispo }}</td>
+                            <td>{{ product.categorie }}</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-warning">Edit</a>
+                                <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" class="form-control" id="productName">
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">Description</label>
+                        <textarea class="form-control" id="productDescription"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Price</label>
+                        <input type="number" class="form-control" id="productPrice">
+                    </div>
+                    <div class="form-group">
+                        <label for="productImage">Image URL</label>
+                        <input type="text" class="form-control" id="productImage">
+                    </div>
+                    <div class="form-group">
+                        <label for="productCreationDate">Creation Date</label>
+                        <input type="date" class="form-control" id="productCreationDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="productCompatibleCars">Compatible Cars</label>
+                        <input type="text" class="form-control" id="productCompatibleCars">
+                    </div>
+                    <div class="form-group">
+                        <label for="productStock">Stock</label>
+                        <input type="number" class="form-control" id="productStock">
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Category</label>
+                        <input type="text" class="form-control" id="productCategory">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
