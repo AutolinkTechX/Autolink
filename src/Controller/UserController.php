@@ -235,23 +235,22 @@ final class UserController extends AbstractController
     }
 
     #[Route('/admin/editAdmin/{id}', name: 'edit_admin')]
-    public function editAdmin(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, int $id): Response
+    public function editAdmin(Request $request, EntityManagerInterface $entityManager, int $id): Response
     {
         $admin = $entityManager->getRepository(User::class)->find($id);
         if (!$admin) {
             throw $this->createNotFoundException('Admin not found');
         }
+
         $form = $this->createForm(UserType::class, $admin);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($form->get('password')->getData()) {
-                $hashedPassword = $passwordHasher->hashPassword($admin, $admin->getPassword());
-                $admin->setPassword($hashedPassword);
-            }
             $entityManager->flush();
             $this->addFlash('success', 'Admin updated successfully!');
             return $this->redirectToRoute('list_admin');
         }
+
         return $this->render('user/admin/edit_admin.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -344,7 +343,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/admin/editClient/{id}', name: 'edit_client')]
-    public function editClient(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, int $id): Response
+    public function editClient(Request $request, EntityManagerInterface $entityManager, int $id): Response
     {
         $client = $entityManager->getRepository(User::class)->find($id);
         if (!$client) {
@@ -352,15 +351,13 @@ final class UserController extends AbstractController
         }
         $form = $this->createForm(UserType::class, $client);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($form->get('password')->getData()) {
-                $hashedPassword = $passwordHasher->hashPassword($client, $client->getPassword());
-                $client->setPassword($hashedPassword);
-            }
             $entityManager->flush();
             $this->addFlash('success', 'Client updated successfully!');
             return $this->redirectToRoute('list_client');
         }
+
         return $this->render('user/admin/edit_client.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -453,7 +450,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/admin/editEntreprise/{id}', name: 'edit_entreprise')]
-    public function editEntreprise(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, int $id): Response
+    public function editEntreprise(Request $request, EntityManagerInterface $entityManager, int $id): Response
     {
         $entreprise = $entityManager->getRepository(Entreprise::class)->find($id);
         if (!$entreprise) {
@@ -461,15 +458,13 @@ final class UserController extends AbstractController
         }
         $form = $this->createForm(EntrepriseType::class, $entreprise);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($form->get('password')->getData()) {
-                $hashedPassword = $passwordHasher->hashPassword($entreprise, $entreprise->getPassword());
-                $entreprise->setPassword($hashedPassword);
-            }
             $entityManager->flush();
             $this->addFlash('success', 'Entreprise updated successfully!');
             return $this->redirectToRoute('list_entreprise');
         }
+
         return $this->render('user/admin/edit_entreprise.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -489,23 +484,16 @@ final class UserController extends AbstractController
         if (!$token) {
             throw $this->createAccessDeniedException('Token not found or not authenticated.');
         }
-
         $user = $token->getUser();
         if (!$user instanceof User) {
             throw $this->createAccessDeniedException('User not found or not authenticated.');
         }
-
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $form = $this->createForm(ProfileType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($form->get('password')->getData()) {
-                $hashedPassword = $passwordHasher->hashPassword($user, $user->getPassword());
-                $user->setPassword($hashedPassword);
-            }
-
             if ($form->get('imageFile')->getData()) {
                 $file = $form->get('imageFile')->getData();
                 $fileName = md5(uniqid()) . '.' . $file->guessExtension();

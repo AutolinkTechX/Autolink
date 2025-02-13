@@ -1,0 +1,72 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Recyclable Materials{% endblock %}
+
+{% block page_title %}Recyclable Materials{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center vh-50">
+    <div class="form-container rounded p-5 shadow" style="width:600px;">
+        <div class="bg-light rounded p-4">
+            {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+
+            <!-- Nom de l'entreprise -->
+            <div class="input-group mb-4">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-building text-secondary"></i>
+                </span>
+                {{ form_widget(form.name, {'attr': {'class': 'form-control border-start-0', 'placeholder': 'Entrez le nom de votre entreprise'}}) }}
+            </div>
+
+            <!-- Adresse email -->
+            <div class="input-group mb-4">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-envelope text-secondary"></i>
+                </span>
+                {{ form_widget(form.email, {'attr': {'class': 'form-control border-start-0', 'placeholder': 'Entrez votre adresse email'}}) }}
+            </div>
+
+            <!-- Type de recyclage -->
+            <div class="input-group mb-4">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-recycle text-secondary"></i>
+                </span>
+                {{ form_widget(form.typeRecyclage, {'attr': {'class': 'form-control border-start-0'}}) }}
+            </div>
+
+            <!-- Adresse -->
+            <div class="input-group mb-4">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-map-marker-alt text-secondary"></i>
+                </span>
+                {{ form_widget(form.address, {'attr': {'class': 'form-control border-start-0', 'placeholder': "Entrez l'adresse de l'entreprise"}}) }}
+            </div>
+
+            <!-- Téléphone -->
+            <div class="input-group mb-4">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-phone text-secondary"></i>
+                </span>
+                {{ form_widget(form.phone, {'attr': {'class': 'form-control border-start-0', 'placeholder': 'Numéro de téléphone'}}) }}
+            </div>
+
+            <!-- Tax Code -->
+            <div class="input-group mb-4">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-file-invoice-dollar text-secondary"></i>
+                </span>
+                {{ form_widget(form.taxcode, {'attr': {'class': 'form-control border-start-0', 'placeholder': 'Tax Code'}}) }}
+            </div>
+
+            <!-- Bouton de soumission -->
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-dark w-100 py-2" style="background-color: #b5602c;">
+                    Enregistrer
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

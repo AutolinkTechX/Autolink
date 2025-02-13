@@ -21,3 +21,7 @@ services:
     App\Controller\UserController:
         arguments:
             $uploadsDirectory: '%uploads_directory%'
+
+    App\Controller\ArticleController:
+        arguments:
+            $uploadsDirectory: '%uploads_directory%'

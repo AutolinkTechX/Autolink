@@ -8,16 +8,6 @@
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Add New Admin</h6>
         </div>
-        {# Flash messages #}
-        <div class="flash-messages">
-            {% for type, messages in app.flashes %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ type }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endfor %}
-        </div>
         <div class="card-body">
             {{ form_start(formx, {'attr': {'class': 'form-horizontal'}}) }}
             <div class="row">
