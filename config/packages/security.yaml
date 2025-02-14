@@ -1,0 +1,60 @@
+# config/packages/security.yaml
+security:
+    # Configure password hashing
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        App\Entity\User:
+            algorithm: auto
+    # Configure user providers
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email # The field in your User entity used as the username (e.g., email)
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        # Admin firewall
+        admin:
+            pattern: ^/admin
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: admin_login
+                check_path: admin_login
+                default_target_path: admin_dashboard
+                username_parameter: _username
+                password_parameter: _password
+                enable_csrf: true
+                csrf_token_id: admin_authenticate
+            logout:
+                path: /admin/logoutAdmin
+                target: admin_login
+            security: true
+            entry_point: form_login
+        # Main firewall (matches all other routes)
+        main:
+            pattern: ^/
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: login
+                check_path: login
+                default_target_path: create_account
+                username_parameter: _username
+                password_parameter: _password
+                enable_csrf: true
+                csrf_token_id: authenticate
+            logout:
+                path: app_logout
+                target: login
+    # Access control rules (must be defined in a single block)
+    access_control:
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/entreprise-login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin-login, roles: PUBLIC_ACCESS }
+        - { path: ^/create-account, roles: PUBLIC_ACCESS }
+        - { path: ^/create-account-entreprise, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/profile, roles: ROLE_USER }
