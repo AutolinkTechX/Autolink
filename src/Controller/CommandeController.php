@@ -160,7 +160,7 @@ final class CommandeController extends AbstractController
         ]));
     }
     
-
+/*
     #[Route('/commande/annulation', name: 'commande_annulation')]
     public function annulerCommande(): Response
     {

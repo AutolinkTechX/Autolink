@@ -19,7 +19,7 @@ class Commande
     private ?\DateTimeInterface $dateCommande = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $etat = null;
+    private ?string $modePaiement = null;
 
     #[ORM\Column]
     private ?float $total = null;
@@ -52,14 +52,14 @@ class Commande
         return $this;
     }
 
-    public function getEtat(): ?string
+    public function getModePaiement(): ?string
     {
-        return $this->etat;
+        return $this->modePaiement;
     }
 
-    public function setEtat(string $etat): static
+    public function setModePaiement(string $modePaiement): self
     {
-        $this->etat = $etat;
+        $this->modePaiement = $modePaiement;
         return $this;
     }
 
