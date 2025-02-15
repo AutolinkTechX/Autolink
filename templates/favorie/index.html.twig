@@ -35,9 +35,9 @@
                                             <!-- Image du produit -->
                                             <div class="product__item__pic set-bg" style="">
                                                 <ul class="product__item__pic__hover">
-                                                    <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                                                    <li><a href="{{ path('supprimer', { 'id': favorie.id }) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article des favoris ?')"><i class="fa fa-times"></i></a></li>
-                                                    <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
+                                                    <li><a href="{{ path('app_details', {'id': favorie.article.id}) }}"><i class="fa fa-retweet"></i></a></li>
+                                                    <li><a href="{{ path('supprimer', { 'id': favorie.id }) }}" ><i class="fa fa-times"></i></a></li>
+                                                    <li><a href="{{ path('add_to_cart', {'id': favorie.article.id}) }}"><i class="fa fa-shopping-cart"></i></a></li>
                                                 </ul>
                                             </div>
 
@@ -61,6 +61,25 @@
             </div>
         </div>
     </section>
+
+ 
+ {% for message in app.flashes('success') %}
+    <div class="modal show d-block popup-message" style="background: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a href="{{ path('app_favorie') }}" class="btn-close">✖</a>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-success">
+                        {{ message }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
 {% endblock %}
 
 

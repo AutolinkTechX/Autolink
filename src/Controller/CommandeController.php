@@ -41,6 +41,7 @@ final class CommandeController extends AbstractController
             $cartItem->setArticle($article);
             $cartItem->setPrixUnitaire($article->getPrix());
             $cartItem->setQuantite(1);
+           // $cartItem->setImage($article->getImage());
             $em->persist($cartItem);
         }
 
