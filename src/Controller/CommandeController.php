@@ -161,4 +161,29 @@ final class CommandeController extends AbstractController
     }
     
 
+    #[Route('/commande/annulation', name: 'commande_annulation')]
+    public function annulerCommande(): Response
+    {
+        $this->addFlash('warning', 'Le paiement a été annulé.');
+        return $this->redirectToRoute('app_commande'); // Remplacez par le nom de votre route boutique
+    }
+
+    /**
+     * @Route("/payment", name="payment")
+     */
+/*
+     #[Route('/payment', name: 'payment')]
+    public function payment(Request $request)
+    {
+        // Vous pouvez définir une variable pour afficher la modal
+        $showCardModal = $request->query->get('showCardModal', false);
+        $showCashModal = $request->query->get('showCashModal', false);
+
+        // Rendre la vue avec les variables
+        return $this->render('payment/index.html.twig', [
+            'showCardModal' => $showCardModal,
+            'showCashModal' => $showCashModal,
+        ]);
+    }
+*/
 }

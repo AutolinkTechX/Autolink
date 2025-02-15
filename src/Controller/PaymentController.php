@@ -2,50 +2,46 @@
 
 namespace App\Controller;
 
-use Dompdf\Dompdf;
-use Dompdf\Options;
-use App\Entity\Article;
-use App\Entity\ListArticle;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Response;
 use App\Repository\ListArticleRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 final class PaymentController extends AbstractController
 {
     private $listarticleRepository;
 
-    // Injecter le repository ListArticleRepository dans le contrôleur
     public function __construct(ListArticleRepository $listarticleRepository)
     {
         $this->listarticleRepository = $listarticleRepository;
     }
 
     #[Route('/payment', name: 'app_payment')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        // Utiliser le repository pour récupérer tous les articles
         $paniers = $this->listarticleRepository->findAll();
 
-        // Calculer les totaux du panier
         $totalHT = 0;
         foreach ($paniers as $panier) {
             $totalHT += $panier->getQuantite() * $panier->getPrixUnitaire();
         }
 
-        // Calculer la TVA
         $tva = $totalHT * 0.20;
         $totalTTC = $totalHT + $tva;
 
-        // Renvoyer les données au template
+        $showCardModal = filter_var($request->query->get('showCardModal', false), FILTER_VALIDATE_BOOLEAN);
+        $showCashModal = filter_var($request->query->get('showCashModal', false), FILTER_VALIDATE_BOOLEAN);
+
         return $this->render('payment/index.html.twig', [
             'paniers' => $paniers,
             'totalHT' => $totalHT,
             'tva' => $tva,
             'totalTTC' => $totalTTC,
+            'showCardModal' => $showCardModal,
+            'showCashModal' => $showCashModal,
         ]);
     }
 }
+
+
