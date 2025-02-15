@@ -9,7 +9,7 @@ use App\Form\EntrepriseLoginType;
 use App\Form\AdminLoginType;
 use App\Form\UserType;
 use App\Form\SearchType;
-use App\Form\ProfileType;
+use App\Form\ProfileEntrepriseType;
 use App\Form\ChangePasswordType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -116,5 +116,114 @@ final class EntrepriseController extends AbstractController
         ]);
     }
 
-    
+    #[Route('/entreprise/dashboard', name: 'entreprise_dashboard')]
+    public function dashboard(EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ENTREPRISE');
+        $entreprises = $entityManager->getRepository(Entreprise::class)->findAll();
+
+        return $this->render('user/entreprise/dashboard.html.twig', [
+            'entreprises' => $entreprises,
+        ]);
+    }
+
+    #[Route('/entreprise/listPartners', name: 'list_partners')]
+    public function listPartners(EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ENTREPRISE');
+        
+        // Fetch the list of partners
+        $partners = $entityManager->getRepository(Entreprise::class)->findAll();
+        
+        // Render the template and pass the partners
+        return $this->render('user/entreprise/list_partners.html.twig', [
+            'partners' => $partners,
+        ]);
+    }
+
+    private $uploadsDirectory;
+
+    public function __construct(string $uploadsDirectory)
+    {
+        $this->uploadsDirectory = $uploadsDirectory;
+    }
+
+    #[Route('/entreprise/profile', name: 'entreprise_profile')]
+    public function profile(TokenStorageInterface $tokenStorage, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $token = $tokenStorage->getToken();
+        if (!$token) {
+            throw $this->createAccessDeniedException('Token not found or not authenticated.');
+        }
+        $user = $token->getUser();
+        if (!$user instanceof Entreprise) {
+            throw $this->createAccessDeniedException('Entreprise not found or not authenticated.');
+        }
+        $this->denyAccessUnlessGranted('ROLE_ENTREPRISE');
+
+        $form = $this->createForm(ProfileEntrepriseType::class, $user);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($form->get('imageFile')->getData()) {
+                $file = $form->get('imageFile')->getData();
+                $fileName = md5(uniqid()) . '.' . $file->guessExtension();
+                try {
+                    $file->move($this->uploadsDirectory, $fileName);
+                    $user->setImagePath($fileName);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'There was an error uploading your profile image.');
+                    return $this->redirectToRoute('entreprise_profile');
+                }
+            }
+
+            $entityManager->flush();
+            $this->addFlash('success', 'Profile updated successfully!');
+            return $this->redirectToRoute('entreprise_profile');
+        }
+
+        return $this->render('user/entreprise/profile.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/entreprise/profile/change-password', name: 'entreprise_change_password')]
+    public function changePassword(TokenStorageInterface $tokenStorage, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $token = $tokenStorage->getToken();
+        if (!$token) {
+            throw $this->createAccessDeniedException('Token not found or not authenticated.');
+        }
+
+        $user = $token->getUser();
+        if (!$user instanceof Entreprise) {
+            throw $this->createAccessDeniedException('Entreprise not found or not authenticated.');
+        }
+        $this->denyAccessUnlessGranted('ROLE_ENTREPRISE');
+
+        $form = $this->createForm(ChangePasswordType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $formData = $form->getData();
+            $currentPassword = $formData['currentPassword'];
+            $newPassword = $formData['password'];
+
+            if (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
+                $this->addFlash('error', 'Current password is incorrect.');
+                return $this->redirectToRoute('entreprise_change_password');
+            }
+
+            $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+            $user->setPassword($hashedPassword);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Password changed successfully!');
+            return $this->redirectToRoute('entreprise_change_password');
+        }
+
+        return $this->render('user/entreprise/change_password.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
 }

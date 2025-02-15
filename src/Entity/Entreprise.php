@@ -1,6 +1,5 @@
 <?php
 namespace App\Entity;
-
 use App\Repository\EntrepriseRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -45,6 +44,14 @@ final class Entreprise implements UserInterface, PasswordAuthenticatedUserInterf
 
     #[ORM\Column(length: 255)]
     private ?string $field = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imagePath = null;
+
+    public function __construct()
+    {
+        $this->address = new Address();
+    }
 
     public function getId(): ?int
     {
@@ -173,7 +180,17 @@ final class Entreprise implements UserInterface, PasswordAuthenticatedUserInterf
     public function setField(string $field): static
     {
         $this->field = $field;
+        return $this;
+    }
 
+    public function getImagePath(): ?string
+    {
+        return $this->imagePath;
+    }
+
+    public function setImagePath(?string $imagePath): static
+    {
+        $this->imagePath = $imagePath;
         return $this;
     }
 }
