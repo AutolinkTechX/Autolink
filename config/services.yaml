@@ -1,15 +1,14 @@
-# config/services.yaml
 parameters:
     uploads_directory: '%kernel.project_dir%/public/uploads'
+    materiel_image_directory: '%kernel.project_dir%/public/materielimage'
 
 services:
-    # default configuration for services in *this* file
+    # Configuration par défaut pour l'autowiring
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
+    # Injection automatique des services
     App\:
         resource: '../src/'
         exclude:
@@ -17,7 +16,11 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # Explicitly define the UserController service and inject the uploads_directory parameter
+    # Injection explicite des paramètres pour les contrôleurs
     App\Controller\UserController:
         arguments:
             $uploadsDirectory: '%uploads_directory%'
+
+    App\Controller\MaterielRecyclableController:
+        arguments:
+             $projectDir: '%materiel_image_directory%'

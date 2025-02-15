@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le Produit Recyclable{% endblock %}
+
+{% block body %}
+<div class="py-5">
+    <div class="container">
+        <h2 class="text-center text-primary">Modifier le Produit Recyclable</h2>
+        
+        <div class="bg-light p-4 rounded shadow"> 
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="p-4 border rounded">
+                        <h3 class="text-success">
+                            <i class="fa fa-edit mr-2"></i>Détails du Produit
+                        </h3>
+
+                        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'novalidate': 'novalidate'}}) }}
+
+                        <div class="form-group mb-4">
+                            {{ form_label(form.image, 'Image du Produit', {'label_attr': {'class': 'font-weight-bold text-secondary'}}) }}
+                            {{ form_widget(form.image, {'attr': {'class': 'form-control-file'}}) }}
+                            {{ form_errors(form.image) }}
+                            {% if form.vars.data and form.vars.data.getImage() %}
+                                <img src="{{ asset('materielimage/' ~ form.vars.data.getImage()) }}" 
+                                     alt="Image du Produit" class="img-fluid mt-2 border rounded" 
+                                     style="max-width: 100px;">
+                            {% endif %}
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.name, 'Nom du produit', {'label_attr': {'class': 'font-weight-bold'}}) }}
+                                    {{ form_widget(form.name, {'attr': {'class': 'form-control border-primary'}}) }}
+                                    {{ form_errors(form.name) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.datecreation, 'Date de création', {'label_attr': {'class': 'font-weight-bold'}}) }}
+                                    {{ form_widget(form.datecreation, {'attr': {'class': 'form-control border-success'}}) }}
+                                    {{ form_errors(form.datecreation) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            {{ form_label(form.description, 'Description', {'label_attr': {'class': 'font-weight-bold'}}) }}
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control border-warning', 'rows': 3}}) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.typemateriel, 'Type de matériau', {'label_attr': {'class': 'font-weight-bold'}}) }}
+                                    {{ form_widget(form.typemateriel, {'attr': {'class': 'form-control border-info'}}) }}
+                                    {{ form_errors(form.typemateriel) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.Entreprise, 'Entreprise', {'label_attr': {'class': 'font-weight-bold'}}) }}
+                                    {{ form_widget(form.Entreprise, {'attr': {'class': 'form-control border-danger'}}) }}
+                                    {{ form_errors(form.Entreprise) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg d-block mx-auto">
+                            <i class="fa fa-save mr-2"></i>Mettre à jour
+                        </button>
+
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

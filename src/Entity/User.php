@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -47,6 +49,24 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Embedded(class: Address::class)]
     private Address $address;
+
+    /**
+     * @var Collection<int, MaterielRecyclable>
+     */
+    #[ORM\OneToMany(targetEntity: MaterielRecyclable::class, mappedBy: 'User')]
+    private Collection $materielRecyclables;
+
+    /**
+     * @var Collection<int, AccordRecyclage>
+     */
+    #[ORM\OneToMany(targetEntity: AccordRecyclage::class, mappedBy: 'User')]
+    private Collection $accordRecyclages;
+
+    public function __construct()
+    {
+        $this->materielRecyclables = new ArrayCollection();
+        $this->accordRecyclages = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -170,6 +190,66 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setAddress(Address $address): self
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MaterielRecyclable>
+     */
+    public function getMaterielRecyclables(): Collection
+    {
+        return $this->materielRecyclables;
+    }
+
+    public function addMaterielRecyclable(MaterielRecyclable $materielRecyclable): static
+    {
+        if (!$this->materielRecyclables->contains($materielRecyclable)) {
+            $this->materielRecyclables->add($materielRecyclable);
+            $materielRecyclable->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMaterielRecyclable(MaterielRecyclable $materielRecyclable): static
+    {
+        if ($this->materielRecyclables->removeElement($materielRecyclable)) {
+            // set the owning side to null (unless already changed)
+            if ($materielRecyclable->getUser() === $this) {
+                $materielRecyclable->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AccordRecyclage>
+     */
+    public function getAccordRecyclages(): Collection
+    {
+        return $this->accordRecyclages;
+    }
+
+    public function addAccordRecyclage(AccordRecyclage $accordRecyclage): static
+    {
+        if (!$this->accordRecyclages->contains($accordRecyclage)) {
+            $this->accordRecyclages->add($accordRecyclage);
+            $accordRecyclage->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccordRecyclage(AccordRecyclage $accordRecyclage): static
+    {
+        if ($this->accordRecyclages->removeElement($accordRecyclage)) {
+            // set the owning side to null (unless already changed)
+            if ($accordRecyclage->getUser() === $this) {
+                $accordRecyclage->setUser(null);
+            }
+        }
 
         return $this;
     }

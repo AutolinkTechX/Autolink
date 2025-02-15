@@ -28,7 +28,7 @@ final class EntrepriseController extends AbstractController
     #[Route('/entreprise', name: 'app_entreprise')]
     public function index(): Response
     {
-        return $this->render('entreprise/index.html.twig', [
+        return $this->render('user/index.html.twig', [
             'controller_name' => 'EntrepriseController',
         ]);
     }
@@ -70,7 +70,7 @@ final class EntrepriseController extends AbstractController
             return $this->redirectToRoute('entreprise_dashboard');
         }
 
-        return $this->render('user/entreprise/login.html.twig', [
+        return $this->render('user/login.html.twig', [
             'form' => $form->createView(),
             'last_username' => $lastUsername,
         ]);

@@ -1,0 +1,147 @@
+/* Global */
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Conteneur Principal */
+.container-payment {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    padding: 20px;
+    max-width: 900px;
+}
+
+/* Facture */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.card-body {
+    padding: 40px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+hr {
+    border: 1px solid #ddd;
+}
+
+/* Panneau Droit (Agrandir la hauteur) */
+.right-panel {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    flex-grow: 0.5; /* Permet d'étendre la largeur */
+    width: 400px; /* Largeur fixe */
+    min-height: 300px; /* Augmenter la hauteur minimale */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centrer le contenu verticalement */
+    gap: 15px;
+}
+
+/* Si tu veux forcer une hauteur plus grande */
+.right-panel {
+    height: 65vh; /* Prend toute la hauteur de l'écran */
+}
+
+
+/* Boutons de Paiement */
+.btn-payment {
+    background: #db966b;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100%;
+    border: none;
+    transition: background 0.3s ease;
+}
+
+.btn-payment:hover {
+    background: #cf9774;
+}
+
+.btn-pay {
+    background: #28a745;
+    color: white;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 18px;
+    width: 100%;
+    border: none;
+    transition: background 0.3s ease;
+}
+
+.btn-pay:hover {
+    background: #218838;
+}
+
+/* Modals */
+.modal-content {
+    border-radius: 10px;
+}
+
+.modal-dialog {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Hauteur complète de l'écran */
+}
+
+
+.modal-header {
+    background: #db966b;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.btn-close {
+    color: white;
+}
+
+/* Formulaires */
+.form-control {
+    border-radius: 5px;
+    padding: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container-payment {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+
+/* Nouvelle classe pour les boutons de confirmation */
+.btn-confirm {
+    background-color: #cf9774; /* Couleur personnalisée */
+    color: white; /* Couleur du texte */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-confirm:hover {
+    background-color: #b67a5e; /* Couleur plus foncée au survol */
+}
+
+
