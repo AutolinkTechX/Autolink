@@ -1,0 +1,91 @@
+{% extends 'baseUser.html.twig' %}
+
+{% block title %}Hello ProduitsController!{% endblock %}
+
+{% block body %}
+    <section class="hero">
+        <div class="hero__item set-bg" style="background-image: url('{{ asset('img/carousel-2.jpg') }}');">
+            <div class="hero__text">
+                <h1>Bienvenue sur AutoLink</h1>
+                <h3>Recyclage et vente de pièces auto</h3>
+                <a href="#" class="primary-btn">Acheter Produit</a>
+                <a href="#" class="primary-btn">Ajouter Produit</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="product spad">
+        <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="product__discount">
+                    <div class="section-title product__discount__title">
+                        <h2>Nos catégories</h2>
+                    </div>
+                    <div class="product__discount__slider">
+                        <div class="row">
+                            <!-- Carte 1 : DRINK FRUITS -->
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="product__item">
+                                    <div class="product__item__pic set-bg" style="background-image: url('img/categories/drink-fruits.jpg');">
+                                        <ul class="product__item__pic__hover">
+                                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="product__item__text">
+                                        <h6>DRINK FRUITS</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Carte 2 : FRESH FRUIT -->
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="product__item">
+                                    <div class="product__item__pic set-bg" style="background-image: url('img/categories/fresh-fruit.jpg');">
+                                        <ul class="product__item__pic__hover">
+                                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="product__item__text">
+                                        <h6>FRESH FRUIT</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Carte 3 : DRIED FRUIT -->
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="product__item">
+                                    <div class="product__item__pic set-bg" style="background-image: url('img/categories/dried-fruit.jpg');">
+                                        <ul class="product__item__pic__hover">
+                                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="product__item__text">
+                                        <h6>DRIED FRUIT</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Carte 4 : VEGETABLES -->
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="product__item">
+                                    <div class="product__item__pic set-bg" style="background-image: url('img/categories/vegetables.jpg');">
+                                        <ul class="product__item__pic__hover">
+                                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                        </ul>
+                                    </div>
+                                    <div class="product__item__text">
+                                        <h6>VEGETABLES</h6>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+{% endblock %}
+
+   
+    
+ 

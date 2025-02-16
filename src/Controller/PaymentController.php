@@ -114,7 +114,7 @@ final class PaymentController extends AbstractController
             $this->entityManager->flush(); // Sauvegarder les modifications
     
             // Message de succès
-            $this->addFlash('success', 'Paiement effectué avec succès. Commande enregistrée et panier vidé.');
+            $this->addFlash('success', 'Paiement effectué avec succès et votre Commande enregistrée .');
         }
     
         return $this->render('payment/index.html.twig', [

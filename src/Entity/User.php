@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-final class User implements UserInterface, PasswordAuthenticatedUserInterface
+ class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -59,12 +59,16 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Favorie::class)]
     private Collection $favories;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ListArticle::class)]
+    private Collection $listArticles;
+
 
     public function __construct()
     {
         $this->address = new Address();
         $this->commandes = new ArrayCollection();
         $this->favories = new ArrayCollection();
+        $this->listArticles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -242,5 +246,10 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function getListArticles(): Collection
+    {
+        return $this->listArticles;
     }
 }

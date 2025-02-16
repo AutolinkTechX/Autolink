@@ -19,9 +19,18 @@ use Symfony\Component\HttpFoundation\Request;
 final class FavorieController extends AbstractController
 {
     #[Route('/favorie', name: 'app_favorie')]
-    public function index(FavorieRepository $favorieRepository ): Response
+    public function index(FavorieRepository $favorieRepository): Response
     {
-        $favories = $favorieRepository->findAll();
+        // Récupérer l'utilisateur connecté
+        $user = $this->getUser();
+
+        if (!$user) {
+            // Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Récupérer les favoris de l'utilisateur connecté
+        $favories = $favorieRepository->findBy(['user' => $user]);
 
         return $this->render('favorie/index.html.twig', [
             'favories' => $favories,
@@ -29,38 +38,42 @@ final class FavorieController extends AbstractController
     }
 
 
-   #[Route('/add-to-favorites/{articleId}', name: 'add_to_favorites')]
+    #[Route('/add-to-favorites/{articleId}', name: 'add_to_favorites')]
     public function addToFavorites(
         int $articleId,
         EntityManagerInterface $em,
-        ArticleRepository $articleRepository
+        ArticleRepository $articleRepository,
+        Security $security
     ): RedirectResponse {
+        // Récupérer l'article
         $article = $articleRepository->find($articleId);
-
+    
         if (!$article) {
             $this->addFlash('error', 'Article non trouvé.');
             return $this->redirectToRoute('app_listarticle');
         }
-
+    
         // Vérifier si l'article est déjà dans les favoris
         $existingFavorite = $em->getRepository(Favorie::class)->findOneBy([
-            'article' => $article
+            'article' => $article,
+            'user' => $security->getUser()  // Vérification si l'utilisateur a déjà ajouté cet article aux favoris
         ]);
-
+    
         if ($existingFavorite) {
             $this->addFlash('notice', 'Article déjà ajouté aux favoris.');
             return $this->redirectToRoute('app_listarticle');
         }
-
+    
         // Ajouter l'article aux favoris
         $favorie = new Favorie();
         $favorie->setArticle($article);
+        $favorie->setUser($security->getUser());  // Associer l'utilisateur connecté
         $favorie->setDateCreation(new \DateTime());
         $favorie->setDateExpiration((new \DateTime())->modify('+1 year'));
-
+    
         $em->persist($favorie);
         $em->flush();
-
+    
         $this->addFlash('success', 'Article ajouté aux favoris.');
         return $this->redirectToRoute('app_listarticle');
     }
