@@ -68,9 +68,16 @@ class Article
     #[ORM\OneToMany(targetEntity: ListArticle::class, mappedBy: 'article')]
     private Collection $listArticles;
 
+    /**
+     * @var Collection<int, Favorie>
+     */
+    #[ORM\OneToMany(targetEntity: Favorie::class, mappedBy: 'article')]
+    private Collection $favories;
+
     public function __construct()
     {
         $this->listArticles = new ArrayCollection();
+        $this->favories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -179,4 +186,35 @@ class Article
         }
         return $this;
     }
+
+    /**
+     * @return Collection<int, Favorie>
+     */
+    public function getFavories(): Collection
+    {
+        return $this->favories;
+    }
+
+    public function addFavory(Favorie $favory): static
+    {
+        if (!$this->favories->contains($favory)) {
+            $this->favories->add($favory);
+            $favory->setArticle($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavory(Favorie $favory): static
+    {
+        if ($this->favories->removeElement($favory)) {
+            // set the owning side to null (unless already changed)
+            if ($favory->getArticle() === $this) {
+                $favory->setArticle(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

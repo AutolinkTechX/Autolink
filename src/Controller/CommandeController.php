@@ -5,6 +5,7 @@ namespace App\Controller;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use App\Entity\Article;
+use App\Entity\User;
 use App\Entity\ListArticle;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,45 +13,52 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\ListArticleRepository;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Security;
 
 final class CommandeController extends AbstractController
 {
     #[Route('/add-to-cart/{id}', name: 'add_to_cart', methods: ['GET', 'POST'])]
-    public function addToCart(int $id, EntityManagerInterface $em, Request $request): Response
+    #[IsGranted('IS_AUTHENTICATED_FULLY')] // Assure que l'utilisateur est connecté
+    public function addToCart(int $id, EntityManagerInterface $em, Request $request, Security $security): Response
     {
+        // Vérifier si l'utilisateur est connecté
+        $user = $security->getUser();
+        if (!$user) {
+            $this->addFlash('error', 'Vous devez être connecté pour ajouter un article au panier.');
+            return $this->redirectToRoute('app_login'); // Redirection vers la page de connexion
+        }
+
         // Récupérer l'article à partir de l'ID
         $article = $em->getRepository(Article::class)->find($id);
 
         if (!$article) {
             $this->addFlash('error', 'Article non trouvé.');
-            return $this->redirect($request->headers->get('referer')); // Redirige vers la page précédente
+            return $this->redirect($request->headers->get('referer'));
         }
 
-        // Vérifier si l'article est déjà dans le panier
+        // Vérifier si l'article est déjà dans le panier pour cet utilisateur
         $existingCartItem = $em->getRepository(ListArticle::class)->findOneBy([
             'article' => $article,
+            'user' => $user // Assurez-vous que la relation User est bien définie dans ListArticle
         ]);
 
         if ($existingCartItem) {
-            // Augmenter la quantité si l'article existe déjà
             $existingCartItem->setQuantite($existingCartItem->getQuantite() + 1);
         } else {
-            // Ajouter un nouvel article au panier
             $cartItem = new ListArticle();
             $cartItem->setArticle($article);
             $cartItem->setPrixUnitaire($article->getPrix());
             $cartItem->setQuantite(1);
+            $cartItem->setUser($user); // Associer l'article ajouté à l'utilisateur
             $em->persist($cartItem);
         }
 
-        // Sauvegarder dans la base de données
         $em->flush();
 
-        // Ajouter un message de succès
         $this->addFlash('success', 'Article ajouté au panier.');
 
-        // Rediriger vers la page précédente pour actualiser l'affichage
         return $this->redirect($request->headers->get('referer'));
     }
 
@@ -123,15 +131,15 @@ final class CommandeController extends AbstractController
             'Content-Disposition' => 'inline; filename="facture.pdf"'
         ]);
     }
+*/
 
-
-    #[Route('/facture/download/{id}', name: 'facture_download')]
+ /*   #[Route('/facture/download/{id}', name: 'facture_download')]
     public function downloadInvoice(int $id, Environment $twig): Response
     {
         // Récupérer la facture et les produits associés depuis la base de données
         $facture = $this->getDoctrine()->getRepository(Facture::class)->find($id);
 
-        /*
+        
         if (!$facture) {
             throw $this->createNotFoundException("Facture non trouvée !");
         }
@@ -158,7 +166,32 @@ final class CommandeController extends AbstractController
         return new Response($dompdf->stream("facture_{$id}.pdf", [
             "Attachment" => true
         ]));
+    }*/
+    
+/*
+    #[Route('/commande/annulation', name: 'commande_annulation')]
+    public function annulerCommande(): Response
+    {
+        $this->addFlash('warning', 'Le paiement a été annulé.');
+        return $this->redirectToRoute('app_commande'); // Remplacez par le nom de votre route boutique
     }
-    */
 
+    /**
+     * @Route("/payment", name="payment")
+     */
+/*
+     #[Route('/payment', name: 'payment')]
+    public function payment(Request $request)
+    {
+        // Vous pouvez définir une variable pour afficher la modal
+        $showCardModal = $request->query->get('showCardModal', false);
+        $showCashModal = $request->query->get('showCashModal', false);
+
+        // Rendre la vue avec les variables
+        return $this->render('payment/index.html.twig', [
+            'showCardModal' => $showCardModal,
+            'showCashModal' => $showCashModal,
+        ]);
+    }
+*/
 }

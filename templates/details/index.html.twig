@@ -29,14 +29,14 @@
                     <div class="product__details__quantity">
                         <div class="quantity">
                             <div class="pro-qty">
-                                <input type="text" value="1">
+                                <input type="text" value="{{ article.quantitestock }}">
                             </div>
                         </div>
-                    </div>
+                    </div>       
                     <a href="{{ path('add_to_cart', {'id': article.id}) }}" class="primary-btn">Ajouter au panier</a>
-                    <a href="#" class="heart-icon"><span class="icon_heart_alt"></span></a>
+                    <a href="{{ path('add_to_favorites', {'articleId': article.id}) }}" class="primary-btn">Ajouter au favorie</a>
                     <ul>
-                        <li><b>Catégorie</b> <span></span></li>
+                        <li><b>Catégorie</b>{{ article.category }}<span></span></li>
                         <li><b>Livraison</b> <span>01 jour de livraison</span></li>
                         <li><b>Poids</b> <span> kg</span></li>
                     </ul>
@@ -45,5 +45,20 @@
         </div>
     </div>
 </section>
+{% for message in app.flashes('success') %}
+    <div class="modal show d-block popup-message" style="background: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a href="{{ path('app_details') }}" class="btn-close">✖</a>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-success">
+                        {{ message }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
 {% endblock %}
-

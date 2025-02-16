@@ -24,6 +24,9 @@ class ListArticle
     #[ORM\ManyToOne(targetEntity: Article::class, inversedBy: 'listArticles')]
     private ?Article $article = null;
 
+    #[ORM\ManyToOne(inversedBy: 'listArticles')]
+    private ?User $user = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -70,6 +73,18 @@ class ListArticle
     public function setArticle(?Article $article): static
     {
         $this->article = $article;
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
         return $this;
     }
 }

@@ -2,8 +2,6 @@
 namespace App\Entity;
 
 use App\Repository\CommandeRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -19,7 +17,7 @@ class Commande
     private ?\DateTimeInterface $dateCommande = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $etat = null;
+    private ?string $modePaiement = null;
 
     #[ORM\Column]
     private ?float $total = null;
@@ -28,12 +26,14 @@ class Commande
     #[ORM\JoinColumn(nullable: false)]
     private ?User $client = null;
 
-    #[ORM\OneToMany(targetEntity: ListArticle::class, mappedBy: 'commande', cascade: ["persist"])]
-    private Collection $listArticles;
+    // Nouveau champ pour stocker les identifiants des articles
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $articleIds = null;
 
     public function __construct()
     {
-        $this->listArticles = new ArrayCollection();
+        // Initialisation de articleIds comme tableau vide
+        $this->articleIds = [];
     }
 
     public function getId(): ?int
@@ -52,14 +52,14 @@ class Commande
         return $this;
     }
 
-    public function getEtat(): ?string
+    public function getModePaiement(): ?string
     {
-        return $this->etat;
+        return $this->modePaiement;
     }
 
-    public function setEtat(string $etat): static
+    public function setModePaiement(string $modePaiement): self
     {
-        $this->etat = $etat;
+        $this->modePaiement = $modePaiement;
         return $this;
     }
 
@@ -85,30 +85,29 @@ class Commande
         return $this;
     }
 
-    /**
-     * @return Collection<int, ListArticle>
-     */
-    public function getListArticles(): Collection
+    public function getArticleIds(): ?array
     {
-        return $this->listArticles;
+        return $this->articleIds;
     }
 
-    public function addListArticle(ListArticle $listArticle): static
+    public function setArticleIds(?array $articleIds): static
     {
-        if (!$this->listArticles->contains($listArticle)) {
-            $this->listArticles->add($listArticle);
-            $listArticle->setCommande($this);
+        $this->articleIds = $articleIds;
+        return $this;
+    }
+
+    public function addArticleId(int $articleId): static
+    {
+        if (!in_array($articleId, $this->articleIds, true)) {
+            $this->articleIds[] = $articleId;
         }
         return $this;
     }
 
-    public function removeListArticle(ListArticle $listArticle): static
+    public function removeArticleId(int $articleId): static
     {
-        if ($this->listArticles->removeElement($listArticle)) {
-            // set the owning side to null (unless already changed)
-            if ($listArticle->getCommande() === $this) {
-                $listArticle->setCommande(null);
-            }
+        if (($key = array_search($articleId, $this->articleIds, true)) !== false) {
+            unset($this->articleIds[$key]);
         }
         return $this;
     }

@@ -478,7 +478,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/admin/profile', name: 'admin_profile')]
-    public function profile(TokenStorageInterface $tokenStorage, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function profileAdmin(TokenStorageInterface $tokenStorage, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $token = $tokenStorage->getToken();
         if (!$token) {
@@ -518,7 +518,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/admin/profile/change-password', name: 'admin_change_password')]
-    public function changePassword(TokenStorageInterface $tokenStorage, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    public function changePasswordAdmin(TokenStorageInterface $tokenStorage, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $token = $tokenStorage->getToken();
         if (!$token) {
@@ -553,6 +553,86 @@ final class UserController extends AbstractController
         }
 
         return $this->render('user/admin/change_password.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/profile', name: 'profile')]
+    public function profile(TokenStorageInterface $tokenStorage, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $token = $tokenStorage->getToken();
+        if (!$token) {
+            throw $this->createAccessDeniedException('Token not found or not authenticated.');
+        }
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('User not found or not authenticated.');
+        }
+        $this->denyAccessUnlessGranted(['ROLE_ADMIN', 'ROLE_CLIENT']);
+
+        $form = $this->createForm(ProfileType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($form->get('imageFile')->getData()) {
+                $file = $form->get('imageFile')->getData();
+                $fileName = md5(uniqid()) . '.' . $file->guessExtension();
+                try {
+                    $file->move($this->uploadsDirectory, $fileName);
+                    $user->setImagePath($fileName);
+                } catch (FileException $e) {
+                    // Handle file upload error
+                    $this->addFlash('error', 'There was an error uploading your profile image.');
+                    return $this->redirectToRoute('profile');
+                }
+            }
+
+            $entityManager->flush();
+            $this->addFlash('success', 'Profile updated successfully!');
+            return $this->redirectToRoute('profile');
+        }
+
+        return $this->render('user/client/profile.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/profile/change-password', name: 'change_password')]
+    public function changePassword(TokenStorageInterface $tokenStorage, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $token = $tokenStorage->getToken();
+        if (!$token) {
+            throw $this->createAccessDeniedException('Token not found or not authenticated.');
+        }
+
+        $user = $token->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('User not found or not authenticated.');
+        }
+        $this->denyAccessUnlessGranted(['ROLE_ADMIN', 'ROLE_CLIENT']);
+
+        $form = $this->createForm(ChangePasswordType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $formData = $form->getData();
+            $currentPassword = $formData['currentPassword'];
+            $newPassword = $formData['password'];
+
+            if (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
+                $this->addFlash('error', 'Current password is incorrect.');
+                return $this->redirectToRoute('change_password');
+            }
+
+            $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+            $user->setPassword($hashedPassword);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Password changed successfully!');
+            return $this->redirectToRoute('change_password');
+        }
+
+        return $this->render('user/client/change_password.html.twig', [
             'form' => $form->createView(),
         ]);
     }

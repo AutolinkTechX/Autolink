@@ -58,11 +58,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: MaterielRecyclable::class, mappedBy: 'user')]
     private Collection $materielRecyclables;
 
+    /**
+     * @var Collection<int, ListArticle>
+     */
+    #[ORM\OneToMany(targetEntity: ListArticle::class, mappedBy: 'user')]
+    private Collection $listArticles;
+
+    /**
+     * @var Collection<int, Favorie>
+     */
+    #[ORM\OneToMany(targetEntity: Favorie::class, mappedBy: 'user')]
+    private Collection $favories;
+
     public function __construct()
     {
         $this->address = new Address();
         $this->commandes = new ArrayCollection();
         $this->materielRecyclables = new ArrayCollection();
+        $this->listArticles = new ArrayCollection();
+        $this->favories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -236,6 +250,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($materielRecyclable->getUser() === $this) {
                 $materielRecyclable->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ListArticle>
+     */
+    public function getListArticles(): Collection
+    {
+        return $this->listArticles;
+    }
+
+    public function addListArticle(ListArticle $listArticle): static
+    {
+        if (!$this->listArticles->contains($listArticle)) {
+            $this->listArticles->add($listArticle);
+            $listArticle->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeListArticle(ListArticle $listArticle): static
+    {
+        if ($this->listArticles->removeElement($listArticle)) {
+            // set the owning side to null (unless already changed)
+            if ($listArticle->getUser() === $this) {
+                $listArticle->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Favorie>
+     */
+    public function getFavories(): Collection
+    {
+        return $this->favories;
+    }
+
+    public function addFavory(Favorie $favory): static
+    {
+        if (!$this->favories->contains($favory)) {
+            $this->favories->add($favory);
+            $favory->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavory(Favorie $favory): static
+    {
+        if ($this->favories->removeElement($favory)) {
+            // set the owning side to null (unless already changed)
+            if ($favory->getUser() === $this) {
+                $favory->setUser(null);
             }
         }
 
