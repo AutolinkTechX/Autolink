@@ -24,55 +24,55 @@
                     </div>
                     <div class="product__discount__slider">
                         <div class="row">
-                            <!-- Carte 1 : DRINK FRUITS -->
+                            <!-- Carte 1 : Echappement -->
                             <div class="col-lg-3 col-md-4 col-sm-6">
                                 <div class="product__item">
                                     <div class="product__item__pic set-bg" style="background-image: url('img/categories/drink-fruits.jpg');">
                                         <ul class="product__item__pic__hover">
-                                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                            <li><a href="{{ path('produits_by_categorie', {'category': 'Echappement'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>
                                     </div>
                                     <div class="product__item__text">
-                                        <h6>DRINK FRUITS</h6>
+                                        <h6>Echappement</h6>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Carte 2 : FRESH FRUIT -->
+                            <!-- Carte 2 : Electronique -->
                             <div class="col-lg-3 col-md-4 col-sm-6">
                                 <div class="product__item">
                                     <div class="product__item__pic set-bg" style="background-image: url('img/categories/fresh-fruit.jpg');">
                                         <ul class="product__item__pic__hover">
-                                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                            <li><a href="{{ path('produits_by_categorie', {'category': 'Electronique'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>
                                     </div>
                                     <div class="product__item__text">
-                                        <h6>FRESH FRUIT</h6>
+                                        <h6>Electronique</h6>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Carte 3 : DRIED FRUIT -->
+                            <!-- Carte 3 :Freinage -->
                             <div class="col-lg-3 col-md-4 col-sm-6">
                                 <div class="product__item">
                                     <div class="product__item__pic set-bg" style="background-image: url('img/categories/dried-fruit.jpg');">
                                         <ul class="product__item__pic__hover">
-                                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                            <li><a href="{{ path('produits_by_categorie', {'category': 'Freinage'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>
                                     </div>
                                     <div class="product__item__text">
-                                        <h6>DRIED FRUIT</h6>
+                                        <h6>Freinage</h6>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Carte 4 : VEGETABLES -->
+                            <!-- Carte 4 : Pièces de carrosserie -->
                             <div class="col-lg-3 col-md-4 col-sm-6">
                                 <div class="product__item">
                                     <div class="product__item__pic set-bg" style="background-image: url('img/categories/vegetables.jpg');">
                                         <ul class="product__item__pic__hover">
-                                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                            <li><a href="{{ path('produits_by_categorie', {'category': 'Pièces de carrosserie'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>
                                     </div>
                                     <div class="product__item__text">
-                                        <h6>VEGETABLES</h6>
+                                        <h6>Pièces de carrosserie</h6>
                                     </div>
                                 </div>
                             </div>
@@ -84,6 +84,8 @@
         </div>
         </div>
     </section>
+
+
 {% endblock %}
 
    
