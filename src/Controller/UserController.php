@@ -568,11 +568,12 @@ final class UserController extends AbstractController
         if (!$user instanceof User) {
             throw $this->createAccessDeniedException('User not found or not authenticated.');
         }
-        $this->denyAccessUnlessGranted(['ROLE_ADMIN', 'ROLE_CLIENT']);
 
+        // Create the form
         $form = $this->createForm(ProfileType::class, $user);
-        $form->handleRequest($request);
 
+        // Handle form submission
+        $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             if ($form->get('imageFile')->getData()) {
                 $file = $form->get('imageFile')->getData();
@@ -586,12 +587,12 @@ final class UserController extends AbstractController
                     return $this->redirectToRoute('profile');
                 }
             }
-
             $entityManager->flush();
             $this->addFlash('success', 'Profile updated successfully!');
             return $this->redirectToRoute('profile');
         }
 
+        // Pass the form to the template
         return $this->render('user/client/profile.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -609,7 +610,6 @@ final class UserController extends AbstractController
         if (!$user instanceof User) {
             throw $this->createAccessDeniedException('User not found or not authenticated.');
         }
-        $this->denyAccessUnlessGranted(['ROLE_ADMIN', 'ROLE_CLIENT']);
 
         $form = $this->createForm(ChangePasswordType::class);
         $form->handleRequest($request);
