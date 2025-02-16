@@ -8,16 +8,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}AutoLink{% endblock %}</title>
-
     <!-- CSS de Bootstrap -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- JS de Bootstrap (bundle inclut tout ce qu'il faut pour les modals) -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-
+    <!-- JS de Bootstrap (bundle inclut tout ce qu'il faut pour les modals) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
-
     <!-- CSS Styles -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -27,10 +23,32 @@
     <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/slicknav.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-
+    <style>
+        .content-push {
+            min-height: calc(100vh - 250px); /* Adjust the height to ensure the footer is not overlapped */
+        }
+        .header__cart .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%; /* Position the dropdown below the icon */
+            padding-left: 0; /* Remove default left padding */
+        }
+        .header__cart .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .header__cart ul {
+            margin-left: -90px; /* Adjust this value to move the icons to the left */
+        }
+        .header__cart ul li {
+            margin-right: 5px; /* Add some space between the icons */
+        }
+        .dropdown-menu .dropdown-item {
+            padding-left: 15px; /* Ensure consistent padding for alignment */
+        }
+    </style>
     {% block stylesheets %}{% endblock %}
 </head>
-
 <body>
     <header>
         <div class="container">
@@ -58,9 +76,26 @@
                 </div>
                 <div class="col-lg-2">
                     <div class="header__cart">
-                        <ul>
+                        <ul class="d-flex align-items-center">
                             <li><a href="{{ path('app_favorie') }}" aria-label="Favoris"><i class="fa fa-heart"></i></a></li>
                             <li><a href="{{ path('app_commande') }}" aria-label="Panier"><i class="fa fa-shopping-bag"></i></a></li>
+                            <li class="dropdown">
+                                <a href="#" id="userDropdown" class="dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-user" aria-hidden="true"></i>
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                                    {% if app.user %}
+                                        <li><a class="dropdown-item" href="#">Profile</a></li>
+                                        <li><a class="dropdown-item" href="#">Settings</a></li>
+                                        <li><a class="dropdown-item" href="#">Activity Log</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_logout') }}">Logout</a></li>
+                                    {% else %}
+                                        <li><a class="dropdown-item" href="{{ path('login') }}">Login</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('create_account') }}">Register</a></li>
+                                    {% endif %}
+                                </ul>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -70,9 +105,9 @@
             </div>
         </div>
     </header>
-
-    {% block body %}{% endblock %}
-
+    <main class="content-push">
+        {% block body %}{% endblock %}
+    </main>
     <!-- Footer Section Begin -->
     <footer class="footer spad">
         <div class="container">
@@ -80,7 +115,7 @@
                 <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="footer__about">
                         <div class="footer__about__logo">
-                            <a href="#"><img src="{{ asset('assets/img/logo.png') }}" alt=""></a>
+                            <a href="#"><img src="{{ asset('img/logo.jpg') }}" alt=""></a>
                         </div>
                         <ul>
                             <li>AutoLink</li>
@@ -126,7 +161,6 @@
     <script src="{{ asset('js/mixitup.min.js') }}"></script>
     <script src="{{ asset('js/owl.carousel.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
-
     {% block javascripts %}{% endblock %}
 </body>
 </html>

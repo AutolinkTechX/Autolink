@@ -118,7 +118,7 @@ final class ArticleController extends AbstractController
     }
 
     #[Route('/admin/deleteArticle/{id}', name: 'delete_article_admin')]
-    public function deleteAdmin(EntityManagerInterface $entityManager, int $id): Response
+    public function deleteArticle(EntityManagerInterface $entityManager, int $id): Response
     {
         $article = $entityManager->getRepository(Article::class)->find($id);
         if (!$article) {

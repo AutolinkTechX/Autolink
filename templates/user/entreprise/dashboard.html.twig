@@ -3,7 +3,6 @@
 {% block title %}Entreprise List - Autolink{% endblock %}
 {% block page_title %}Entreprise List{% endblock %}
 {% block content %}
-
     <!-- List of Entreprises -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -24,19 +23,22 @@
                     </thead>
                     <tbody>
                         {% for entreprise in entreprises %}
-                            <tr>
-                                <td>{{ entreprise.companyName }}</td>
-                                <td>{{ entreprise.field }}</td>
-                                <td>{{ entreprise.email }}</td>
-                                <td>{{ entreprise.phone }}</td>
-                                <td>{{ entreprise.createdAt|date('Y-m-d H:i:s') }}</td>
-                                <td>
-                                    <a href="{{ path('edit_admin', { 'id': entreprise.id }) }}" class="btn btn-primary btn-sm">Request partnership</a>
-                                </td>
-                            </tr>
+                            {# Skip the current user's enterprise #}
+                            {% if entreprise.id != app.user.id %}
+                                <tr>
+                                    <td>{{ entreprise.companyName }}</td>
+                                    <td>{{ entreprise.field }}</td>
+                                    <td>{{ entreprise.email }}</td>
+                                    <td>{{ entreprise.phone }}</td>
+                                    <td>{{ entreprise.createdAt|date('Y-m-d H:i:s') }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-primary btn-sm">Request partnership</a>
+                                    </td>
+                                </tr>
+                            {% endif %}
                         {% else %}
                             <tr>
-                                <td colspan="8" class="text-center">No entreprises found.</td>
+                                <td colspan="6" class="text-center">No entreprises found.</td>
                             </tr>
                         {% endfor %}
                     </tbody>

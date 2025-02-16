@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-final class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -48,13 +48,21 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Embedded(class: Address::class)]
     private Address $address;
+
     #[ORM\OneToMany(targetEntity: Commande::class, mappedBy: 'client')]
     private Collection $commandes;
+
+    /**
+     * @var Collection<int, MaterielRecyclable>
+     */
+    #[ORM\OneToMany(targetEntity: MaterielRecyclable::class, mappedBy: 'user')]
+    private Collection $materielRecyclables;
 
     public function __construct()
     {
         $this->address = new Address();
         $this->commandes = new ArrayCollection();
+        $this->materielRecyclables = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -201,6 +209,36 @@ final class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $commande->setClient(null);
             }
         }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MaterielRecyclable>
+     */
+    public function getMaterielRecyclables(): Collection
+    {
+        return $this->materielRecyclables;
+    }
+
+    public function addMaterielRecyclable(MaterielRecyclable $materielRecyclable): static
+    {
+        if (!$this->materielRecyclables->contains($materielRecyclable)) {
+            $this->materielRecyclables->add($materielRecyclable);
+            $materielRecyclable->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMaterielRecyclable(MaterielRecyclable $materielRecyclable): static
+    {
+        if ($this->materielRecyclables->removeElement($materielRecyclable)) {
+            // set the owning side to null (unless already changed)
+            if ($materielRecyclable->getUser() === $this) {
+                $materielRecyclable->setUser(null);
+            }
+        }
+
         return $this;
     }
 }

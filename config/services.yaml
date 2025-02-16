@@ -17,7 +17,7 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # Explicitly define the UserController service and inject the uploads_directory parameter
+    # Explicitly define controllers and inject the uploads_directory parameter
     App\Controller\UserController:
         arguments:
             $uploadsDirectory: '%uploads_directory%'
@@ -25,7 +25,11 @@ services:
     App\Controller\ArticleController:
         arguments:
             $uploadsDirectory: '%uploads_directory%'
-    
+
     App\Controller\EntrepriseController:
+        arguments:
+            $uploadsDirectory: '%uploads_directory%'
+
+    App\Controller\MaterielRecyclableController:
         arguments:
             $uploadsDirectory: '%uploads_directory%'

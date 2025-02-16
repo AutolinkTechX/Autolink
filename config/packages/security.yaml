@@ -64,7 +64,7 @@ security:
             form_login:
                 login_path: login
                 check_path: login
-                default_target_path: create_account
+                default_target_path: app_listarticle
                 username_parameter: _username
                 password_parameter: _password
                 enable_csrf: true

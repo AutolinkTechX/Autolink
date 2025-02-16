@@ -2,39 +2,39 @@
 
 namespace App\Repository;
 
-use App\Entity\SupplierContract;
+use App\Entity\MaterielRecyclable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<SupplierContract>
+ * @extends ServiceEntityRepository<MaterielRecyclable>
  */
-class SupplierContractRepository extends ServiceEntityRepository
+class MaterielRecyclableRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, SupplierContract::class);
+        parent::__construct($registry, MaterielRecyclable::class);
     }
 
     //    /**
-    //     * @return SupplierContract[] Returns an array of SupplierContract objects
+    //     * @return MaterielRecyclable[] Returns an array of MaterielRecyclable objects
     //     */
     //    public function findByExampleField($value): array
     //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
+    //        return $this->createQueryBuilder('m')
+    //            ->andWhere('m.exampleField = :val')
     //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
+    //            ->orderBy('m.id', 'ASC')
     //            ->setMaxResults(10)
     //            ->getQuery()
     //            ->getResult()
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?SupplierContract
+    //    public function findOneBySomeField($value): ?MaterielRecyclable
     //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
+    //        return $this->createQueryBuilder('m')
+    //            ->andWhere('m.exampleField = :val')
     //            ->setParameter('val', $value)
     //            ->getQuery()
     //            ->getOneOrNullResult()
