@@ -19,12 +19,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Name is required")]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "LastName is required")]
     private ?string $lastName = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "Phone number is required")]
     private ?int $phone = null;
 
     #[ORM\Column(length: 255, unique: true, options: ["message" => "This email is already in use."])]
@@ -33,6 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Password is required")]
     #[Assert\Length(min: 6, max: 255, minMessage: "Your password must contain at least {{ limit }} characters.", maxMessage: "Your password must be less than {{ limit }} characters.")]
     private ?string $password = null;
 

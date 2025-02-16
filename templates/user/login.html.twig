@@ -14,18 +14,7 @@
     <div class="col-md-6">
         <div class="form-container">
             <h2 class="mb-4 text-center font-weight-bold">Connexion</h2>
-            {# Flash messages #}
-            <div class="flash-messages">
-                {% for type, messages in app.flashes %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ type }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endfor %}
-            </div>
-            {# Login form #}
-            {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                 
                 <div class="mb-4 form-group">
                     {{ form_label(form._username, 'Email', {'attr': {'class': 'form-label'}}) }}
