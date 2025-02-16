@@ -7,20 +7,33 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Knp\Component\Pager\PaginatorInterface;
+
 
 final class ListArticleController extends AbstractController
 {
     // src/Controller/ArticleController.php
 
     #[Route('/list/article', name: 'app_listarticle')]
-    public function index(ArticleRepository $articleRepository): Response
+    public function index(ArticleRepository $articleRepository , PaginatorInterface $paginator, Request $request): Response
     {
         // Utiliser la méthode personnalisée pour récupérer les articles avec stock > 0
         $articles = $articleRepository->findArticlesWithStockGreaterThanZero();
 
+        $query = $articleRepository->createQueryBuilder('a')->getQuery();
+
+        // Pagination : 6 articles par page
+        $articles = $paginator->paginate(
+            $query, 
+            $request->query->getInt('page', 1), // Numéro de page par défaut = 1
+            6 // Nombre d'articles par page
+        );
+
         return $this->render('list_article/index.html.twig', [
             'articles' => $articles,
         ]);
+        
+    
     }
 
 

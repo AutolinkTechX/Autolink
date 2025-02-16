@@ -9,7 +9,7 @@
             <h6 class="m-0 font-weight-bold text-primary">Add New Admin</h6>
         </div>
         <div class="card-body">
-            {{ form_start(formx, {'attr': {'class': 'form-horizontal'}}) }}
+            {{ form_start(formx, {'attr': {'novalidate': 'novalidate'}}) }}
             <div class="row">
                 <div class="col-md-6">
                     {{ form_row(formx.name, { 'attr': {'class': 'form-control'} }) }}

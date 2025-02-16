@@ -4070,3 +4070,56 @@ select.form-control option {
 .text-primary {
     color: #ff7f50 !important; /* Remplacez #ff7f50 par la couleur de votre choix */
 }
+
+.invalid-feedback {
+    color: red;
+    font-size: 0.875em;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+	background: transparent !important; /* Supprime l'arrière-plan */
+}
+
+.pagination {
+    display: flex;
+    padding: 10px;
+    /*background: #ffffff;*/
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    gap: 5px; /* Espacement entre les éléments */
+	box-shadow: none !important; /* Supprime toute ombre */
+}
+
+.pagination li {
+    list-style: none;
+}
+
+.pagination a, .pagination span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    color: #c25d38;
+    text-decoration: none;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.pagination a:hover {
+    background: #ff7f50;
+    color: white;
+}
+
+.pagination .active span {
+    background: #ff7f50;
+    color: white;
+    font-weight: bold;
+    border-color: #ff7f50;
+}

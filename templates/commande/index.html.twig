@@ -28,7 +28,7 @@
                            {% if paniers is empty %}
                                 <p>Aucun article dans votre commande.</p>
                             {% else %}
-                                {% for panier in paniers %}
+                                {% for panier in paniers  %}
                                     <div class="col-lg-4 col-md-6 col-sm-6">
                                         <div class="product__item">
                                             <div class="product__item__pic set-bg" style="background-image: url('{{ asset('img/product/' ~ panier.article.getImage) }}');">
@@ -48,6 +48,7 @@
                                         </div>
                                     </div>
                                 {% endfor %}
+                                
                             {% endif %}
 
                         </div>

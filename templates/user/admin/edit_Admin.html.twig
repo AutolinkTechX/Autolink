@@ -11,7 +11,7 @@
             <h6 class="m-0 font-weight-bold text-primary">Edit Admin</h6>
         </div>
         <div class="card-body">
-            {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
             <div class="row">
                 <div class="col-md-6">
                     {{ form_row(form.name, { 'attr': {'class': 'form-control'} }) }}

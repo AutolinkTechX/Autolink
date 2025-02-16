@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\User;
 use App\Entity\ListArticle;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -25,7 +26,17 @@ class ListArticleRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-    
+
+    public function findByUser(User $user)
+{
+    return $this->createQueryBuilder('l')
+        ->andWhere('l.user = :user')
+        ->setParameter('user', $user)
+        ->getQuery()
+        ->getResult();
+}
+   
+
 
     //    /**
     //     * @return ListArticle[] Returns an array of ListArticle objects

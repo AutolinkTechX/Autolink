@@ -27,7 +27,7 @@ final class CommandeController extends AbstractController
         $user = $security->getUser();
         if (!$user) {
             $this->addFlash('error', 'Vous devez être connecté pour ajouter un article au panier.');
-            return $this->redirectToRoute('app_login'); // Redirection vers la page de connexion
+            return $this->redirectToRoute('login'); // Redirection vers la page de connexion
         }
     
         // Récupérer l'article à partir de l'ID
@@ -71,28 +71,31 @@ final class CommandeController extends AbstractController
 
 
     #[Route('/commande', name: 'app_commande')]
-    public function index(ListArticleRepository $listarticleRepository): Response
-    {
-        // Utiliser le repository pour récupérer tous les articles
-        $paniers = $listarticleRepository->findAll();
+public function index(ListArticleRepository $listarticleRepository, Security $security): Response
+{
+    // Récupérer l'utilisateur connecté
+    $user = $security->getUser();
 
-        // Calculer les totaux du panier
-        $totalHT = 0;
-        foreach ($paniers as $panier) {
-            $totalHT += $panier->getQuantite() * $panier->getPrixUnitaire();
-        }
+    // Utiliser le repository pour récupérer les articles de l'utilisateur connecté
+    $paniers = $listarticleRepository->findByUser($user);
 
-        // Calculer la TVA
-        $tva = $totalHT * 0.20;
-        $totalTTC = $totalHT + $tva;
-
-        return $this->render('commande/index.html.twig', [
-            'paniers' => $paniers,
-            'totalHT' => $totalHT,
-            'tva' => $tva,
-            'totalTTC' => $totalTTC,
-        ]);
+    // Calculer les totaux du panier
+    $totalHT = 0;
+    foreach ($paniers as $panier) {
+        $totalHT += $panier->getQuantite() * $panier->getPrixUnitaire();
     }
+
+    // Calculer la TVA
+    $tva = $totalHT * 0.20;
+    $totalTTC = $totalHT + $tva;
+
+    return $this->render('commande/index.html.twig', [
+        'paniers' => $paniers,
+        'totalHT' => $totalHT,
+        'tva' => $tva,
+        'totalTTC' => $totalTTC,
+    ]);
+}
 
     #[Route('/decrease-quantity/{id}', name: 'decrease_quantity', methods: ['POST'])]
     public function decreaseQuantity(int $id, EntityManagerInterface $em, Request $request): Response
