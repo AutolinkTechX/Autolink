@@ -41,13 +41,6 @@ class Article
     private ?string $category = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "L'image est obligatoire.")]
-    #[Assert\File(
-        maxSize: "1M",
-        mimeTypes: ["image/jpeg", "image/png", "image/webp"],
-        maxSizeMessage: "L'image est trop grande ({{ size }} {{ suffix }}). La taille maximale autorisée est {{ limit }} {{ suffix }}.",
-        mimeTypesMessage: "Seules les images JPEG, PNG et WebP sont autorisées."
-    )]
     private ?string $image = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

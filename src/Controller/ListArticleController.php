@@ -10,15 +10,19 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class ListArticleController extends AbstractController
 {
+    // src/Controller/ArticleController.php
+
     #[Route('/list/article', name: 'app_listarticle')]
     public function index(ArticleRepository $articleRepository): Response
     {
-        $articles = $articleRepository->findAll();
+        // Utiliser la méthode personnalisée pour récupérer les articles avec stock > 0
+        $articles = $articleRepository->findArticlesWithStockGreaterThanZero();
 
         return $this->render('list_article/index.html.twig', [
             'articles' => $articles,
         ]);
     }
+
 
     #[Route('/list/article/search', name: 'article_index')]
     public function search(Request $request, ArticleRepository $articleRepository): Response

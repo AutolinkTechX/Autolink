@@ -23,7 +23,18 @@ class ArticleRepository extends ServiceEntityRepository
         ->setParameter('nom', '%' . $nom . '%')
         ->getQuery()
         ->getResult();
-}
+    }
+
+    // src/Repository/ArticleRepository.php
+
+    public function findArticlesWithStockGreaterThanZero()
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.quantitestock > 0')
+            ->getQuery()
+            ->getResult();
+    }
+
 
 
     //    /**
