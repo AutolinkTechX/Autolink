@@ -568,10 +568,8 @@ final class UserController extends AbstractController
         if (!$user instanceof User) {
             throw $this->createAccessDeniedException('User not found or not authenticated.');
         }
-
         // Create the form
         $form = $this->createForm(ProfileType::class, $user);
-
         // Handle form submission
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -591,7 +589,6 @@ final class UserController extends AbstractController
             $this->addFlash('success', 'Profile updated successfully!');
             return $this->redirectToRoute('profile');
         }
-
         // Pass the form to the template
         return $this->render('user/client/profile.html.twig', [
             'form' => $form->createView(),
