@@ -22,9 +22,7 @@ class Facture
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Commande $commande = null;
-    
-    //#[ORM\ManyToOne(cascade: ['persist', 'remove'])]
-    //private ?Article $article = null;
+
 
     public function getId(): ?int
     {
@@ -73,19 +71,5 @@ class Facture
 
         return $this;
     }
-/*
-    public function getArticle(): ?Article
-    {
-        return $this->article;
-    }
-   
-
-    public function setArticlee(?Article $article): static
-    {
-        $this->article = $article;
-
-        return $this;
-    }
-*/
     
 }

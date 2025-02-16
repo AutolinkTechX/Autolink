@@ -1,10 +1,11 @@
 <?php
 namespace App\Entity;
+
 use App\Repository\ArticleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
@@ -15,32 +16,40 @@ class Article
     #[ORM\Column]
     private ?int $id = null;
 
-
+    #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "La description est obligatoire.")]
+    #[Assert\Length(
+        min: 10, 
+        max: 255,
+        minMessage: "La description doit contenir au moins {{ limit }} caractères.",
+        maxMessage: "La description ne peut pas dépasser {{ limit }} caractères."
+    )]
+    private ?string $description = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: "Le nom du produit est obligatoire.")]
     #[Assert\Length(
         min: 3, 
         max: 50,
-        minMessage: "Le nom doit contenir au moins 3 caractères.",
-        maxMessage: "Le nom ne peut pas dépasser 50 caractères."
+        minMessage: "Le nom doit contenir au moins {{ limit }} caractères.",
+        maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères."
     )]
     private ?string $nom = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message: "La description est obligatoire.")]
-    #[Assert\Length(
-        min: 10, 
-        max: 255,
-        minMessage: "La description doit contenir au moins 10 caractères.",
-        maxMessage: "La description ne peut pas dépasser 255 caractères."
-    )]
-    private ?string $description = null;
+    #[Assert\NotBlank(message: "La catégorie est obligatoire.")]
+    private ?string $category = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $image = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $datecreation = null;
 
     #[ORM\Column]
     #[Assert\NotBlank(message: "Le prix est obligatoire.")]
     #[Assert\Positive(message: "Le prix doit être un nombre positif.")]
-    #[Assert\Type(type: "numeric", message: "Le prix doit être un nombre valide.")]
+    #[Assert\Type(type: "float", message: "Le prix doit être un nombre valide.")]
     private ?float $prix = null;
 
     #[ORM\Column]
@@ -49,25 +58,13 @@ class Article
     #[Assert\Type(type: "integer", message: "La quantité doit être un nombre entier.")]
     private ?int $quantitestock = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message: "La catégorie est obligatoire.")]
-    private ?string $category = null;
-    
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "L'image est obligatoire.")]
-    private ?string $image = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $datecreation = null;
-
-    
     #[ORM\OneToMany(targetEntity: ListArticle::class, mappedBy: 'article')]
     private Collection $listArticles;
 
     /**
      * @var Collection<int, Favorie>
      */
-    #[ORM\OneToMany(targetEntity: Favorie::class, mappedBy: 'id_article')]
+    #[ORM\OneToMany(targetEntity: Favorie::class, mappedBy: 'article')]
     private Collection $favories;
 
     public function __construct()
@@ -195,7 +192,7 @@ class Article
     {
         if (!$this->favories->contains($favory)) {
             $this->favories->add($favory);
-            $favory->setIdArticle($this);
+            $favory->setArticle($this);
         }
 
         return $this;
@@ -205,11 +202,12 @@ class Article
     {
         if ($this->favories->removeElement($favory)) {
             // set the owning side to null (unless already changed)
-            if ($favory->getIdArticle() === $this) {
-                $favory->setIdArticle(null);
+            if ($favory->getArticle() === $this) {
+                $favory->setArticle(null);
             }
         }
 
         return $this;
     }
+
 }

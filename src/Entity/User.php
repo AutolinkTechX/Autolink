@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
- class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -19,12 +19,15 @@ use Symfony\Component\Validator\Constraints as Assert;
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Name is required")]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "LastName is required")]
     private ?string $lastName = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "Phone number is required")]
     private ?int $phone = null;
 
     #[ORM\Column(length: 255, unique: true, options: ["message" => "This email is already in use."])]
@@ -33,6 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Password is required")]
     #[Assert\Length(min: 6, max: 255, minMessage: "Your password must contain at least {{ limit }} characters.", maxMessage: "Your password must be less than {{ limit }} characters.")]
     private ?string $password = null;
 
@@ -48,27 +52,35 @@ use Symfony\Component\Validator\Constraints as Assert;
 
     #[ORM\Embedded(class: Address::class)]
     private Address $address;
+
     #[ORM\OneToMany(targetEntity: Commande::class, mappedBy: 'client')]
     private Collection $commandes;
 
     /**
-     * @var Collection<int, Favorie>
+     * @var Collection<int, MaterielRecyclable>
      */
-   // #[ORM\OneToMany(targetEntity: Favorie::class, mappedBy: 'id_user')]
-  //  private Collection $favories;
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Favorie::class)]
-    private Collection $favories;
+    #[ORM\OneToMany(targetEntity: MaterielRecyclable::class, mappedBy: 'user')]
+    private Collection $materielRecyclables;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ListArticle::class)]
+    /**
+     * @var Collection<int, ListArticle>
+     */
+    #[ORM\OneToMany(targetEntity: ListArticle::class, mappedBy: 'user')]
     private Collection $listArticles;
 
+    /**
+     * @var Collection<int, Favorie>
+     */
+    #[ORM\OneToMany(targetEntity: Favorie::class, mappedBy: 'user')]
+    private Collection $favories;
 
     public function __construct()
     {
         $this->address = new Address();
         $this->commandes = new ArrayCollection();
-        $this->favories = new ArrayCollection();
+        $this->materielRecyclables = new ArrayCollection();
         $this->listArticles = new ArrayCollection();
+        $this->favories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -219,6 +231,66 @@ use Symfony\Component\Validator\Constraints as Assert;
     }
 
     /**
+     * @return Collection<int, MaterielRecyclable>
+     */
+    public function getMaterielRecyclables(): Collection
+    {
+        return $this->materielRecyclables;
+    }
+
+    public function addMaterielRecyclable(MaterielRecyclable $materielRecyclable): static
+    {
+        if (!$this->materielRecyclables->contains($materielRecyclable)) {
+            $this->materielRecyclables->add($materielRecyclable);
+            $materielRecyclable->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMaterielRecyclable(MaterielRecyclable $materielRecyclable): static
+    {
+        if ($this->materielRecyclables->removeElement($materielRecyclable)) {
+            // set the owning side to null (unless already changed)
+            if ($materielRecyclable->getUser() === $this) {
+                $materielRecyclable->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ListArticle>
+     */
+    public function getListArticles(): Collection
+    {
+        return $this->listArticles;
+    }
+
+    public function addListArticle(ListArticle $listArticle): static
+    {
+        if (!$this->listArticles->contains($listArticle)) {
+            $this->listArticles->add($listArticle);
+            $listArticle->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeListArticle(ListArticle $listArticle): static
+    {
+        if ($this->listArticles->removeElement($listArticle)) {
+            // set the owning side to null (unless already changed)
+            if ($listArticle->getUser() === $this) {
+                $listArticle->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @return Collection<int, Favorie>
      */
     public function getFavories(): Collection
@@ -230,7 +302,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     {
         if (!$this->favories->contains($favory)) {
             $this->favories->add($favory);
-            $favory->setIdUser($this);
+            $favory->setUser($this);
         }
 
         return $this;
@@ -240,16 +312,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     {
         if ($this->favories->removeElement($favory)) {
             // set the owning side to null (unless already changed)
-            if ($favory->getIdUser() === $this) {
-                $favory->setIdUser(null);
+            if ($favory->getUser() === $this) {
+                $favory->setUser(null);
             }
         }
 
         return $this;
-    }
-
-    public function getListArticles(): Collection
-    {
-        return $this->listArticles;
     }
 }

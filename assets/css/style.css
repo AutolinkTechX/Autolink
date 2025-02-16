@@ -4006,3 +4006,120 @@ select.form-control option {
     padding-right: 40px;
 	padding-bottom: 40px;
 }
+
+/*** Services Start ***/
+.service .service-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 0 0 45px rgba(0, 0, 0, .1);
+    border-radius: 10px;
+    background: var(--bs-white);
+    transition: 0.5s;
+}
+
+.service .service-item:hover {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 60px;
+	background: #f3b690; /* ou toute autre couleur */
+}
+
+.service .service-item::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    bottom: 0;
+    left: 0;
+    background: var(--bs-primary);
+    border-radius: 10px;
+    z-index: -1;
+    transition: 0.5s;
+    opacity: 0;
+}
+
+.service .service-item:hover::after {
+    opacity: 1;
+}
+
+.service .service-item .service-icon {
+    width: 90px; 
+    height: 90px; 
+    border-radius: 67% 33% 29% 71% / 39% 46% 54% 61%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bs-secondary);
+    background: var(--bs-primary);
+    animation-name: icon-animat;
+    animation-duration: 5s;
+    animation-delay: 1s;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+    transition: 0.5s;
+}
+/*** Service End ***/
+
+.text-primary {
+    color: #ff7f50 !important; /* Remplacez #ff7f50 par la couleur de votre choix */
+}
+
+.invalid-feedback {
+    color: red;
+    font-size: 0.875em;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+	background: transparent !important; /* Supprime l'arrière-plan */
+}
+
+.pagination {
+    display: flex;
+    padding: 10px;
+    /*background: #ffffff;*/
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    gap: 5px; /* Espacement entre les éléments */
+	box-shadow: none !important; /* Supprime toute ombre */
+}
+
+.pagination li {
+    list-style: none;
+}
+
+.pagination a, .pagination span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    color: #c25d38;
+    text-decoration: none;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.pagination a:hover {
+    background: #ff7f50;
+    color: white;
+}
+
+.pagination .active span {
+    background: #ff7f50;
+    color: white;
+    font-weight: bold;
+    border-color: #ff7f50;
+}

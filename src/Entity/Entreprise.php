@@ -1,15 +1,16 @@
 <?php
 namespace App\Entity;
-
 use App\Repository\EntrepriseRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EntrepriseRepository::class)]
 #[ORM\Table(name: 'entreprise')]
-final class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
+class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -17,18 +18,24 @@ final class Entreprise implements UserInterface, PasswordAuthenticatedUserInterf
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank(message: "Company name is required")]
     private ?string $company_name = null;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank(message: "Email is required")]
+    #[Assert\Email(message: "The email {{ value }} is not a valid email address")]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank(message: "Phone number is required")]
     private ?string $phone = null;
 
     #[ORM\Embedded(class: Address::class)]
     private Address $address;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank(message: "Tax Code is required")]
+    #[Assert\Length(min: 7, max: 20, minMessage: "Tax Code must contain at least {{ limit }} characters.", maxMessage: "Tax Code must be less than {{ limit }} characters.")]
     private ?string $tax_code = null;
 
     #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'entreprises')]
@@ -41,10 +48,29 @@ final class Entreprise implements UserInterface, PasswordAuthenticatedUserInterf
     private ?bool $supplier = null;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank(message: "Paswword is required")]
+    #[Assert\Length(min: 8, max: 255, minMessage: "Your password must contain at least {{ limit }} characters.", maxMessage: "Your password must be less than {{ limit }} characters.")]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Field is required")]
     private ?string $field = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imagePath = null;
+
+    /**
+     * @var Collection<int, MaterielRecyclable>
+     */
+    #[ORM\OneToMany(targetEntity: MaterielRecyclable::class, mappedBy: 'entreprise')]
+    private Collection $materielRecyclables;
+
+
+    public function __construct()
+    {
+        $this->address = new Address();
+        $this->materielRecyclables = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -173,7 +199,48 @@ final class Entreprise implements UserInterface, PasswordAuthenticatedUserInterf
     public function setField(string $field): static
     {
         $this->field = $field;
+        return $this;
+    }
+
+    public function getImagePath(): ?string
+    {
+        return $this->imagePath;
+    }
+
+    public function setImagePath(?string $imagePath): static
+    {
+        $this->imagePath = $imagePath;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MaterielRecyclable>
+     */
+    public function getMaterielRecyclables(): Collection
+    {
+        return $this->materielRecyclables;
+    }
+
+    public function addMaterielRecyclable(MaterielRecyclable $materielRecyclable): static
+    {
+        if (!$this->materielRecyclables->contains($materielRecyclable)) {
+            $this->materielRecyclables->add($materielRecyclable);
+            $materielRecyclable->setEntreprise($this);
+        }
 
         return $this;
     }
+
+    public function removeMaterielRecyclable(MaterielRecyclable $materielRecyclable): static
+    {
+        if ($this->materielRecyclables->removeElement($materielRecyclable)) {
+            // set the owning side to null (unless already changed)
+            if ($materielRecyclable->getEntreprise() === $this) {
+                $materielRecyclable->setEntreprise(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

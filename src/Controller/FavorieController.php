@@ -26,7 +26,7 @@ final class FavorieController extends AbstractController
 
         if (!$user) {
             // Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
-            return $this->redirectToRoute('login');
+            return $this->redirectToRoute('app_login');
         }
 
         // Récupérer les favoris de l'utilisateur connecté
@@ -45,12 +45,6 @@ final class FavorieController extends AbstractController
         ArticleRepository $articleRepository,
         Security $security
     ): RedirectResponse {
-        // Vérifier si l'utilisateur est connecté
-        $user = $security->getUser();
-        if (!$user) {
-            return $this->redirectToRoute('login'); // Redirection vers la page de connexion
-        }
-    
         // Récupérer l'article
         $article = $articleRepository->find($articleId);
     
@@ -62,7 +56,7 @@ final class FavorieController extends AbstractController
         // Vérifier si l'article est déjà dans les favoris
         $existingFavorite = $em->getRepository(Favorie::class)->findOneBy([
             'article' => $article,
-            'user' => $user
+            'user' => $security->getUser()  // Vérification si l'utilisateur a déjà ajouté cet article aux favoris
         ]);
     
         if ($existingFavorite) {
@@ -73,11 +67,9 @@ final class FavorieController extends AbstractController
         // Ajouter l'article aux favoris
         $favorie = new Favorie();
         $favorie->setArticle($article);
-        $favorie->setUser($user);
-    
-        $dateCreation = new \DateTime();
-        $favorie->setDateCreation($dateCreation);
-        $favorie->setDateExpiration((clone $dateCreation)->modify('+1 day')); // 24h après la création
+        $favorie->setUser($security->getUser());  // Associer l'utilisateur connecté
+        $favorie->setDateCreation(new \DateTime());
+        $favorie->setDateExpiration((new \DateTime())->modify('+1 year'));
     
         $em->persist($favorie);
         $em->flush();
@@ -85,7 +77,7 @@ final class FavorieController extends AbstractController
         $this->addFlash('success', 'Article ajouté aux favoris.');
         return $this->redirectToRoute('app_listarticle');
     }
-    
+
     #[Route('/favorites', name: 'list_favorites')]
     public function listFavorites(FavorieRepository $favorieRepository): Response
     {

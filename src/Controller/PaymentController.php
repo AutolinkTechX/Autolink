@@ -5,6 +5,7 @@ use App\Repository\ListArticleRepository;
 use App\Repository\UserRepository;
 use App\Repository\CommandeRepository;
 use App\Entity\Commande;
+use App\Entity\Article;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -107,14 +108,30 @@ final class PaymentController extends AbstractController
             // Sauvegarder la commande avec les articles payés
             $this->entityManager->flush(); // Sauvegarder en base de données
     
-            // Vider le panier après un paiement réussi
+            // Vider le panier après un paiement réussi et réduire le stock de chaque article
             foreach ($paniers as $panier) {
-                $this->entityManager->remove($panier); // Supprimer chaque article du panier
+                $article = $panier->getArticle(); // Récupérer l'article
+                // Récupérer la quantité en stock
+                $quantiteStock = $article->getQuantiteStock(); // Utilisation de quantiteStock
+
+                // Vérifier si l'article a suffisamment de stock
+                if ($quantiteStock >= $panier->getQuantite()) {
+                    // Diminuer le stock de l'article
+                    $article->setQuantiteStock($quantiteStock - $panier->getQuantite());
+                    $this->entityManager->persist($article); // Persister la modification du stock
+                } else {
+                    $this->addFlash('error', 'Pas assez de stock pour l\'article ' . $article->getNom());
+                    return $this->redirectToRoute('app_payment');
+                }
+
+                // Supprimer l'article du panier
+                $this->entityManager->remove($panier);
             }
+
             $this->entityManager->flush(); // Sauvegarder les modifications
     
             // Message de succès
-            $this->addFlash('success', 'Paiement effectué avec succès et votre Commande enregistrée .');
+            $this->addFlash('success', 'Paiement effectué avec succès et votre Commande enregistrée.');
         }
     
         return $this->render('payment/index.html.twig', [

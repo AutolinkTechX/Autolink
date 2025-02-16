@@ -3,7 +3,6 @@ namespace App\Entity;
 
 use App\Repository\ListArticleRepository;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: ListArticleRepository::class)]
 class ListArticle
@@ -25,8 +24,7 @@ class ListArticle
     #[ORM\ManyToOne(targetEntity: Article::class, inversedBy: 'listArticles')]
     private ?Article $article = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'listArticles')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(inversedBy: 'listArticles')]
     private ?User $user = null;
 
     public function getId(): ?int
@@ -83,9 +81,10 @@ class ListArticle
         return $this->user;
     }
 
-    public function setUser(User $user): self
+    public function setUser(?User $user): self
     {
         $this->user = $user;
+
         return $this;
     }
 }

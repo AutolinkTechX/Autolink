@@ -1,7 +1,5 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Liste des Articles{% endblock %}
-
 {% block body %}
     <section class="product spad">
         <div class="container">
@@ -16,7 +14,6 @@
                     </div>
                 {% endfor %}
             {% endfor %}
-
             <div class="row">
                 <div class="col-lg-3 col-md-5">
                     <div class="sidebar">
@@ -24,14 +21,13 @@
                             <h4>Catégorie</h4>
                             <ul>
                                 <li><a href="{{ path('app_listarticle') }}" class="btn btn-primary btn-small">All</a></li>
-                                <li><a href="{{ path('list_article_by_categorie', {'category': 'Echappement'}) }}">Echappement</a></li>
-                                <li><a href="{{ path('list_article_by_categorie', {'category': 'Electronique'}) }}">Electronique</a></li>
-                                <li><a href="{{ path('list_article_by_categorie', {'category': 'Freinage'}) }}">Freinage</a></li>
-                                <li><a href="{{ path('list_article_by_categorie', {'category': 'Pièces de carrosserie'}) }}">Pièces de carrosserie</a></li>
-                                <li><a href="{{ path('list_article_by_categorie', {'category': 'Roues et pneumatique'}) }}">Roues et pneumatique</a></li>
+                                <li><a href="{{ path('produits_by_categorie', {'category': 'Echappement'}) }}">Echappement</a></li>
+                                <li><a href="{{ path('produits_by_categorie', {'category': 'Electronique'}) }}">Electronique</a></li>
+                                <li><a href="{{ path('produits_by_categorie', {'category': 'Freinage'}) }}">Freinage</a></li>
+                                <li><a href="{{ path('produits_by_categorie', {'category': 'Pièces de carrosserie'}) }}">Pièces de carrosserie</a></li>
+                                <li><a href="{{ path('produits_by_categorie', {'category': 'Roues et pneumatique'}) }}">Roues et pneumatique</a></li>
                             </ul>
                         </div>
-
                         <div class="sidebar">
                             <div class="blog__sidebar__search">
                                 <form method="GET" action="{{ path('article_index') }}">
@@ -42,26 +38,34 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-lg-9 col-md-7">
                     <div class="product__discount">
                         <div class="section-title product__discount__title">
                             <h2>Les pièces recyclées</h2>
                         </div>
                         <div class="row">
-                            {% for article in articles %}
+                            {% for article in articles|slice(0, 6) %}
                                 <div class="col-lg-4 col-md-6 col-sm-6">
                                     <div class="product__item">
-                                        <div class="product__item__pic set-bg" style="background-image: url('{{ asset('img/product/' ~ article.image) }}');">
+                                        <div class="product__item__pic">
+                                            <img src="{{ asset('uploads/' ~ article.image) }}" alt="Article Image">
                                             <ul class="product__item__pic__hover">
-                                                <li><a href="{{ path('app_details', {'id': article.id}) }}"><i class="fa fa-retweet"></i></a></li>
-                                                <li><a href="{{ path('add_to_favorites', {'articleId': article.id}) }}"><i class="fa fa-heart"></i></a></li>
-                                                <li><a href="{{ path('add_to_cart', {'id': article.id}) }}" class="add-to-cart"><i class="fa fa-shopping-cart"></i></a></li>
+                                                <li><a href="http://127.0.0.1:8000/details/{{article.id }}"><i class="fa fa-retweet"></i></a></li>
+                                               <li>
+                                                   <a href="{{ path('add_to_favorites', {'articleId': article.id}) }}">
+                                                        <i class="fa fa-heart"></i>
+                                                    </a>
+                                                </li>
+                                               <li>
+                                                    <a href="{{ path('add_to_cart', {'id': article.id}) }}" class="add-to-cart">
+                                                        <i class="fa fa-shopping-cart"></i>
+                                                    </a>
+                                                </li>
                                             </ul>
                                         </div>
                                         <div class="product__item__text">
                                             <h6>{{ article.nom }}</h6>
-                                            <h5>${{ article.prix }}</h5>
+                                            <h5>{{ article.prix }} dt</h5>
                                         </div>
                                     </div>
                                 </div>
@@ -71,8 +75,10 @@
                 </div>
             </div>
         </div>
+        <ul class="pagination">
+            {{ knp_pagination_render(articles)|raw }}
+        </ul>
     </section>
-
     <style>
         .popup-message {
             position: fixed;
@@ -84,18 +90,16 @@
             max-width: 400px; /* Vous pouvez ajuster la taille */
             width: 100%;
         }
-
         @keyframes fadeIn {
             0% {
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.8); /* Ajouter un effet de mise en échelle au démarrage */
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8); /* Ajouter un effet de mise en échelle au démarrage */
             }
             100% {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1); /* Échelle normale */
-             }
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1); /* Échelle normale */
+            }
         }
-
         .alert-dismissible .close {
             position: absolute;
             top: 10px;
@@ -104,6 +108,5 @@
             background: transparent;
             border: none;
         }
-
     </style>
 {% endblock %}

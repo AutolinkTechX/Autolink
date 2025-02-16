@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\FavorieRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -14,19 +16,18 @@ class Favorie
     #[ORM\Column]
     private ?int $id = null;
 
-    // Renaming the property from 'id_user' to 'user'
-    #[ORM\ManyToOne(inversedBy: 'favories')]
-    private ?User $user = null;
-
-    // Renaming the property from 'id_article' to 'article'
-    #[ORM\ManyToOne(inversedBy: 'favories')]
-    private ?Article $article = null;
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $date_creation = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $date_expiration = null;
+
+    #[ORM\ManyToOne(inversedBy: 'favories')]
+    private ?User $user = null;
+
+    #[ORM\ManyToOne(inversedBy: 'favories')]
+    private ?Article $article = null;
+
 
     public function getId(): ?int
     {
@@ -36,30 +37,6 @@ class Favorie
     public function setId(int $id): static
     {
         $this->id = $id;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
-    public function getArticle(): ?Article
-    {
-        return $this->article;
-    }
-
-    public function setArticle(?Article $article): self
-    {
-        $this->article = $article;
 
         return $this;
     }
@@ -87,4 +64,29 @@ class Favorie
 
         return $this;
     }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getArticle(): ?Article
+    {
+        return $this->article;
+    }
+
+    public function setArticle(?Article $article): static
+    {
+        $this->article = $article;
+
+        return $this;
+    }
+
 }
