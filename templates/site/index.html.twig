@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ProduitsController!{% endblock %}
+{% block title %}Welcome to Autolink!{% endblock %}
 
 {% block body %}
     <section class="hero">
-        <div class="hero__item set-bg" style="background-image: url('{{ asset('img/carousel-2.jpg') }}');">
+        <div class="hero__item set-bg" style="background-image: url('{{ asset('uploads/carousel-2.jpg') }}');">
             <div class="hero__text">
                 <h1>Bienvenue sur AutoLink</h1>
                 <h3>Recyclage et vente de pièces auto</h3>
@@ -27,7 +27,7 @@
                             <!-- Carte 1 : Echappement -->
                             <div class="col-lg-3 col-md-4 col-sm-6">
                                 <div class="product__item">
-                                    <div class="product__item__pic set-bg" style="background-image: url('img/categories/drink-fruits.jpg');">
+                                    <div class="product__item__pic set-bg" style="background-image: url('uploads/echappement.jpg');">
                                         <ul class="product__item__pic__hover">
                                             <li><a href="{{ path('produits_by_categorie', {'category': 'Echappement'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>
@@ -40,7 +40,7 @@
                             <!-- Carte 2 : Electronique -->
                             <div class="col-lg-3 col-md-4 col-sm-6">
                                 <div class="product__item">
-                                    <div class="product__item__pic set-bg" style="background-image: url('img/categories/fresh-fruit.jpg');">
+                                    <div class="product__item__pic set-bg" style="background-image: url('uploads/electrique.jpg');">
                                         <ul class="product__item__pic__hover">
                                             <li><a href="{{ path('produits_by_categorie', {'category': 'Electronique'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>
@@ -53,7 +53,7 @@
                             <!-- Carte 3 :Freinage -->
                             <div class="col-lg-3 col-md-4 col-sm-6">
                                 <div class="product__item">
-                                    <div class="product__item__pic set-bg" style="background-image: url('img/categories/dried-fruit.jpg');">
+                                    <div class="product__item__pic set-bg" style="background-image: url('uploads/freinage.jpeg');">
                                         <ul class="product__item__pic__hover">
                                             <li><a href="{{ path('produits_by_categorie', {'category': 'Freinage'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>
@@ -66,7 +66,7 @@
                             <!-- Carte 4 : Pièces de carrosserie -->
                             <div class="col-lg-3 col-md-4 col-sm-6">
                                 <div class="product__item">
-                                    <div class="product__item__pic set-bg" style="background-image: url('img/categories/vegetables.jpg');">
+                                    <div class="product__item__pic set-bg" style="background-image: url('uploads/Pièces de carrosserie.jpg');">
                                         <ul class="product__item__pic__hover">
                                             <li><a href="{{ path('produits_by_categorie', {'category': 'Pièces de carrosserie'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>

@@ -18,8 +18,6 @@ class ListArticle
     #[ORM\Column]
     private ?float $prixUnitaire = null;
 
-    #[ORM\ManyToOne(targetEntity: Commande::class, inversedBy: 'listArticles')]
-    private ?Commande $commande = null;
 
     #[ORM\ManyToOne(targetEntity: Article::class, inversedBy: 'listArticles')]
     private ?Article $article = null;
@@ -54,16 +52,6 @@ class ListArticle
         return $this;
     }
 
-    public function getCommande(): ?Commande
-    {
-        return $this->commande;
-    }
-
-    public function setCommande(?Commande $commande): static
-    {
-        $this->commande = $commande;
-        return $this;
-    }
 
     public function getArticle(): ?Article
     {

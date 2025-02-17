@@ -20,14 +20,14 @@ final class ListArticleController extends AbstractController
         // Utiliser la méthode personnalisée pour récupérer les articles avec stock > 0
         $articles = $articleRepository->findArticlesWithStockGreaterThanZero();
 
-        $query = $articleRepository->createQueryBuilder('a')->getQuery();
+       // $query = $articleRepository->createQueryBuilder('a')->getQuery();
 
         // Pagination : 6 articles par page
-        $articles = $paginator->paginate(
+       /* $articles = $paginator->paginate(
             $query, 
             $request->query->getInt('page', 1), // Numéro de page par défaut = 1
             6 // Nombre d'articles par page
-        );
+        );*/
 
         return $this->render('list_article/index.html.twig', [
             'articles' => $articles,

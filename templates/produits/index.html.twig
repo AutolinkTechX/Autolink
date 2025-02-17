@@ -54,6 +54,7 @@
                                     <div class="product__item">
                                         <div class="product__item__pic set-bg" style="background-image: url('{{ asset('uploads/' ~ article.image) }}');">
                                             <ul class="product__item__pic__hover">
+                                                <li><a href="http://127.0.0.1:8000/details/{{article.id }}"><i class="fa fa-retweet"></i></a></li>
                                                 <li><a href="{{ path('add_to_favorites', {'articleId': article.id}) }}"><i class="fa fa-heart"></i></a></li>
                                                 <li><a href="{{ path('add_to_cart', {'id': article.id}) }}" class="add-to-cart"><i class="fa fa-shopping-cart"></i></a></li>
                                             </ul>
