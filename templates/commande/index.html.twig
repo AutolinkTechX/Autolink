@@ -31,9 +31,12 @@
                                 {% for panier in paniers  %}
                                     <div class="col-lg-4 col-md-6 col-sm-6">
                                         <div class="product__item">
-                                            <div class="product__item__pic set-bg" style="background-image: url('{{ asset('img/product/' ~ panier.article.getImage) }}');">
+                                            <div class="product__item__pic set-bg" style="background-image: url('{{ asset('uploads/' ~ panier.article.getImage) }}');">
                                                 <ul class="product__item__pic__hover">
                                                     <li>
+                                                        <form action="{{ path('add_to_cart', {'id': panier.article.id}) }}" method="POST" style="display: inline;">
+                                                            <button type="submit" class="btn btn-danger"><i class="fa fa-cart-plus"></i></button>
+                                                        </form>
                                                         <form action="{{ path('decrease_quantity', {'id': panier.article.id}) }}" method="POST" style="display: inline;">
                                                             <button type="submit" class="btn btn-danger"><i class="fa fa-times"></i></button>
                                                         </form>

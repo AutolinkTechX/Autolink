@@ -71,10 +71,16 @@ final class CommandeController extends AbstractController
 
 
     #[Route('/commande', name: 'app_commande')]
-public function index(ListArticleRepository $listarticleRepository, Security $security): Response
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function index(ListArticleRepository $listarticleRepository, Security $security): Response
 {
     // Récupérer l'utilisateur connecté
     $user = $security->getUser();
+    
+    if (!$user) {
+        $this->addFlash('error', 'Vous devez être connecté pour accéder à votre panier.');
+        return $this->redirectToRoute('login');
+    }
 
     // Utiliser le repository pour récupérer les articles de l'utilisateur connecté
     $paniers = $listarticleRepository->findByUser($user);
@@ -96,6 +102,7 @@ public function index(ListArticleRepository $listarticleRepository, Security $se
         'totalTTC' => $totalTTC,
     ]);
 }
+
 
     #[Route('/decrease-quantity/{id}', name: 'decrease_quantity', methods: ['POST'])]
     public function decreaseQuantity(int $id, EntityManagerInterface $em, Request $request): Response

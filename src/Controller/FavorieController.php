@@ -88,8 +88,29 @@ final class FavorieController extends AbstractController
         ]);
     }
     
-   
+    #[Route('/favorie/search', name: 'favorie_index')]
+    public function search(Request $request, ArticleRepository $articleRepository, FavorieRepository $favorieRepository): Response
+    {
+        $nomArticle = $request->query->get('nom_article'); // Récupérer le terme de recherche
 
+        // Si un nom d'article est fourni
+        if ($nomArticle) {
+            // Trouver les articles par nom
+            $articles = $articleRepository->findByNom($nomArticle);
+
+            // Trouver les favoris liés aux articles trouvés
+            $favories = $favorieRepository->findByArticles($articles); // Assurez-vous d'avoir cette méthode dans le repository
+        } else {
+            // Si aucun terme de recherche n'est donné, afficher tous les favoris
+            $favories = $favorieRepository->findAll();
+        }
+
+        return $this->render('favorie/index.html.twig', [
+            'favories' => $favories,
+        ]);
+    }
+    
+/*
     #[Route('/favorie/search', name: 'favorie_index')]
     public function search(Request $request, ArticleRepository $articleRepository): Response
     {
@@ -108,6 +129,7 @@ final class FavorieController extends AbstractController
         'articles' => $articles,
         ]);
     }
+        */
 
      // Route pour supprimer un favori
      #[Route('/supprimer/{id}', name: 'supprimer')]

@@ -6,11 +6,16 @@ use App\Repository\UserRepository;
 use App\Repository\CommandeRepository;
 use App\Entity\Commande;
 use App\Entity\Article;
+use App\Entity\Facture;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
+use Stripe\Stripe;
+use Stripe\Charge;
 
 final class PaymentController extends AbstractController
 {
@@ -18,122 +23,63 @@ final class PaymentController extends AbstractController
     private $userRepository;
     private $commandeRepository;
     private $entityManager;
+    private $stripeSecretKey;
+    private $stripePublicKey;
 
     public function __construct(
         ListArticleRepository $listarticleRepository,
         UserRepository $userRepository,
         CommandeRepository $commandeRepository,
-        EntityManagerInterface $entityManager
-    )
-    {
+        EntityManagerInterface $entityManager,
+        string $stripeSecretKey,
+        string $stripePublicKey
+    ) {
         $this->listarticleRepository = $listarticleRepository;
         $this->userRepository = $userRepository;
         $this->commandeRepository = $commandeRepository;
         $this->entityManager = $entityManager;
+        $this->stripeSecretKey = $stripeSecretKey;
+        $this->stripePublicKey = $stripePublicKey;
     }
 
     #[Route('/payment', name: 'app_payment')]
-    public function index(Request $request): Response
+    public function index(Request $request, Security $security): Response
     {
-        // Récupérer tous les articles du panier
-        $paniers = $this->listarticleRepository->findAll();
+        // Vérifier si l'utilisateur est connecté
+        $user = $security->getUser();
+        if (!$user) {
+            $this->addFlash('error', 'Vous devez être connecté pour ajouter un article au panier.');
+            return $this->redirectToRoute('login'); // Redirection vers la page de connexion
+        }
     
-        // Calcul du total HT
+
+        // Dummy data (replace with actual cart data)
+        $paniers = $this->listarticleRepository->findAll(); 
         $totalHT = 0;
         foreach ($paniers as $panier) {
             $totalHT += $panier->getQuantite() * $panier->getPrixUnitaire();
         }
-    
-        // Calcul de la TVA et du total TTC
+
         $tva = $totalHT * 0.20;
         $totalTTC = $totalHT + $tva;
-    
-        // Récupération des paramètres pour afficher les modals
+
+        // Detect which modal should be shown
         $showCardModal = filter_var($request->query->get('showCardModal', false), FILTER_VALIDATE_BOOLEAN);
         $showCashModal = filter_var($request->query->get('showCashModal', false), FILTER_VALIDATE_BOOLEAN);
-    
-        // Si le formulaire de paiement est soumis
-        if ($request->isMethod('POST') && $request->get('name') && $request->get('last_name') && $request->get('phone')) {
-            $name = $request->get('name');
-            $lastName = $request->get('last_name');
-            $phone = $request->get('phone');
-    
-            // Validation simple des informations
-            if (empty($name) || empty($lastName) || empty($phone)) {
-                $this->addFlash('error', 'Tous les champs doivent être remplis');
-                return $this->redirectToRoute('app_payment');
-            }
-    
-            // Vérification des informations de l'utilisateur dans la base de données
-            $user = $this->userRepository->findOneBy([
-                'name' => $name,
-                'lastName' => $lastName,
-                'phone' => $phone
-            ]);
-    
-            if (!$user) {
-                // L'utilisateur n'a pas été trouvé
-                $this->addFlash('error', 'Vérifiez vos données. Aucune correspondance trouvée.');
-                return $this->redirectToRoute('app_payment');
-            }
-    
-            // Récupérer le mode de paiement
-            $modePaiement = $request->get('payment_method');
-            
-            // Vérifier le mode de paiement
-            if (!$modePaiement || !in_array($modePaiement, ['especes', 'card'])) {
+
+        if ($request->isMethod('POST')) {
+            $paymentMethod = $request->get('payment_method');
+
+            if ($paymentMethod === 'card') {
+                return $this->handleCardPayment($request, $totalTTC , $paniers , $user);
+            } elseif ($paymentMethod === 'especes') {
+                return $this->handleCashPayment($request, $totalTTC , $paniers );
+            } else {
                 $this->addFlash('error', 'Mode de paiement invalide.');
                 return $this->redirectToRoute('app_payment');
             }
-    
-            // Création de la commande
-            $commande = new Commande();
-            $commande->setTotal($totalTTC);
-            $commande->setModePaiement($modePaiement);
-            $commande->setClient($user);
-            $commande->setDateCommande(new \DateTime());
-    
-            // Persister la commande (cela génère un ID pour la commande)
-            $this->entityManager->persist($commande);
-    
-            // Récupérer les identifiants des articles dans le panier et les associer à la commande
-            $articleIds = [];
-            foreach ($paniers as $panier) {
-                $articleIds[] = $panier->getArticle()->getId(); // Ajouter l'ID de l'article à la commande
-            }
-    
-            // Associer les identifiants des articles à la commande
-            $commande->setArticleIds($articleIds); // On utilise la méthode setArticleIds
-    
-            // Sauvegarder la commande avec les articles payés
-            $this->entityManager->flush(); // Sauvegarder en base de données
-    
-            // Vider le panier après un paiement réussi et réduire le stock de chaque article
-            foreach ($paniers as $panier) {
-                $article = $panier->getArticle(); // Récupérer l'article
-                // Récupérer la quantité en stock
-                $quantiteStock = $article->getQuantiteStock(); // Utilisation de quantiteStock
-
-                // Vérifier si l'article a suffisamment de stock
-                if ($quantiteStock >= $panier->getQuantite()) {
-                    // Diminuer le stock de l'article
-                    $article->setQuantiteStock($quantiteStock - $panier->getQuantite());
-                    $this->entityManager->persist($article); // Persister la modification du stock
-                } else {
-                    $this->addFlash('error', 'Pas assez de stock pour l\'article ' . $article->getNom());
-                    return $this->redirectToRoute('app_payment');
-                }
-
-                // Supprimer l'article du panier
-                $this->entityManager->remove($panier);
-            }
-
-            $this->entityManager->flush(); // Sauvegarder les modifications
-    
-            // Message de succès
-            $this->addFlash('success', 'Paiement effectué avec succès et votre Commande enregistrée.');
         }
-    
+
         return $this->render('payment/index.html.twig', [
             'paniers' => $paniers,
             'totalHT' => $totalHT,
@@ -143,4 +89,200 @@ final class PaymentController extends AbstractController
             'showCashModal' => $showCashModal,
         ]);
     }
+
+    private function handleCardPayment(Request $request, float $totalTTC , array $paniers, User $user): Response
+{
+    $token = $request->get('stripeToken'); // Get the token sent from the frontend
+
+    if (!$token) {
+        // Token is missing
+        $this->addFlash('error', 'Erreur de paiement : le token est manquant.');
+        return $this->redirectToRoute('app_payment');
+    }
+
+    try {
+        // ✅ Use the SECRET API Key for backend
+        \Stripe\Stripe::setApiKey($this->stripeSecretKey);
+
+        // Perform the charge using the token
+        \Stripe\Charge::create([
+            'amount' => $totalTTC * 100, // Convert to cents
+            'currency' => 'eur',
+            'source' => $token, // Use the token from frontend
+            'description' => 'Paiement Commande'
+        ]);
+
+
+        // Récupérer le mode de paiement
+        $modePaiement = $request->get('payment_method');
+
+        // Vérifier le mode de paiement
+        if (!$modePaiement || !in_array($modePaiement, ['especes', 'card'])) {
+            $this->addFlash('error', 'Mode de paiement invalide.');
+            return $this->redirectToRoute('app_payment');
+        }
+
+        // Création de la commande
+        $commande = new Commande();
+        $commande->setTotal($totalTTC);
+        $commande->setModePaiement($modePaiement);
+        $commande->setClient($user);
+        $commande->setDateCommande(new \DateTime());
+
+        // Persister la commande
+        $this->entityManager->persist($commande);
+        $this->entityManager->flush(); // Sauvegarde de la commande
+
+        // Vérification de l'existence de $paniers
+        if (!isset($paniers)) {
+            $this->addFlash('error', 'Le panier est introuvable.');
+            return $this->redirectToRoute('app_payment');
+        }
+
+        // Récupérer les identifiants des articles dans le panier
+        $articleIds = [];
+        foreach ($paniers as $panier) {
+            $articleIds[] = $panier->getArticle()->getId();
+        }
+
+        $commande->setArticleIds($articleIds);
+        $this->entityManager->flush(); // Sauvegarde de la commande
+
+        // Enregistrer dans la table facture
+        $facture = new Facture();
+        $facture->setCommande($commande);
+        $facture->setMontant($totalTTC);
+        $facture->setDatetime($commande->getDateCommande());
+        $facture->setClient($user);
+
+        $this->entityManager->persist($facture);
+        $this->entityManager->flush();
+
+        // Vider le panier et mettre à jour le stock
+        foreach ($paniers as $panier) {
+            $article = $panier->getArticle();
+            $quantiteStock = $article->getQuantiteStock();
+
+            if ($quantiteStock >= $panier->getQuantite()) {
+                $article->setQuantiteStock($quantiteStock - $panier->getQuantite());
+                $this->entityManager->persist($article);
+            } else {
+                $this->addFlash('error', 'Pas assez de stock pour l\'article ' . $article->getNom());
+                return $this->redirectToRoute('app_payment');
+            }
+
+            $this->entityManager->remove($panier);
+        }
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Paiement par carte réussi.');
+        return $this->redirectToRoute('app_order_success');
+
+    } catch (\Exception $e) {
+        $this->addFlash('error', 'Erreur de paiement : ' . $e->getMessage());
+        return $this->redirectToRoute('app_payment');
+    }
+
+    
+}
+
+    
+
+
+private function handleCashPayment(Request $request, float $totalTTC , array $paniers): Response
+{
+    // Si le formulaire de paiement est soumis
+    if ($request->isMethod('POST') && $request->get('name') && $request->get('last_name') && $request->get('phone')) {
+        $name = $request->get('name');
+        $lastName = $request->get('last_name');
+        $phone = $request->get('phone');
+
+        // Validation simple des informations
+        if (empty($name) || empty($lastName) || empty($phone)) {
+            $this->addFlash('error', 'Tous les champs doivent être remplis');
+            return $this->redirectToRoute('app_payment');
+        }
+
+        // Vérification des informations de l'utilisateur dans la base de données
+        $user = $this->userRepository->findOneBy([
+            'name' => $name,
+            'lastName' => $lastName,
+            'phone' => $phone
+        ]);
+
+        if (!$user) {
+            $this->addFlash('error', 'Vérifiez vos données. Aucune correspondance trouvée.');
+            return $this->redirectToRoute('app_payment');
+        }
+
+        // Récupérer le mode de paiement
+        $modePaiement = $request->get('payment_method');
+
+        // Vérifier le mode de paiement
+        if (!$modePaiement || !in_array($modePaiement, ['especes', 'card'])) {
+            $this->addFlash('error', 'Mode de paiement invalide.');
+            return $this->redirectToRoute('app_payment');
+        }
+
+        // Création de la commande
+        $commande = new Commande();
+        $commande->setTotal($totalTTC);
+        $commande->setModePaiement($modePaiement);
+        $commande->setClient($user);
+        $commande->setDateCommande(new \DateTime());
+
+        // Persister la commande
+        $this->entityManager->persist($commande);
+
+        // Vérification de l'existence de $paniers
+        if (!isset($paniers)) {
+            $this->addFlash('error', 'Le panier est introuvable.');
+            return $this->redirectToRoute('app_payment');
+        }
+
+        // Récupérer les identifiants des articles dans le panier
+        $articleIds = [];
+        foreach ($paniers as $panier) {
+            $articleIds[] = $panier->getArticle()->getId();
+        }
+
+        $commande->setArticleIds($articleIds);
+        $this->entityManager->flush(); // Sauvegarde de la commande
+
+        // Enregistrer dans la table facture
+        $facture = new Facture();
+        $facture->setCommande($commande);
+        $facture->setMontant($totalTTC);
+        $facture->setDatetime($commande->getDateCommande());
+        $facture->setClient($user);
+
+        $this->entityManager->persist($facture);
+        $this->entityManager->flush();
+
+        // Vider le panier et mettre à jour le stock
+        foreach ($paniers as $panier) {
+            $article = $panier->getArticle();
+            $quantiteStock = $article->getQuantiteStock();
+
+            if ($quantiteStock >= $panier->getQuantite()) {
+                $article->setQuantiteStock($quantiteStock - $panier->getQuantite());
+                $this->entityManager->persist($article);
+            } else {
+                $this->addFlash('error', 'Pas assez de stock pour l\'article ' . $article->getNom());
+                return $this->redirectToRoute('app_payment');
+            }
+
+            $this->entityManager->remove($panier);
+        }
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Paiement effectué avec succès et votre commande a été enregistrée.');
+    }
+
+    return $this->redirectToRoute('app_home');
+}
+
+
 }

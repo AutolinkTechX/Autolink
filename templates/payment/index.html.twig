@@ -121,30 +121,26 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Paiement par Carte Bancaire</h5>
-                <a href="{{ path('app_payment') }}" class="btn-close">✖</a>
+                <a href="{{ path('app_payment') }}" class="btn-close" aria-label="Close">✖</a>
             </div>
             <div class="modal-body">
-                <form action="{{ path('app_payment') }}" method="POST">
+                <form id="payment-form" action="{{ path('app_payment') }}" method="POST">
                     <input type="hidden" name="payment_method" value="card">
+
+                    <!-- Card Element Placeholder -->
                     <div class="mb-3">
                         <label class="form-label">Numéro de Carte</label>
-                        <input type="text" class="form-control" placeholder="xxxx xxxx xxxx xxxx" name="card_number" required>
+                        <div id="card-element"></div> <!-- Stripe's Card Element -->
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label class="form-label">Date d'expiration</label>
-                            <input type="text" class="form-control" placeholder="MM/AA" name="expiry_date" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">CVV</label>
-                            <input type="text" class="form-control" placeholder="xxx" name="cvv" required>
-                        </div>
-                    </div>
+
+                    <!-- Card Holder Name (for billing purposes) -->
                     <div class="mb-3">
-                        <label class="form-label">Titulaire de la Carte</label>
-                        <input type="text" class="form-control" placeholder="Nom Prénom" name="card_holder" required>
+                        <label class="form-label" for="card_holder">Titulaire de la Carte</label>
+                        <input type="text" class="form-control" id="card_holder" placeholder="Nom Prénom" name="card_holder" required>
                     </div>
-                    <button type="submit" class="btn btn-payment">Confirmer le Paiement</button>
+
+                    <!-- Submit Button -->
+                    <button id="submit-button" type="submit" class="btn btn-payment">Confirmer le Paiement</button>
                 </form>
             </div>
         </div>
@@ -223,5 +219,38 @@
 {% endfor %}
 
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+var stripe = Stripe('pk_test_51QtZAG08XEhYzXSHrbpvQ4kVHCvw42SkuF6fUp9ezUXf79xJdVJTrKnbgDuqmJOpeWquA0YCW3TzrbUHxhSJVbCY00nbvOAtBh');
+var elements = stripe.elements();
+var card = elements.create('card');
+card.mount('#card-element');  // Make sure this matches the ID in your HTML
+
+console.log( "fdssfdyf"); // Check the result object in the console
+// Listen for form submission
+var form = document.getElementById('payment-form');
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    // Create the token using Stripe.js
+    stripe.createToken(card).then(function(result) {
+        if (result.error) {
+            // Handle the error (show message to the user)
+            alert(result.error.message);
+        } else {
+            // Attach the token to the form and submit
+            var tokenInput = document.createElement('input');
+            tokenInput.setAttribute('type', 'hidden');
+            tokenInput.setAttribute('name', 'stripeToken');
+            tokenInput.setAttribute('value', result.token.id);  // The token ID
+            form.appendChild(tokenInput);
+
+            // Submit the form now that the token is included
+            form.submit();
+        }
+    });
+});
+</script>
 </body>
 </html>

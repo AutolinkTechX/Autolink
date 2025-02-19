@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Favorie;
+use App\Entity\Article;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,15 @@ class FavorieRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Favorie::class);
+    }
+
+    public function findByArticles(array $articles)
+    {
+        return $this->createQueryBuilder('f')
+            ->andWhere('f.article IN (:articles)')
+            ->setParameter('articles', $articles)
+            ->getQuery()
+            ->getResult();
     }
 
 //    /**

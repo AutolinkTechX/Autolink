@@ -33,3 +33,8 @@ services:
     App\Controller\MaterielRecyclableController:
         arguments:
             $uploadsDirectory: '%uploads_directory%'
+
+    App\Controller\PaymentController:
+        arguments:
+            $stripeSecretKey: '%env(STRIPE_SECRET_KEY)%'
+            $stripePublicKey: '%env(STRIPE_PUBLISHABLE_KEY)%'

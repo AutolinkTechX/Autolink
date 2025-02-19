@@ -83,3 +83,5 @@ security:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/entreprise, roles: ROLE_ENTREPRISE }
         - { path: ^/profile, roles: [ROLE_ADMIN, ROLE_CLIENT, ROLE_ENTREPRISE] }
+    
+    

@@ -61,4 +61,13 @@
         </div>
     </div>
 {% endfor %}
+
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        document.getElementById('downloadInvoiceBtn').addEventListener('click', function() {
+            window.print();
+        });
+    </script>
 {% endblock %}

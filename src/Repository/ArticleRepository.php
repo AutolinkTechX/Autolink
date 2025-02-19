@@ -25,7 +25,15 @@ class ArticleRepository extends ServiceEntityRepository
         ->getQuery()
         ->getResult();
     }
-
+    
+    public function findByNomArticle($nomArticle)
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.nom LIKE :nom')
+            ->setParameter('nom', '%' . $nomArticle . '%') // Utilise LIKE pour la recherche partielle
+            ->getQuery()
+            ->getResult();
+    }
     // src/Repository/ArticleRepository.php
 
     public function findArticlesWithStockGreaterThanZero()

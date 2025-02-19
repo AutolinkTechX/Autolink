@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\FactureRepository;
@@ -23,6 +22,9 @@ class Facture
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Commande $commande = null;
 
+    #[ORM\ManyToOne(inversedBy: 'factures')]  // Corrected here
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $client = null;
 
     public function getId(): ?int
     {
@@ -71,5 +73,15 @@ class Facture
 
         return $this;
     }
-    
+
+    public function getClient(): ?User
+    {
+        return $this->client;
+    }
+
+    public function setClient(?User $client): static
+    {
+        $this->client = $client;
+        return $this;
+    }
 }
