@@ -162,17 +162,17 @@
                     <input type="hidden" name="payment_method" value="especes">
                     <div class="row">
                         <div class="col mb-6">
-                            <label class="form-label">Nom</label>
-                            <input type="text" class="form-control" placeholder="Nom" name="name" required>
+                            <label class="form-label">Prénom</label>
+                            <input type="text" class="form-control" placeholder="Prénom" value="{{ app.user.Name }}" name="name" required>
                         </div>
                         <div class="col mb-6">
-                            <label class="form-label">Prénom</label>
-                            <input type="text" class="form-control" placeholder="Prénom" name="last_name" required>
+                            <label class="form-label">Nom</label>
+                            <input type="text" class="form-control" placeholder="Nom" value="{{ app.user.lastName }}" name="last_name" required>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Numéro de Téléphone</label>
-                        <input type="text" class="form-control" placeholder="Votre numéro" name="phone" required>
+                        <input type="text" class="form-control" placeholder="Votre numéro" value="{{ app.user.phone}}" name="phone" required>
                     </div>
                     <button type="submit" class="btn btn-payment">Confirmer le Paiement</button>
                 </form>
