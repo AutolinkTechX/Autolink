@@ -28,7 +28,7 @@ final class ArticleController extends AbstractController
         $this->uploadsDirectory = $uploadsDirectory;
     }
 
-    #[Route('/admin/listArticles', name: 'list_articles_admin')]
+   /* #[Route('/admin/listArticles', name: 'list_articles_admin')]
     public function listArticles(ArticleRepository $articleRepository, Request $request, EntityManagerInterface $entityManager): Response
     {
         $articles = $articleRepository->findAll();
@@ -72,7 +72,62 @@ final class ArticleController extends AbstractController
             'articles' => $articles,
             'form' => $form->createView(),
         ]);
+    }*/
+    #[Route('/admin/listArticles', name: 'list_articles_admin')]
+public function listArticles(ArticleRepository $articleRepository, Request $request, EntityManagerInterface $entityManager): Response
+{
+    $articles = $articleRepository->findAll();
+
+    // Create a new article form
+    $article = new Article();
+    $form = $this->createForm(ArticleType::class, $article);
+
+    // Handle form submission
+    $form->handleRequest($request);
+    $formErrors = false; // Initialisation de la variable formErrors
+
+    if ($form->isSubmitted()) {
+        if ($form->isValid()) {
+            $article = $form->getData();
+            $article->setDatecreation(new \DateTimeImmutable());
+
+            // Handle image upload
+            $file = $form->get('image')->getData();
+            if ($file) {
+                $fileName = md5(uniqid()) . '.' . $file->guessExtension();
+                try {
+                    $file->move($this->uploadsDirectory, $fileName);
+                    $article->setImage($fileName);
+                } catch (FileException $e) {
+                    // Handle file upload error
+                    $this->addFlash('error', 'There was an error uploading your Product image: ' . $e->getMessage());
+                    return $this->redirectToRoute('list_articles_admin');
+                }
+            } else {
+                $this->addFlash('error', $article->getNom() . ' was added without an Image!');
+                $article->setImage('default-image.jpg');
+            }
+            $this->addFlash('success', $article->getNom() . ' was added successfully!');
+
+            $entityManager->persist($article);
+            $entityManager->flush();
+
+            // Redirect back to the list of articles
+            return $this->redirectToRoute('list_articles_admin');
+        } else {
+            // Si le formulaire est soumis mais non valide, nous définissons formErrors à true
+            $formErrors = true;
+            $this->addFlash('error', 'Il y a un erreur de saisie dans la formulaire.');
+        }
     }
+
+    return $this->render('article/list_articles_dashboard.html.twig', [
+        'articles' => $articles,
+        'form' => $form->createView(),
+        'formErrors' => $formErrors, // Passer la variable formErrors à Twig
+    ]);
+}
+
 
     #[Route('/admin/editArticle/{id}', name: 'edit_article_admin')]
     public function editArticle(int $id, ArticleRepository $articleRepository, Request $request, EntityManagerInterface $entityManager): Response
