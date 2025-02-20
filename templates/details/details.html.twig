@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de l'article{% endblock %}
+
+{% block body %}
+<section class="product-details spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <div class="product__details__pic">
+                    <div class="product__details__pic__item">
+                        <img class="product__details__pic__item--large" src="{{ asset('uploads/Facture2.png' ) }}" alt="Image Facture">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="product__details__text">
+                    <h3>Facture N° {{ facture.id }}</h3>
+                    <div class="product__details__rating">
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star-half-o"></i>
+                        <span>(18 reviews)</span>
+                    </div>
+                    <div class="product__details__price">
+                        <b>Total Facture :</b> {{ facture.montant|number_format(2, ',', ' ') }} €
+                    </div>
+
+                    <p><b>Date de la Facture :</b> {{ facture.datetime|date('d/m/Y') }}</p>
+
+                    <div class="order-details">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Produit</th>
+                                    <th>Prix Unitaire</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for article in articles %}
+                                    <tr>
+                                        <td>{{ article.nom }}</td>
+                                        <td>{{ article.prix|number_format(2, ',', ' ') }} dt</td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td colspan="4">Aucun article trouvé.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <a href="#" class="primary-btn" id="downloadInvoiceBtn">Télécharger Facture</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% for message in app.flashes('success') %}
+    <div class="modal show d-block popup-message" style="background: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <a href="{{ path('app_details') }}" class="btn-close">✖</a>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-success">
+                        {{ message }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+    document.getElementById('downloadInvoiceBtn').addEventListener('click', function() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Titre de la facture
+        doc.setFontSize(16);
+        doc.text("Facture N° {{ facture.id }}", 105, 20, null, null, "center");
+
+        // Informations de la facture
+        doc.setFontSize(12);
+        doc.text(`Date de la Facture : {{ facture.datetime|date('d/m/Y') }}`, 20, 30);
+        doc.text(`Total Facture : {{ facture.montant|number_format(2, ',', ' ') }} €`, 20, 40);
+
+        // En-têtes du tableau
+        let y = 50; // Position verticale de départ
+        doc.text("Produit", 20, y);
+        doc.text("Prix Unitaire", 70, y);
+        doc.text("Quantité", 120, y);
+        doc.text("Total", 170, y);
+
+        y += 10; // Espace entre les en-têtes et les données
+
+        // Ajouter les détails des articles
+        {% for article in articles %}
+            doc.text("{{ article.nom }}", 20, y);
+            doc.text("{{ article.prix|number_format(2, ',', ' ') }} dt", 70, y);
+            doc.text("{{ article.quantitestock }}", 120, y);
+            doc.text("{{ (facture.montant)|number_format(2, ',', ' ') }} dt", 170, y);
+            y += 10; // Espace entre les lignes
+        {% endfor %}
+
+        // Télécharger le fichier PDF
+        doc.save("facture_{{ facture.id }}.pdf");
+    });
+</script>
+{% endblock %}

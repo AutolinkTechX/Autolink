@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <section class="product spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-5">
+                    <div class="sidebar">
+                        <div class="blog__sidebar__search">
+                            <form method="GET" action="{{ path('factures_index') }}">
+                                <input type="date" name="date_facture" placeholder="Rechercher par date...">
+                                <button type="submit"><span class="icon_search"></span></button>
+                            </form>
+                        </div>
+                        <div class="blog__sidebar__button" style="margin-top: 10px;">
+                            <a href="{{ path('factures_index') }}" class="btn btn-primary">Afficher toutes mes factures</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-9 col-md-7">
+                    <div class="product__discount">
+                        <div class="section-title product__discount__title">
+                            <h2>Vos Factures</h2>
+                        </div>
+                        <div class="row">
+                            {% if factures is empty %}
+                                <p>Aucune facture trouvée.</p>
+                            {% else %}
+                                {% for facture in factures %}
+                                    <div class="col-lg-4 col-md-6 col-sm-6">
+                                        <div class="product__item">
+                                            <div class="product__item__pic set-bg" style="background-image: url('{{ asset('uploads/facture.jpg') }}');">
+                                                <ul class="product__item__pic__hover">
+                                                    <li>
+                                                        <button type="button" onclick="window.location.href='{{ path('facture_details', {'id': facture.id}) }}'" class="btn btn-danger">
+                                                            <i class="fa fa-eye"></i> 
+                                                        </button>
+                                                    </li>
+                                                    <li>
+                                                        <form action="{{ path('factures_delete', {'id': facture.id}) }}" method="POST" style="display: inline;">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ facture.id) }}">
+                                                            <button type="submit" class="btn btn-danger" onclick="confirmDelete(event)">
+                                                                <i class="fa fa-times"></i> 
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="product__item__text">
+                                                <h6>Facture </h6>
+                                                <p>Date de Commande: {{ facture.datetime|date('d/m/Y') }}</p>
+                                                <p>Heure : {{ facture.datetime|date('H:i') }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <script>
+    function confirmDelete(event) {
+        if (!confirm("Êtes-vous sûr de vouloir supprimer cette facture ?")) {
+            event.preventDefault();
+        }
+    }
+    </script>
+   
+{% endblock %}
