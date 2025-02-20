@@ -1,34 +1,129 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Comment{% endblock %}
+{% block title %}Comment Details{% endblock %}
 
-{% block body %}
-    <h1>Comment</h1>
+{% block stylesheets %}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ comment.id }}</td>
-            </tr>
-            <tr>
-                <th>Content</th>
-                <td>{{ comment.content }}</td>
-            </tr>
-            <tr>
-                <th>Created_at</th>
-                <td>{{ comment.createdAt ? comment.createdAt|date('Y-m-d') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Id_user</th>
-                <td>{{ comment.idUser }}</td>
-            </tr>
-        </tbody>
-    </table>
+        .container {
+            width: 50%;
+            margin: 50px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
 
-    <a href="{{ path('app_comment_index') }}">back to list</a>
+        h1 {
+            color: #b5602c;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
 
-    <a href="{{ path('app_comment_edit', {'id': comment.id}) }}">edit</a>
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
 
-    {{ include('comment/_delete_form.html.twig') }}
+        .table th, .table td {
+            padding: 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .table th {
+            background: #b5602c;
+            color: white;
+            font-weight: bold;
+        }
+
+        .table tr:nth-child(even) {
+            background: #f4f4f4;
+        }
+
+        .btn-container {
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 1em;
+            text-decoration: none;
+            transition: 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #b5602c;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #d17942;
+        }
+
+        .btn-secondary {
+            background: #ddd;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #bbb;
+        }
+
+        .btn-danger {
+            background: #d9534f;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c9302c;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+        }
+    </style>
 {% endblock %}
+{% block body %}
+    <div class="container">
+        <h1>{{ blog.title }}</h1>
+        <p>{{ blog.content }}</p>
+
+<div class="comment-section">
+    <h2>Comments</h2>
+    
+    {% for comment in comments %}
+        <div class="comment-card">
+            <div class="comment-content">
+                <h3>{{ comment.content }}</h3>
+                <p class="comment-info">
+                    Created on: {{ comment.createdAt ? comment.createdAt|date('Y-m-d') : 'N/A' }}
+                </p>
+            </div>
+        </div>
+    {% else %}
+        <p class="no-records">No comments yet. Be the first to comment!</p>
+    {% endfor %}
+</div>
+
+
+
+    </div>
+{% endblock %}
+

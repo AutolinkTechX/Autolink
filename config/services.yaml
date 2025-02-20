@@ -5,6 +5,8 @@
 
 parameters:
     # Define any parameters here if needed
+    uploads_directory: 'C:\Users\rayyo\OneDrive\Bureau\Rayen-pidev-ndhyf\Autolink\public\uploads'
+
 
 services:
     # default configuration for services in *this* file

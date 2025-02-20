@@ -1,39 +1,194 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Blog index{% endblock %}
+{% block title %}Create your blog here{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fff !important;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .logo-container img {
+            max-width: 200px;
+            height: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 40px 0;
+            color: #b5602c;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Grille des blogs */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .blog-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: all 0.3s ease-in-out;
+            text-align: center;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .blog-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .blog-card h3 {
+            margin: 10px 0;
+            color: #b5602c;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .blog-card p {
+            font-size: 1em;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        .blog-card .info {
+            font-size: 0.9em;
+            color: #777;
+            opacity: 0.8;
+        }
+
+        .blog-card .actions {
+            margin-top: 15px;
+        }
+
+        .blog-card .actions a {
+            color: #b5602c;
+            text-decoration: none;
+            margin-right: 15px;
+            font-weight: 600;
+            font-size: 1em;
+            transition: color 0.3s ease;
+        }
+
+        .blog-card .actions a:hover {
+            color: #d17942;
+        }
+
+        .btn {
+            background-color: #b5602c;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 50px;
+            display: block;
+            width: fit-content;
+            margin: 30px auto;
+            font-size: 1.1em;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #d17942;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .no-records {
+            text-align: center;
+            font-size: 1.2em;
+            color: #777;
+            margin-top: 20px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .btn {
+                padding: 12px 25px;
+            }
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-    <h1>Blog index</h1>
+    <div class="logo-container">
+        <img src="{{ asset('img/logo.jpg') }}" alt="Logo">
+    </div>
+    
+    <div class="container">
+        <h1>Create your blog here</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Content</th>
-                <th>Published_date</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for blog in blogs %}
-            <tr>
-                <td>{{ blog.id }}</td>
-                <td>{{ blog.title }}</td>
-                <td>{{ blog.content }}</td>
-                <td>{{ blog.publishedDate ? blog.publishedDate|date('Y-m-d') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_blog_show', {'id': blog.id}) }}">show</a>
-                    <a href="{{ path('app_blog_edit', {'id': blog.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        <div class="blog-grid">
+            {% for blog in blogs %}
+                <div class="blog-card">
+                    {% if blog.image %}
+                        <img src="{{ asset('uploads/' ~ blog.image) }}" alt="Blog Image">
+                    {% else %}
+                        <img src="{{ asset('img/default.jpg') }}" alt="Default Image">
+                    {% endif %}
+                    <h3>{{ blog.title }}</h3>
+                    <p>{{ blog.content|slice(0, 100) }}...</p> <!-- Extrait du contenu -->
+                    <p class="info">
+                        Published on: {{ blog.publishedDate ? blog.publishedDate|date('Y-m-d') : '' }}
+                    </p>
+<div class="actions">
+    <a href="{{ path('app_blog_show', {'id': blog.id}) }}">Show</a>
+    <a href="{{ path('comment_show', {'id': blog.id}) }}">Show Comments</a>
+    <a href="{{ path('app_blog_edit', {'id': blog.id}) }}">Edit</a>
+</div>
 
-    <a href="{{ path('app_blog_new') }}">Create new</a>
+                </div>
+            {% else %}
+                <p class="no-records">No records found</p>
+            {% endfor %}
+        </div>
+
+        <a href="{{ path('app_blog_new') }}" class="btn">Create New</a>
+        <a href="{{ path('app_comment_index') }}" class="btn">Show Comments</a>
+    </div>
+
+    {% block footer %}
+        <footer style="background-color: #b5602c; color: white; padding: 20px 0; text-align: center;">
+            <p>&copy; {{ "now"|date("Y") }} Your Blog. All rights reserved.</p>
+            <p>Follow us on 
+                <a href="#" style="color: white; text-decoration: none;">Facebook</a>, 
+                <a href="#" style="color: white; text-decoration: none;">Twitter</a>, 
+                <a href="#" style="color: white; text-decoration: none;">Instagram</a>
+            </p>
+        </footer>
+    {% endblock %}
 {% endblock %}

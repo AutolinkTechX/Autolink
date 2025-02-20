@@ -2,10 +2,103 @@
 
 {% block title %}New Comment{% endblock %}
 
+{% block stylesheets %}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            width: 50%;
+            margin: 50px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #b5602c;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .form-container {
+            text-align: left;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        textarea {
+            resize: none;
+            height: 100px;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #b5602c, #d17942);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: #ddd;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: #bbb;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-    <h1>Create new Comment</h1>
+    <div class="container">
+        <h1>Create New Comment</h1>
 
-    {{ include('comment/_form.html.twig') }}
+        <div class="form-container">
+            {{ include('comment/_form.html.twig') }}
+        </div>
 
-    <a href="{{ path('app_comment_index') }}">back to list</a>
+        <a href="{{ path('app_comment_index') }}" class="back-link">Back to List</a>
+    </div>
 {% endblock %}

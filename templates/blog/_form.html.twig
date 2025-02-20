@@ -1,4 +1,128 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+<style>
+    /* Style global du formulaire */
+    form {
+        width: 100%;
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        color: #333;
+    }
+
+    h2 {
+        font-size: 28px;
+        color: #db966b;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* Champ de formulaire */
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    label {
+        display: block;
+        font-size: 16px;
+        color: #444;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+
+    input[type="text"], input[type="email"], input[type="password"], textarea, select {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        color: #555;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+        border-color: #db966b;
+        box-shadow: 0 0 5px #db966b;
+    }
+
+    /* Bouton d'envoi */
+    .btn {
+        width: 100%;
+        padding: 15px;
+        background-color: #db966b;
+        color: white;
+        font-size: 18px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn:hover {
+        background-color: #efd0bd;
+        transform: translateY(-2px);
+    }
+
+    /* Bouton "Retour à la liste" amélioré */
+    .btn-back {
+        width: 100%;
+        padding: 15px;
+        background-color: #f0f0f0;
+        color: #db966b;
+        font-size: 18px;
+        border: 2px solid #db966b;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        font-weight: 600;
+        margin-top: 20px;
+    }
+
+    .btn-back:hover {
+        background-color: #db966b;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-back:active {
+        transform: translateY(0);
+    }
+
+    /* Animation d'apparition du formulaire */
+    form {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="form-container">
+    <h2>Créer un Blog</h2>
+
+    <div class="form-group">
+        {{ form_widget(form.title) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_widget(form.content) }}
+    </div>
+
+    <button class="btn">{{ button_label|default('Enregistrer') }}</button>
+
+</div>
+
 {{ form_end(form) }}

@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Blog;
+use App\Entity\Comment;
 use App\Form\BlogType;
 use App\Repository\BlogRepository;
+use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,6 +52,22 @@ final class BlogController extends AbstractController
         ]);
     }
 
+
+    #[Route('/comments/{id}', name: 'comment_show', methods: ['GET'])]
+    public function show2(Blog $blog, CommentRepository $cr): Response
+    {
+        $comments = $cr->findBy(['blog' => $blog]); // Fetch comments related to the blog
+    
+        return $this->render('comment/show.html.twig', [
+            'blog' => $blog,
+            'comments' => $comments,
+        ]);
+    }
+    
+    
+
+
+
     #[Route('/{id}/edit', name: 'app_blog_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
     {
@@ -57,7 +75,7 @@ final class BlogController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $entityManager->flush(); 
 
             return $this->redirectToRoute('app_blog_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -67,6 +85,8 @@ final class BlogController extends AbstractController
             'form' => $form,
         ]);
     }
+
+
 
     #[Route('/{id}', name: 'app_blog_delete', methods: ['POST'])]
     public function delete(Request $request, Blog $blog, EntityManagerInterface $entityManager): Response
@@ -78,4 +98,11 @@ final class BlogController extends AbstractController
 
         return $this->redirectToRoute('app_blog_index', [], Response::HTTP_SEE_OTHER);
     }
+
+
+
+
 }
+
+
+

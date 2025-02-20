@@ -1,34 +1,115 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Blog{% endblock %}
+{% block title %}{{ blog.title }}{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .container {
+            width: 80%;
+            margin: 40px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #b5602c;
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .blog-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .table th {
+            background: #b5602c;
+            color: white;
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn {
+            background-color: #b5602c;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #d17942;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-    <h1>Blog</h1>
+    <div class="container">
+        <h1>{{ blog.title }}</h1>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ blog.id }}</td>
-            </tr>
-            <tr>
-                <th>Title</th>
-                <td>{{ blog.title }}</td>
-            </tr>
-            <tr>
-                <th>Content</th>
-                <td>{{ blog.content }}</td>
-            </tr>
-            <tr>
-                <th>Published_date</th>
-                <td>{{ blog.publishedDate ? blog.publishedDate|date('Y-m-d') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+        {% if blog.image %}
+            <img src="{{ asset('uploads/' ~ blog.image) }}" alt="Blog Image" class="blog-image">
+        {% else %}
+            <img src="{{ asset('img/default.jpg') }}" alt="Default Image" class="blog-image">
+        {% endif %}
 
-    <a href="{{ path('app_blog_index') }}">back to list</a>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Id</th>
+                    <td>{{ blog.id }}</td>
+                </tr>
+                <tr>
+                    <th>Title</th>
+                    <td>{{ blog.title }}</td>
+                </tr>
+                <tr>
+                    <th>Content</th>
+                    <td>{{ blog.content }}</td>
+                </tr>
+                <tr>
+                    <th>Published Date</th>
+                    <td>{{ blog.publishedDate ? blog.publishedDate|date('Y-m-d') : 'N/A' }}</td>
+                </tr>
+            </tbody>
+        </table>
 
-    <a href="{{ path('app_blog_edit', {'id': blog.id}) }}">edit</a>
+        <div class="buttons">
+            <a href="{{ path('app_blog_index') }}" class="btn">Back to List</a>
+            <a href="{{ path('app_blog_edit', {'id': blog.id}) }}" class="btn">Edit</a>
+        </div>
 
-    {{ include('blog/_delete_form.html.twig') }}
+        <div style="margin-top: 20px;">
+            {{ include('blog/_delete_form.html.twig') }}
+        </div>
+    </div>
 {% endblock %}
