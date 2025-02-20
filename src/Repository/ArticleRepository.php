@@ -44,7 +44,19 @@ class ArticleRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-
+public function deleteArticle($article)
+{
+    $entityManager = $this->getEntityManager();
+    
+    // Supprimer les favoris liés à cet article
+    $entityManager->createQuery('DELETE FROM App\Entity\Favorie f WHERE f.article = :article')
+                  ->setParameter('article', $article)
+                  ->execute();
+    
+    // Maintenant, on peut supprimer l'article
+    $entityManager->remove($article);
+    $entityManager->flush();
+}
 
     //    /**
     //     * @return Article[] Returns an array of Article objects

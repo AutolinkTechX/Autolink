@@ -8,13 +8,15 @@
                     <div class="sidebar">
                         <div class="blog__sidebar__search">
                             <form method="GET" action="{{ path('factures_index') }}">
-                                <input type="text" name="id_facture" placeholder="Rechercher par ID...">
+                                <input type="date" name="date_facture" placeholder="Rechercher par date...">
                                 <button type="submit"><span class="icon_search"></span></button>
                             </form>
                         </div>
+                        <div class="blog__sidebar__button" style="margin-top: 10px;">
+                            <a href="{{ path('factures_index') }}" class="btn btn-primary">Afficher toutes mes factures</a>
+                        </div>
                     </div>
                 </div>
-                
                 <div class="col-lg-9 col-md-7">
                     <div class="product__discount">
                         <div class="section-title product__discount__title">

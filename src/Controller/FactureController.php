@@ -21,30 +21,61 @@ class FactureController extends AbstractController
         $this->factureRepository = $factureRepository;
     }
 
-    #[Route('/factures', name: 'factures_index', methods: ['GET'])]
+    /*#[Route('/factures', name: 'factures_index', methods: ['GET'])]
     public function index(Request $request, Security $security): Response
     {
         $user = $security->getUser();
         $factures = [];
-
+    
         if ($user) {
-            $searchId = $request->query->get('id_facture');
-
-            if ($searchId) {
-                $factures = $this->factureRepository->findBy([
-                    'id' => $searchId,
-                    'client' => $user
-                ]);
-            } else {
-                $factures = $this->factureRepository->findBy(['client' => $user]);
+            $searchDate = $request->query->get('date_facture');
+    
+            $qb = $this->factureRepository->createQueryBuilder('f')
+                ->where('f.client = :client')
+                ->setParameter('client', $user);
+    
+            if ($searchDate) {
+                $qb->andWhere('DATE(f.dateFacture) = :date')
+                   ->setParameter('date', new \DateTime($searchDate));
             }
+    
+            $factures = $qb->getQuery()->getResult();
         }
-
+    
         return $this->render('facture/index.html.twig', [
             'factures' => $factures,
         ]);
-    }
+    }*/
 
+    #[Route('/factures', name: 'factures_index', methods: ['GET'])]
+public function index(Request $request, Security $security): Response
+{
+    $user = $security->getUser();
+    $factures = [];
+    
+    if ($user) {
+        $searchDate = $request->query->get('date_facture');
+    
+        $qb = $this->factureRepository->createQueryBuilder('f')
+            ->where('f.client = :client')
+            ->setParameter('client', $user);
+    
+    
+        if ($searchDate) {
+            // Filtrer en fonction de la date, en s'assurant que la comparaison se fait sur le champ 'datetime'
+            $qb->andWhere('f.datetime = :date')
+               ->setParameter('date', new \DateTime($searchDate));
+        }
+    
+        $factures = $qb->getQuery()->getResult();
+    }
+    
+    return $this->render('facture/index.html.twig', [
+        'factures' => $factures,
+    ]);
+}
+
+    
     
     #[Route('/factures/details/{id}', name: 'facture_details', methods: ['GET'])]
 public function show(int $id, FactureRepository $factureRepository, ArticleRepository $articleRepository): Response

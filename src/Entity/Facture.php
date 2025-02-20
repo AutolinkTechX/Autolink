@@ -55,7 +55,7 @@ class Facture
         return $this->datetime;
     }
 
-    public function setDatetime(\DateTimeInterface $datetime): static
+    public function setDatetime(\DateTimeInterface $datetime): self
     {
         $this->datetime = $datetime;
 

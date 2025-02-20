@@ -9,8 +9,7 @@
                 <h1>Bienvenue sur AutoLink</h1>
                 <h3>Recyclage et vente de pièces auto</h3>
                 <a href="#" class="primary-btn">Acheter Produit</a>
-                <a href="#" class="primary-btn">Ajouter Produit</a>
-                <a href="{{ path('factures_index') }}" class="primary-btn">Vos factures</a>
+                <a href="#" class="primary-btn">Ajouter Produit</a>   
             </div>
         </div>
     </section>
@@ -30,7 +29,7 @@
                                 <div class="product__item">
                                     <div class="product__item__pic set-bg" style="background-image: url('uploads/echappement.jpg');">
                                         <ul class="product__item__pic__hover">
-                                            <li><a href="{{ path('produits_by_categorie', {'category': 'Echappement'}) }}"><i class="fa fa-retweet"></i></a></li>
+                                            <li><a href="{{ path('list_article_by_categorie', {'category': 'Echappement'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>
                                     </div>
                                     <div class="product__item__text">
@@ -43,7 +42,7 @@
                                 <div class="product__item">
                                     <div class="product__item__pic set-bg" style="background-image: url('uploads/electrique.jpg');">
                                         <ul class="product__item__pic__hover">
-                                            <li><a href="{{ path('produits_by_categorie', {'category': 'Electronique'}) }}"><i class="fa fa-retweet"></i></a></li>
+                                            <li><a href="{{ path('list_article_by_categorie', {'category': 'Electronique'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>
                                     </div>
                                     <div class="product__item__text">
@@ -56,7 +55,7 @@
                                 <div class="product__item">
                                     <div class="product__item__pic set-bg" style="background-image: url('uploads/freinage.jpeg');">
                                         <ul class="product__item__pic__hover">
-                                            <li><a href="{{ path('produits_by_categorie', {'category': 'Freinage'}) }}"><i class="fa fa-retweet"></i></a></li>
+                                            <li><a href="{{ path('list_article_by_categorie', {'category': 'Freinage'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>
                                     </div>
                                     <div class="product__item__text">
@@ -69,7 +68,7 @@
                                 <div class="product__item">
                                     <div class="product__item__pic set-bg" style="background-image: url('uploads/Pièces de carrosserie.jpg');">
                                         <ul class="product__item__pic__hover">
-                                            <li><a href="{{ path('produits_by_categorie', {'category': 'Pièces de carrosserie'}) }}"><i class="fa fa-retweet"></i></a></li>
+                                            <li><a href="{{ path('list_article_by_categorie', {'category': 'Pièces de carrosserie'}) }}"><i class="fa fa-retweet"></i></a></li>
                                         </ul>
                                     </div>
                                     <div class="product__item__text">

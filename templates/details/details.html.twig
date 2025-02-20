@@ -36,8 +36,6 @@
                                 <tr>
                                     <th>Produit</th>
                                     <th>Prix Unitaire</th>
-                                    <th>Quantité</th>
-                                    <th>Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -45,8 +43,6 @@
                                     <tr>
                                         <td>{{ article.nom }}</td>
                                         <td>{{ article.prix|number_format(2, ',', ' ') }} dt</td>
-                                        <td>{{ article.quantitestock }}</td>
-                                        <td>{{ (facture.montant)|number_format(2, ',', ' ') }} dt</td>
                                     </tr>
                                 {% else %}
                                     <tr><td colspan="4">Aucun article trouvé.</td></tr>
