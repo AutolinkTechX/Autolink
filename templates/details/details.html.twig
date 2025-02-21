@@ -28,7 +28,11 @@
                         <b>Total Facture :</b> {{ facture.montant|number_format(2, ',', ' ') }} €
                     </div>
 
-                    <p><b>Date de la Facture :</b> {{ facture.datetime|date('d/m/Y') }}</p>
+                    <p>
+                        <b>Date de la Facture :</b> {{ facture.datetime|date('d/m/Y') }} <br>
+                        <b>mode de Paiement :</b> {{ facture.commande.modePaiement }}
+                    </p>
+                    
 
                     <div class="order-details">
                         <table class="table">
@@ -85,31 +89,47 @@
         const doc = new jsPDF();
 
         // Titre de la facture
-        doc.setFontSize(16);
+        doc.setFontSize(18);
+        doc.setFont("helvetica", "bold");
         doc.text("Facture N° {{ facture.id }}", 105, 20, null, null, "center");
 
         // Informations de la facture
         doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
         doc.text(`Date de la Facture : {{ facture.datetime|date('d/m/Y') }}`, 20, 30);
         doc.text(`Total Facture : {{ facture.montant|number_format(2, ',', ' ') }} €`, 20, 40);
 
         // En-têtes du tableau
         let y = 50; // Position verticale de départ
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
         doc.text("Produit", 20, y);
-        doc.text("Prix Unitaire", 70, y);
-        doc.text("Quantité", 120, y);
-        doc.text("Total", 170, y);
+        doc.text("Prix Unitaire", 120, y);
 
-        y += 10; // Espace entre les en-têtes et les données
+        // Ligne de séparation
+        doc.setLineWidth(0.5);
+        doc.line(20, y + 5, 190, y + 5);
+
+        y += 15; // Espace entre les en-têtes et les données
 
         // Ajouter les détails des articles
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
         {% for article in articles %}
             doc.text("{{ article.nom }}", 20, y);
-            doc.text("{{ article.prix|number_format(2, ',', ' ') }} dt", 70, y);
-            doc.text("{{ article.quantitestock }}", 120, y);
-            doc.text("{{ (facture.montant)|number_format(2, ',', ' ') }} dt", 170, y);
+            doc.text("{{ article.prix|number_format(2, ',', ' ') }} dt", 120, y);
             y += 10; // Espace entre les lignes
         {% endfor %}
+
+        // Ligne de séparation finale
+        doc.setLineWidth(0.5);
+        doc.line(20, y + 5, 190, y + 5);
+
+        // Total général
+        y += 10;
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Total Général : {{ facture.montant|number_format(2, ',', ' ') }} €", 120, y, null, null, "right");
 
         // Télécharger le fichier PDF
         doc.save("facture_{{ facture.id }}.pdf");

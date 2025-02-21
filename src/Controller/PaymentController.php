@@ -130,8 +130,14 @@ final class PaymentController extends AbstractController
             $commande->setDateCommande(new \DateTime());
 
             // Persister la commande
-           $this->entityManager->persist($commande);
-           $this->entityManager->flush(); // Sauvegarde de la commande
+           // Essayer de persister et flush juste la commande
+            try {
+                $this->entityManager->persist($commande);
+                $this->entityManager->flush();
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur lors de la persistance de la commande: ' . $e->getMessage());
+                return $this->redirectToRoute('app_payment');
+            }
 
            // Vérification de l'existence de $paniers
            if (!isset($paniers)) {
@@ -189,6 +195,7 @@ final class PaymentController extends AbstractController
 
     private function handleCashPayment(Request $request, float $totalTTC , array $paniers): Response
     {
+        
         // Si le formulaire de paiement est soumis
         if ($request->isMethod('POST') && $request->get('name') && $request->get('last_name') && $request->get('phone')) {
             $name = $request->get('name');
