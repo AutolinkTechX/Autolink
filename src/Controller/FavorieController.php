@@ -69,8 +69,8 @@ final class FavorieController extends AbstractController
         $favorie->setArticle($article);
         $favorie->setUser($security->getUser());  // Associer l'utilisateur connecté
         $favorie->setDateCreation(new \DateTime());
-        $favorie->setDateExpiration((new \DateTime())->modify('+1 year'));
-    
+        $favorie->setDateExpiration((new \DateTime())->modify('+1 day'));
+
         $em->persist($favorie);
         $em->flush();
     

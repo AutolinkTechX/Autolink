@@ -90,17 +90,17 @@
                         {% for panier in paniers %}
                             <tr>
                                 <td>{{ panier.article.nom }}</td>
-                                <td>${{ panier.prixUnitaire|number_format(2, '.', ',') }}</td>
+                                <td>{{ panier.prixUnitaire|number_format(2, '.', ',') }} dt</td>
                                 <td>{{ panier.quantite }}</td>
-                                <td>${{ (panier.prixUnitaire * panier.quantite)|number_format(2, '.', ',') }}</td>
+                                <td>{{ (panier.prixUnitaire * panier.quantite)|number_format(2, '.', ',') }} dt</td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 <hr>
-                <div><strong>Total HT:</strong> ${{ totalHT|number_format(2, '.', ',') }}</div>
-                <div><strong>TVA (20%):</strong> ${{ tva|number_format(2, '.', ',') }}</div>
-                <div><strong>Total TTC:</strong> ${{ totalTTC|number_format(2, '.', ',') }}</div>
+                <div><strong>Total HT:</strong> {{ totalHT|number_format(2, '.', ',') }} dt</div>
+                <div><strong>TVA (20%):</strong> {{ tva|number_format(2, '.', ',') }} dt </div>
+                <div><strong>Total TTC:</strong> {{ totalTTC|number_format(2, '.', ',') }} dt</div>
             </div>
         </div>
     </div>
