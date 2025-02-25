@@ -15,8 +15,6 @@ class StatistiqueController extends AbstractController
         // Récupérer les statistiques des ventes par produit
         $stats = $commandeRepository->countSalesByProduct();
 
-        
-
         // Extraire les noms des produits et le nombre de ventes pour Chart.js
         $articleNoms = array_map(fn($stat) => $stat['nom'], $stats);
         $sales = array_map(fn($stat) => $stat['sales'], $stats);

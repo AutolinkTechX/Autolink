@@ -14,6 +14,8 @@ use App\Form\EntrepriseType;
 use App\Form\SearchType;
 use App\Form\ProfileType;
 use App\Form\ChangePasswordType;
+use App\Repository\CommandeRepository;
+use App\Repository\FavorieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ArticleRepository; 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,7 +28,7 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use App\Repository\CommandeRepository;
+
 
 
 
@@ -639,10 +641,13 @@ final class UserController extends AbstractController
     }
 
 
-
-    #[Route('/admin/statistique', name: 'app_statistique')]
-    public function stat(CommandeRepository $commandeRepository, ArticleRepository $articleRepository): Response
-    {
+    #[Route('/admin/statistique/{page}', name: 'app_statistique', defaults: ['page' => 1])]
+    public function stat(
+        CommandeRepository $commandeRepository,
+        ArticleRepository $articleRepository,
+        FavorieRepository $favorieRepository,
+        int $page = 1
+    ): Response {
         // Récupérer les statistiques des ventes par produit
         $stats = $commandeRepository->countSalesByProduct();
     
@@ -662,15 +667,38 @@ final class UserController extends AbstractController
         $cardPayments = $paymentStats['card'];
         $cashPayments = $paymentStats['especes'];
     
+        // Récupérer les produits en rupture de stock (stock = 0)
+        $outOfStockProducts = $articleRepository->findBy(['quantitestock' => 0]);
+        $outOfStockProductNames = array_map(fn($product) => $product->getNom(), $outOfStockProducts);
+    
+        // Récupérer les données des favoris (clients et articles)
+        $favoriteData = $favorieRepository->findFavoriteClientsAndArticles();
+    
+        // Grouper les articles favoris par client
+        $groupedFavoriteData = [];
+        foreach ($favoriteData as $favorite) {
+            $clientId = $favorite['clientId'];
+            if (!isset($groupedFavoriteData[$clientId])) {
+                $groupedFavoriteData[$clientId] = [
+                    'clientName' => $favorite['clientName'] . ' ' . $favorite['clientLastName'],
+                    'articles' => []
+                ];
+            }
+            $groupedFavoriteData[$clientId]['articles'][] = $favorite['articleName'];
+        }
+    
         return $this->render('user/admin/stat.html.twig', [
             'productNoms' => json_encode($productNoms),
             'sales' => json_encode($sales),
             'productNames' => json_encode($productNames),
             'quantities' => json_encode($quantities),
-            'card' => $cardPayments, // Nombre de paiements par carte
-            'especes' => $cashPayments, // Nombre de paiements en espèces
+            'card' => $cardPayments,
+            'especes' => $cashPayments,
+            'outOfStockProductNames' => json_encode($outOfStockProductNames),
+            'groupedFavoriteData' => $groupedFavoriteData, // Données groupées des favoris
+            'currentPage' => $page, // Page actuelle
         ]);
     }
-    
+
         
 }

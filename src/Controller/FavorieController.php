@@ -31,6 +31,9 @@ final class FavorieController extends AbstractController
 
         // Récupérer les favoris de l'utilisateur connecté
         $favories = $favorieRepository->findBy(['user' => $user]);
+        // Récupérer les favoris non expirés de l'utilisateur connecté
+        $favories = $favorieRepository->findNonExpiredFavoriesByUser($user);
+
 
         return $this->render('favorie/index.html.twig', [
             'favories' => $favories,
@@ -109,27 +112,6 @@ final class FavorieController extends AbstractController
             'favories' => $favories,
         ]);
     }
-    
-/*
-    #[Route('/favorie/search', name: 'favorie_index')]
-    public function search(Request $request, ArticleRepository $articleRepository): Response
-    {
-         $nomArticle = $request->query->get('nom_article');
-
-         // Recherche par nom d'article
-         if ($nomArticle) {
-            // Filtrer les articles par le nom
-             $articles = $articleRepository->findByNom($nomArticle); // Assurez-vous que cette méthode est correcte dans votre repository
-        } else {
-        // Si aucun nom n'est fourni, afficher tous les articles
-             $articles = $articleRepository->findAll();
-        }
-
-        return $this->render('favorie/index.html.twig', [
-        'articles' => $articles,
-        ]);
-    }
-        */
 
      // Route pour supprimer un favori
      #[Route('/supprimer/{id}', name: 'supprimer')]
@@ -148,8 +130,24 @@ final class FavorieController extends AbstractController
          }
      
          return $this->redirectToRoute('app_favorie'); // Redirige vers la liste des favoris
-     }
+    }
      
+    #[Route('/clean-expired-favorites', name: 'clean_expired_favorites')]
+    public function cleanExpiredFavorites(FavorieRepository $favorieRepository, EntityManagerInterface $entityManager): Response
+    {
+        // Récupérer tous les favoris expirés
+        $expiredFavories = $favorieRepository->findExpiredFavories(new \DateTime());
+
+        foreach ($expiredFavories as $favorie) {
+            // Supprimer le favori expiré
+            $entityManager->remove($favorie);
+        }
+
+        // Enregistrer les modifications dans la base de données
+        $entityManager->flush();
+
+        return new Response('Expired favorites cleaned successfully.');
+    }
 
 
 

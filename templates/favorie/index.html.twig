@@ -29,31 +29,47 @@
 
                         <div class="row">
                             {% if favories is not empty %}
-                                {% for favorie in favories %}
-                                    <div class="col-lg-4 col-md-6 col-sm-6">
-                                        <div class="product__item">
-                                            <!-- Image du produit -->
-                                            <div class="product__item__pic set-bg" style="background-image: url('{{ asset('uploads/' ~ favorie.article.image) }}');">
-                                                <ul class="product__item__pic__hover">
-                                                    <li><a href="{{ path('app_details', {'id': favorie.article.id}) }}"><i class="fa fa-retweet"></i></a></li>
-                                                    <li><a href="{{ path('supprimer', { 'id': favorie.id }) }}" ><i class="fa fa-times"></i></a></li>
-                                                    <li><a href="{{ path('add_to_cart', {'id': favorie.article.id}) }}"><i class="fa fa-shopping-cart"></i></a></li>
-                                                </ul>
-                                            </div>
-                                            <!-- Informations du produit -->
-                                            <div class="product__item__text">
-                                                <h5>
-                                                    {% if favorie.article is not null %}
-                                                        {{ favorie.article.nom }}
-                                                    {% endif %}
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <p>Aucun favori trouvé.</p>
-                            {% endif %}
+    {% for favorie in favories %}
+        <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
+            <div class="product__item card h-100">
+                <!-- Image du produit -->
+                <div class="product__item__pic set-bg card-img-top" style="background-image: url('{{ asset('uploads/' ~ favorie.article.image) }}');">
+                    <ul class="product__item__pic__hover list-inline">
+                        <li class="list-inline-item">
+                            <a href="{{ path('app_details', {'id': favorie.article.id}) }}" class="btn btn-link" title="Voir les détails">
+                                <i class="fa fa-retweet"></i>
+                            </a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="{{ path('supprimer', { 'id': favorie.id }) }}" class="btn btn-link text-danger" title="Supprimer des favoris">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="{{ path('add_to_cart', {'id': favorie.article.id}) }}" class="btn btn-link" title="Ajouter au panier">
+                                <i class="fa fa-shopping-cart"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Informations du produit -->
+                <div class="product__item__text card-body">
+                    <h5 class="card-title">
+                        {% if favorie.article is not null %}
+                            {{ favorie.article.nom }}
+                        {% endif %}
+                    </h5>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            Aucun favori trouvé.
+        </div>
+    </div>
+{% endif %}
                         </div>
                     </div>
                 </div>

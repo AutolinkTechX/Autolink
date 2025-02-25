@@ -26,6 +26,35 @@ class FavorieRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findNonExpiredFavoriesByUser($user): array
+    {
+        $now = new \DateTime();
+
+        return $this->createQueryBuilder('f')
+            ->andWhere('f.user = :user')
+            ->andWhere('f.date_expiration >= :now')
+            ->setParameter('user', $user)
+            ->setParameter('now', $now)
+            ->getQuery()
+            ->getResult();
+    }
+    
+    
+    public function findFavoriteClientsAndArticles(): array
+    {
+        return $this->createQueryBuilder('f')
+            ->select(
+                'u.id as clientId', 
+                'u.name as clientName', 
+                'u.lastName as clientLastName', 
+                'a.nom as articleName'
+            )
+            ->innerJoin('f.user', 'u') // Jointure avec la table User
+            ->innerJoin('f.article', 'a') // Jointure avec la table Article
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Favorie[] Returns an array of Favorie objects
 //     */
