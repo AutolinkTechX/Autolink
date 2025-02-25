@@ -1,0 +1,36 @@
+<div class="col-md-16">
+    <div class="card p-3">
+        <canvas id="chartTypeMateriel" style="width: 80%; height: 250px;"></canvas>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let labels = {{ countByTypeMateriel|map(row => row.type_materiel)|json_encode|raw }};
+        let data = {{ countByTypeMateriel|map(row => row.nombre)|json_encode|raw }};
+
+        let ctx = document.getElementById("chartTypeMateriel").getContext("2d");
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Nombre de demandes',
+                    data: data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>

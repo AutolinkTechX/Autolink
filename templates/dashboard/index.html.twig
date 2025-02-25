@@ -1,0 +1,109 @@
+{% extends 'baseEntreprise.html.twig' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card p-3">
+                <canvas id="statutPieChart" style="width: 100%; height: 300px;"></canvas>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="card p-3">
+                <canvas id="chartTypeMateriel" style="width: 100%; height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let countByStatut = {{ countByStatut|json_encode()|raw }};
+        let labels = countByStatut.map(item => item.statut);
+        let data = countByStatut.map(item => item.count);
+
+        let ctx = document.getElementById("statutPieChart").getContext("2d");
+        new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Répartition des statuts",
+                    data: data,
+                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    });
+
+    var ctx2 = document.getElementById('chartTypeMateriel').getContext('2d');
+    var chart = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: {{ countByTypeMateriel|map(row => row.type_materiel)|json_encode|raw }},
+            datasets: [{
+                label: 'Nombre de demandes',
+                data: {{ countByTypeMateriel|map(row => row.nombre)|json_encode|raw }},
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+
+    <div class="card p-3">
+        <h5 class="text-center">⏳ Temps Moyen de Traitement des Demandes (par jour)</h5>
+        <canvas id="delaiJourChart"></canvas>
+    </div>
+    
+ 
+        document.addEventListener("DOMContentLoaded", function () {
+            let jourLabels = {{ delaiMoyenParJour|map(row => row.jour)|json_encode|raw }};
+            let delaisData = {{ delaiMoyenParJour|map(row => row.moyenneDelai)|json_encode|raw }};
+    
+            let ctx = document.getElementById("delaiJourChart").getContext("2d");
+            new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: jourLabels,
+                    datasets: [{
+                        label: "Temps moyen (jours)",
+                        data: delaisData,
+                        backgroundColor: "rgba(54, 162, 235, 0.2)",
+                        borderColor: "rgba(54, 162, 235, 1)",
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    
+    
+</script>
+
+{% endblock %}

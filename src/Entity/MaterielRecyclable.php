@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\MaterielRecyclableRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Enum\StatutEnum;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MaterielRecyclableRepository::class)]
 class MaterielRecyclable
@@ -15,35 +13,34 @@ class MaterielRecyclable
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;
+
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 2, max: 255)]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 2, max: 255)]
     private ?string $description = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $datecreation = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message:"Type Material is required")]
-    #[Assert\Length(min: 2, max: 255, minMessage: 'The type of material must be at least {{ limit }} characters long.', maxMessage: 'The type of material cannot be longer than {{ limit }} characters.')]
     private ?string $type_materiel = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $image = null;
-
     #[ORM\Column(type: "string", enumType: StatutEnum::class)]
-    private StatutEnum $statut;
+    private ?StatutEnum $statut = StatutEnum::EN_ATTENTE;
 
-    #[ORM\ManyToOne(inversedBy: 'materielRecyclables')]
+    #[ORM\ManyToOne(targetEntity: Entreprise::class, inversedBy: 'materielRecyclables')]
     private ?Entreprise $entreprise = null;
 
     #[ORM\ManyToOne(inversedBy: 'materielRecyclables')]
     private ?User $user = null;
+
+    #[ORM\OneToOne(mappedBy: "materielRecyclable", targetEntity: Accord::class, cascade: ["persist", "remove"])]
+    private ?Accord $accord = null;
+
+    // Getters et Setters
 
     public function getId(): ?int
     {
@@ -58,7 +55,6 @@ class MaterielRecyclable
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -70,7 +66,6 @@ class MaterielRecyclable
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -82,7 +77,6 @@ class MaterielRecyclable
     public function setDatecreation(\DateTimeImmutable $datecreation): static
     {
         $this->datecreation = $datecreation;
-
         return $this;
     }
 
@@ -94,7 +88,6 @@ class MaterielRecyclable
     public function setTypeMateriel(string $type_materiel): static
     {
         $this->type_materiel = $type_materiel;
-
         return $this;
     }
 
@@ -103,10 +96,9 @@ class MaterielRecyclable
         return $this->image;
     }
 
-    public function setImage(string $image): static
+    public function setImage(?string $image): static
     {
         $this->image = $image;
-
         return $this;
     }
 
@@ -118,7 +110,6 @@ class MaterielRecyclable
     public function setStatut(StatutEnum $statut): self
     {
         $this->statut = $statut;
-
         return $this;
     }
 
@@ -130,7 +121,6 @@ class MaterielRecyclable
     public function setEntreprise(?Entreprise $entreprise): static
     {
         $this->entreprise = $entreprise;
-
         return $this;
     }
 
@@ -142,7 +132,25 @@ class MaterielRecyclable
     public function setUser(?User $user): static
     {
         $this->user = $user;
-
         return $this;
     }
+
+
+
+
+
+    public function getAccord(): ?Accord
+{
+    return $this->accord;
+}
+
+public function setAccord(?Accord $accord): static
+{
+    $this->accord = $accord;
+    if ($accord !== null && $accord->getMaterielRecyclable() !== $this) {
+        $accord->setMaterielRecyclable($this);
+    }
+    return $this;
+}
+
 }

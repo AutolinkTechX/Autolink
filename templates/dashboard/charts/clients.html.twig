@@ -1,0 +1,32 @@
+<div class="col-md-10">
+    <div class="card p-3">
+        <h5 class="text-center">📊 Nombre de Demandes par Client</h5>
+        <canvas id="chartDemandesClients"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById("chartDemandesClients").getContext("2d");
+        var chart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: {{ demandesParClient|map(row => row.client)|json_encode()|raw }},
+                datasets: [{
+                    label: "Nombre de demandes",
+                    data: {{ demandesParClient|map(row => row.nombreDemandes)|json_encode()|raw }},
+                    backgroundColor: "rgba(54, 162, 235, 0.5)",
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    });
+</script>

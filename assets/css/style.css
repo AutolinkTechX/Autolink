@@ -4123,3 +4123,88 @@ select.form-control option {
     font-weight: bold;
     border-color: #ff7f50;
 }
+
+
+
+
+
+
+
+
+
+
+
+/*******************code farah *****************/
+.form-label {
+    font-weight: bold;
+}
+
+.form-select, .form-control {
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+.btn-submit {
+    width: 80px; /* Ajuste la largeur */
+    padding: 5px 5px; /* Réduit l'espace intérieur */
+    font-size: 19px; /* Réduit la taille du texte */
+    color: white; /* Couleur du texte */
+	background-color: #ce8456; /* Couleur de fond par défaut */
+    border: none;
+    transition: background-color 0.3s ease-in-out;
+}
+
+
+
+
+
+
+
+
+.sort-options {
+    display: flex;
+    align-items: center;
+}
+
+.date-options {
+    display: flex;
+    gap: 15px; /* Espacement entre les choix */
+}
+
+.date-options a {
+    text-decoration: none;
+    padding: 10px 15px;
+    border: 1px solid #e29260; /* Couleur de bordure */
+    border-radius: 5px; /* Coins arrondis */
+    color: #e29260; /* Couleur du texte */
+    transition: background-color 0.3s, color 0.3s; /* Transition pour l'effet hover */
+}
+
+.date-options a.active {
+    background-color: #e29260; /* Couleur de fond pour l'option active */
+    color: white; /* Couleur du texte pour l'option active */
+}
+
+.date-options a:hover {
+    background-color:rgba(255, 127, 80, 0.2); /* Effet hover */
+}
+
+
+
+
+
+
+.charts-container {
+    margin-top: 20px;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+

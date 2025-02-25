@@ -7,11 +7,19 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <title>{% block title %}Autolink - Dashboard{% endblock %}</title>
+    <!-- Chart js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <!-- Custom fonts for this template-->
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <!-- Custom styles for this template-->
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
+
+    {{ encore_entry_link_tags('app') }}
+    {{ encore_entry_script_tags('app') }}
     {% block stylesheets %}{% endblock %}
 </head>
 <body id="page-top">
@@ -50,12 +58,18 @@
             <!-- Supplier Menus -->
             {% if app.user and app.user.isSupplier %}
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ path('accords_acceptes') }}">
                     <i class="fas fa-fw fa-box"></i>
                     <span>Materials List</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ path('dashboard_supplier') }}">
+                    <i class="fas fa-fw fa-chart-line"></i> <!-- Nouvelle icône -->
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('entreprise_accords') }}">
                     <i class="fas fa-fw fa-box"></i>
                     <span>Recycling Requests</span></a>
             </li>
@@ -79,7 +93,7 @@
                         <i class="fa fa-bars"></i>
                     </button>
                     <!-- Topbar Search -->
-                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                    <form  action="{{ path('accord_search') }}" class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search"  method="get">
                         <div class="input-group">
                             <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
                                 aria-label="Search" aria-describedby="basic-addon2">

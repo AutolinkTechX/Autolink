@@ -18,24 +18,18 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Assert\NotBlank(message: "Company name is required")]
     private ?string $company_name = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Assert\NotBlank(message: "Email is required")]
-    #[Assert\Email(message: "The email {{ value }} is not a valid email address")]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Assert\NotBlank(message: "Phone number is required")]
     private ?string $phone = null;
 
     #[ORM\Embedded(class: Address::class)]
     private Address $address;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Assert\NotBlank(message: "Tax Code is required")]
-    #[Assert\Length(min: 7, max: 20, minMessage: "Tax Code must contain at least {{ limit }} characters.", maxMessage: "Tax Code must be less than {{ limit }} characters.")]
     private ?string $tax_code = null;
 
     #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'entreprises')]
@@ -48,12 +42,9 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
     private ?bool $supplier = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Assert\NotBlank(message: "Paswword is required")]
-    #[Assert\Length(min: 8, max: 255, minMessage: "Your password must contain at least {{ limit }} characters.", maxMessage: "Your password must be less than {{ limit }} characters.")]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Field is required")]
     private ?string $field = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -66,10 +57,14 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $materielRecyclables;
 
 
+    #[ORM\OneToMany(mappedBy: "entreprise", targetEntity: Accord::class)]
+    private Collection $accords;
+
     public function __construct()
     {
         $this->address = new Address();
         $this->materielRecyclables = new ArrayCollection();
+        $this->accords = new ArrayCollection();
     }
 
     public function getId(): ?int

@@ -1,0 +1,15 @@
+{% extends 'baseEntreprise.html.twig' %}
+
+{% block title %}Matériaux Acceptés{% endblock %}
+
+{% block body %}
+    <h2>Liste des Matériaux Acceptés</h2>
+
+    <ul>
+        {% for materiel in materiels %}
+            {% if materiel.statut == 'ACCEPTE' %}
+                <li>{{ materiel.name }} - {{ materiel.description }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endblock %}

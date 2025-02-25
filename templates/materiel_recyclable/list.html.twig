@@ -7,21 +7,53 @@
                 <div class="produit-title">
                     <h2>Produits à Recycler</h2>
                 </div>
-                <div class="featured__controls">
-                    <ul>
-                        <li class="active" data-filter="*">Tous</li>
-                        <li data-filter=".en_attente">En attente</li>
-                        <li data-filter=".en_cours">En cours</li>
-                        <li data-filter=".recycles">Recyclés</li>
-                        <li data-filter=".chat">Chat</li>
-                    </ul>
+
+                {# Conteneur pour tri et filtrage alignés en flexbox #}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    
+                    <div class="sort-options">
+                       
+                        <div class="date-options">
+                            <a href="{{ path('list_materiaux_sorted', { 'order': 'asc' }) }}"
+                               class="{% if order == 'asc' %}active{% endif %}">Date (Plus ancien)</a>
+                            <a href="{{ path('list_materiaux_sorted', { 'order': 'desc' }) }}"
+                               class="{% if order == 'desc' %}active{% endif %}">Date (Plus récent)</a>
+                        </div>
+                    </div>
+                    
+                    
+                    {# Filtrage des statuts à droite #}
+                    <div class="featured__controls">
+                        <ul>
+                            <li>
+                                <a href="{{ path('app_materiaux_liste') }}" 
+                                   class="{% if not statut %}btn btn-primary btn-small{% endif %}">
+                                    Tous
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ path('list_materiaux_by_statut', { 'statut': 'en_attente' }) }}" 
+                                   class="{% if statut == 'en_attente' %}btn btn-primary btn-small{% endif %}">
+                                    En attente
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ path('list_materiaux_by_statut', { 'statut': 'valide' }) }}" 
+                                   class="{% if statut == 'valide' %}btn btn-primary btn-small{% endif %}">
+                                    Validé
+                                </a>
+                            </li>
+                        </ul>
+                        
                 </div>
+
                 {# Bouton pour ajouter un produit #}
                 <div class="text-right mb-3">
                     <a href="{{ path('ajouter_materiel_recyclable') }}" class="submit-btn">Ajouter un Produit</a>
                 </div>
             </div>
         </div>
+
         <div class="row featured__filter">
             {% for materiel in materiaux %}
             <div class="col-lg-3 col-md-4 col-sm-6 mix {{ materiel.statut.value }}">
@@ -41,7 +73,7 @@
                         <p>Entreprise : {{ materiel.entreprise.getCompanyName() }}</p>
                         <p><strong>Statut :</strong> {{ materiel.statut.value|trans }}</p>
                         <div class="featured__item__actions">
-                            {% if app.user and (materiel.user == app.user or is_granted('ROLE_ADMIN')) %}
+                            {% if app.user and (materiel.user == app.user or is_granted('ROLE_CLIENT')) %}
                                 <a href="{{ path('materiel_edit', {'id': materiel.id}) }}"><i class="fa fa-edit"></i></a>
                                 <a href="{{ path('materiel_delete', {'id': materiel.id}) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');"><i class="fa fa-trash"></i></a>
                             {% endif %}
@@ -51,14 +83,37 @@
             </div>
             {% endfor %}
         </div>
+        {% if materiaux is defined and materiaux|length > 1 %}
         <div class="pagination1">
-            <a href="#" class="prev">&laquo; Précédent</a>
-            <a href="#" class="active">1</a>
-            <a href="#">2</a>
-            <a href="#">3</a>
-            <a href="#">4</a>
-            <a href="#" class="next">Suivant &raquo;</a>
+            {{ knp_pagination_render(materiaux) }}
         </div>
-    </div>
+    {% endif %}
+    
 </section>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const options = document.querySelectorAll('.date-options a');
+
+        options.forEach(option => {
+            option.addEventListener('click', function(event) {
+                // Empêche le comportement par défaut si l'option est déjà active
+                if (this.classList.contains('active')) {
+                    event.preventDefault();
+                    
+                    // Désélectionne l'option
+                    this.classList.remove('active');
+                    // Redirige vers la page sans le paramètre de tri
+                    window.location.href = "{{ path('app_materiaux_liste') }}"; // Remplacez par votre route par défaut
+                } else {
+                    // Sélectionne l'option et redirige vers la page avec le paramètre
+                    options.forEach(opt => opt.classList.remove('active')); // Désélectionne les autres
+                    this.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

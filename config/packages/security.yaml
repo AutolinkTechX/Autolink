@@ -24,7 +24,7 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         entreprise:
-            pattern: ^/entreprise
+            pattern: ^/(entreprise|accords|dashboard)
             lazy: true
             provider: app_entreprise_provider
             form_login:
@@ -83,3 +83,7 @@ security:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/entreprise, roles: ROLE_ENTREPRISE }
         - { path: ^/profile, roles: [ROLE_ADMIN, ROLE_CLIENT, ROLE_ENTREPRISE] }
+
+
+
+    

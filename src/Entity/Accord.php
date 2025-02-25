@@ -13,9 +13,6 @@ class Accord
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $statutDemande = null;
-
     #[ORM\Column]
     private ?\DateTimeImmutable $dateCreation = null;
 
@@ -28,24 +25,17 @@ class Accord
     #[ORM\Column(length: 255)]
     private ?string $output = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: MaterielRecyclable::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: "materiel_recyclable_id", referencedColumnName: "id", onDelete: "CASCADE")]
     private ?MaterielRecyclable $materielRecyclable = null;
+
+    #[ORM\ManyToOne(targetEntity: Entreprise::class)]
+    #[ORM\JoinColumn(name: "entreprise_id", referencedColumnName: "id", onDelete: "CASCADE")]
+    private ?Entreprise $entreprise = null;
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getStatutDemande(): ?string
-    {
-        return $this->statutDemande;
-    }
-
-    public function setStatutDemande(string $statutDemande): static
-    {
-        $this->statutDemande = $statutDemande;
-
-        return $this;
     }
 
     public function getDateCreation(): ?\DateTimeImmutable
@@ -56,7 +46,6 @@ class Accord
     public function setDateCreation(\DateTimeImmutable $dateCreation): static
     {
         $this->dateCreation = $dateCreation;
-
         return $this;
     }
 
@@ -68,7 +57,6 @@ class Accord
     public function setDateReception(?\DateTimeImmutable $dateReception): static
     {
         $this->dateReception = $dateReception;
-
         return $this;
     }
 
@@ -80,7 +68,6 @@ class Accord
     public function setQuantity(float $quantity): static
     {
         $this->quantity = $quantity;
-
         return $this;
     }
 
@@ -92,7 +79,6 @@ class Accord
     public function setOutput(string $output): static
     {
         $this->output = $output;
-
         return $this;
     }
 
@@ -104,7 +90,17 @@ class Accord
     public function setMaterielRecyclable(?MaterielRecyclable $materielRecyclable): static
     {
         $this->materielRecyclable = $materielRecyclable;
+        return $this;
+    }
 
+    public function getEntreprise(): ?Entreprise
+    {
+        return $this->entreprise;
+    }
+
+    public function setEntreprise(?Entreprise $entreprise): static
+    {
+        $this->entreprise = $entreprise;
         return $this;
     }
 }

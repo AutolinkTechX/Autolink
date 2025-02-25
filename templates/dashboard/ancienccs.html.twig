@@ -1,0 +1,73 @@
+{% extends 'baseEntreprise.html.twig' %}
+
+{% block content %}
+
+<div style="width: 250px; height: 250px; margin: auto;">
+    <canvas id="statutPieChart"></canvas>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let countByStatut = {{ countByStatut|json_encode()|raw }};
+
+        let labels = countByStatut.map(item => item.statut);
+        let data = countByStatut.map(item => item.count);
+
+        let ctx = document.getElementById("statutPieChart").getContext("2d");
+
+        new Chart(ctx, {
+            type: "pie",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Répartition des statuts",
+                    data: data,
+                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    });
+</script>
+
+
+
+
+
+<div style="width: 450px; height: 450px; margin: auto;">
+    <canvas id="chartTypeMateriel"></canvas>
+</div>
+<script>
+    var ctx = document.getElementById('chartTypeMateriel').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ countByTypeMateriel|map(row => row.type_materiel)|json_encode|raw }},
+            datasets: [{
+                label: 'Nombre de demandes',
+                data: {{ countByTypeMateriel|map(row => row.nombre)|json_encode|raw }},
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+
+
+
+{% endblock %}

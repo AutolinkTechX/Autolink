@@ -1,0 +1,21 @@
+{% extends 'baseEntreprise.html.twig' %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 mb-4">
+            {% include 'dashboard/charts/chart_statut.html.twig' %}
+        </div>
+        <div class="col-md-6 mb-4">
+            {% include 'dashboard/charts/chartTmateriel.html.twig' %}
+        </div>
+        <div class="col-md-6 mb-4">
+            {% include 'dashboard/charts/nbre.html.twig' %}
+        </div>
+        <div class="col-md-6 mb-4">
+            {% include 'dashboard/charts/clients.html.twig' %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -16,6 +16,15 @@ use Doctrine\ORM\EntityRepository;
 use App\Enum\StatutEnum;
 use App\Entity\Entreprise;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\File\File;
+
+
+
+
+
+
+
+
 
 class MaterielRecyclableEditType extends AbstractType
 {
@@ -34,6 +43,21 @@ class MaterielRecyclableEditType extends AbstractType
                 'label' => 'Type of Material',
                 'attr' => ['class' => 'form-control'],
             ])
+            ->add('image', FileType::class, [
+                'label' => 'Image',
+                'required' => false,
+                'mapped' => true, // not mapped to entity directly
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2024k',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid JPEG or PNG file',
+                    ]),
+                ],
+            ])
             ->add('entreprise', EntityType::class, [
                 'class' => Entreprise::class,
                 'choice_label' => 'company_name',
@@ -45,14 +69,14 @@ class MaterielRecyclableEditType extends AbstractType
                         ->setParameter('supplier', true);
                 },
             ])
-            ->add('submit', SubmitType::class, ['label' => 'Save'])
-        ;
+            ->add('submit', SubmitType::class, ['label' => 'Save']);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => MaterielRecyclable::class,
+            'data_class' => MaterielRecyclable::class, // map to your entity
         ]);
     }
+
 }

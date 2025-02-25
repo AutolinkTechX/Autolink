@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h1>Assistant de Recyclage</h1>
+<input type="text" id="question" placeholder="Posez votre question...">
+<button onclick="sendQuestion()">Envoyer</button>
+<p id="response"></p>
+
+<script>
+    function sendQuestion() {
+        let question = document.getElementById("question").value;
+
+        fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: question })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erreur HTTP " + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById("response").innerText = data.response;
+        })
+        .catch(error => {
+            console.error("Erreur:", error);
+            document.getElementById("response").innerText = "Erreur lors de la communication avec le serveur.";
+        });
+    }
+</script>
+
+{% endblock %}

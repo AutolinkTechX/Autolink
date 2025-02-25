@@ -22,6 +22,12 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Repository\EntrepriseRepository;
+
+
+
+
 
 final class EntrepriseController extends AbstractController
 {
@@ -226,4 +232,41 @@ final class EntrepriseController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+
+
+
+
+
+
+
+
+
+   /* #[Route('/get-entreprises/{type}', name: 'get_entreprises')]
+    public function getEntreprises(string $type, EntrepriseRepository $entrepriseRepository): JsonResponse
+    {
+        $entreprises = $entrepriseRepository->findByTypeRecyclage($type);
+    
+        $entrepriseArray = [];
+        foreach ($entreprises as $entreprise) {
+            $entrepriseArray[] = [
+                'id' => $entreprise->getId(),
+                'name' => $entreprise->getCompanyName()
+            ];
+        }
+    
+        return new JsonResponse($entrepriseArray);
+    }*/
+/*
+    #[Route('/get-entreprises/{type}', name: 'get_entreprises')]
+public function getEntreprises(string $type, EntrepriseRepository $entrepriseRepository): JsonResponse
+{
+    $entreprises = $entrepriseRepository->findByTypeRecyclage($type);
+    dd($entreprises); // Vérifie ce qui est retourné ici
+}*/
+
+    
+    
+
+    
 }

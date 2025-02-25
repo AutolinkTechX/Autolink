@@ -3,3 +3,7 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+assistant_ask:
+    path: /assistant/ask
+    controller: App\Controller\AssistantController::askAssistant

@@ -1,0 +1,55 @@
+{% extends 'baseEntreprise.html.twig' %}
+
+{% block title %}Accords en Attente{% endblock %}
+
+{% block content %}
+<h1>Accords en Attente</h1>
+
+{% if accords is empty %}
+    <p>Aucun accord en attente.</p>
+{% else %}
+    <div class="row featured__filter">
+        {% for accord in accords %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mix en-attente">
+            <div class="featured__item">
+                <div class="featured__item__pic">
+                    {% if accord.materielRecyclable.image %}
+                        <img src="{{ asset('/uploads/' ~ accord.materielRecyclable.image) }}" 
+                             alt="{{ accord.materielRecyclable.name }}" 
+                             class="img-fluid" style="max-width: 100px;">
+                    {% else %}
+                        <p>No Image</p>
+                    {% endif %}
+                </div>
+                <div class="featured__item__text">
+                    <h6>{{ accord.materielRecyclable.name }}</h6>
+                    <p><strong>ID Accord :</strong> {{ accord.id }}</p>
+                    <p><strong>Quantité :</strong> {{ accord.quantity }}</p>
+                    <p><strong>Type de matériel :</strong> {{ accord.materielRecyclable.typemateriel }}</p>
+                    <p><strong>Client :</strong> {{ accord.materielRecyclable.user.name }}</p>
+                    <p><strong>Date de Création :</strong> {{ accord.dateCreation|date('d/m/Y H:i') }}</p>
+                    <p><strong>Statut :</strong> <span class="badge bg-warning">En attente</span></p>
+
+                    <div class="featured__item__actions">
+                        <!-- Bouton Accepter -->
+                        <a href="{{ path('accord_accepter', {'id': accord.id}) }}" 
+                           class="btn btn-success btn-sm"
+                           onclick="return confirm('Êtes-vous sûr de vouloir accepter cet accord ?');">
+                           Accepter
+                        </a>
+
+                        <!-- Bouton Refuser -->
+                        <a href="{{ path('accord_refuser', {'id': accord.id}) }}" 
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Êtes-vous sûr de vouloir refuser cet accord ?');">
+                           Refuser
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% endblock %}

@@ -40,4 +40,26 @@ class EntrepriseRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+
+
+
+
+    
+    
+    // src/Repository/EntrepriseRepository.php
+   /* public function findByTypeRecyclage(string $type)
+    {
+        return $this->createQueryBuilder('e')
+            ->where('e.field LIKE :type')
+            ->setParameter('type', "%$type")
+            ->andWhere('e.supplier = :supplier')
+            ->setParameter('supplier', true)
+            ->getQuery()
+            ->getResult();
+    }*/
+    
+    
+    
+
 }
