@@ -90,7 +90,7 @@ class Commande
         return $this->articleIds;
     }
 
-    public function setArticleIds(?array $articleIds): static
+    public function setArticleIds(?array $articleIds): self
     {
         $this->articleIds = $articleIds;
         return $this;

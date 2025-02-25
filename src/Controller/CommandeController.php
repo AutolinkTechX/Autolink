@@ -16,6 +16,7 @@ use App\Repository\ListArticleRepository;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
+use App\Repository\CommandeRepository;
 
 final class CommandeController extends AbstractController
 {
@@ -73,35 +74,35 @@ final class CommandeController extends AbstractController
     #[Route('/commande', name: 'app_commande')]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function index(ListArticleRepository $listarticleRepository, Security $security): Response
-{
-    // Récupérer l'utilisateur connecté
-    $user = $security->getUser();
+    {
+        // Récupérer l'utilisateur connecté
+        $user = $security->getUser();
     
-    if (!$user) {
-        $this->addFlash('error', 'Vous devez être connecté pour accéder à votre panier.');
-        return $this->redirectToRoute('login');
+        if (!$user) {
+            $this->addFlash('error', 'Vous devez être connecté pour accéder à votre panier.');
+            return $this->redirectToRoute('login');
+        }
+
+        // Utiliser le repository pour récupérer les articles de l'utilisateur connecté
+        $paniers = $listarticleRepository->findByUser($user);
+
+        // Calculer les totaux du panier
+        $totalHT = 0;
+        foreach ($paniers as $panier) {
+            $totalHT += $panier->getQuantite() * $panier->getPrixUnitaire();
+        }
+
+        // Calculer la TVA
+        $tva = $totalHT * 0.20;
+        $totalTTC = $totalHT + $tva;
+
+        return $this->render('commande/index.html.twig', [
+            'paniers' => $paniers,
+            'totalHT' => $totalHT,
+            'tva' => $tva,
+            'totalTTC' => $totalTTC,
+        ]);
     }
-
-    // Utiliser le repository pour récupérer les articles de l'utilisateur connecté
-    $paniers = $listarticleRepository->findByUser($user);
-
-    // Calculer les totaux du panier
-    $totalHT = 0;
-    foreach ($paniers as $panier) {
-        $totalHT += $panier->getQuantite() * $panier->getPrixUnitaire();
-    }
-
-    // Calculer la TVA
-    $tva = $totalHT * 0.20;
-    $totalTTC = $totalHT + $tva;
-
-    return $this->render('commande/index.html.twig', [
-        'paniers' => $paniers,
-        'totalHT' => $totalHT,
-        'tva' => $tva,
-        'totalTTC' => $totalTTC,
-    ]);
-}
 
 
     #[Route('/decrease-quantity/{id}', name: 'decrease_quantity', methods: ['POST'])]
@@ -164,4 +165,14 @@ final class CommandeController extends AbstractController
         return new JsonResponse($data);
     }
     
+
+    #[Route('/admin/commandes', name: 'commandes_list')]
+    public function list(CommandeRepository $commandeRepository)
+    {
+        $commandes = $commandeRepository->findAllWithClientAndArticleNames();
+
+        return $this->render('user/admin/order.html.twig', [
+            'commandes' => $commandes,
+        ]);
+    }
 }

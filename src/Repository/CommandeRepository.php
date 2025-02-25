@@ -84,6 +84,35 @@ class CommandeRepository extends ServiceEntityRepository
             ->getSingleResult();
     }
 
+    public function findAllWithClientAndArticleNames()
+    {
+        // Récupérer toutes les commandes avec les informations du client
+        $commandes = $this->createQueryBuilder('c')
+            ->leftJoin('c.client', 'client')
+            ->addSelect('client') // Charger l'entité client
+            ->getQuery()
+            ->getResult();
+
+        // Pour chaque commande, récupérer les noms des articles
+        $entityManager = $this->getEntityManager();
+        $articleRepository = $entityManager->getRepository(\App\Entity\Article::class);
+
+        foreach ($commandes as &$commande) {
+            $articleIds = $commande->getArticleIds();
+            $articleNames = [];
+
+            if (!empty($articleIds)) {
+                $articles = $articleRepository->findBy(['id' => $articleIds]);
+                foreach ($articles as $article) {
+                    $articleNames[] = $article->getNom();
+                }
+            }
+
+            $commande->articleNames = $articleNames; // Ajouter les noms des articles à la commande
+        }
+
+        return $commandes;
+    }
 
     //    /**
     //     * @return Commande[] Returns an array of Commande objects

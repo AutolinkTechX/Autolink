@@ -1,0 +1,45 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %} Orders{% endblock %}
+{% block page_title %}Orders{% endblock %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Product List</h6>
+            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#addProductModal">Add Product</a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="productTable" width="100%" cellspacing="0">
+                    <thead>
+                        <th>ID Commande</th>
+                        <th>Date Commande</th>
+                        <th>Client</th>
+                        <th>Articles</th>
+                        <th>Total</th>
+                    </thead>
+                    <tbody>
+        {% for commande in commandes %}
+        <tr>
+            <td>{{ commande.id }}</td>
+            <td>{{ commande.dateCommande|date('d/m/Y H:i') }}</td>
+            <td>{{ commande.client.name }} {{ commande.client.lastName }}</td>
+            <td>
+                {% if commande.articleNames is defined and commande.articleNames is not empty %}
+                    {{ commande.articleNames|join(', ') }}
+                {% else %}
+                    Aucun article
+                {% endif %}
+            </td>
+            <td>{{ commande.total }} dt</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
