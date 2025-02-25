@@ -183,7 +183,7 @@ final class PaymentController extends AbstractController
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Paiement par carte réussi.');
-            return $this->redirectToRoute('app_order_success');
+            return $this->redirectToRoute('app_listarticle');
 
         } catch (\Exception $e) {
             $this->addFlash('error', 'Erreur de paiement : ' . $e->getMessage());

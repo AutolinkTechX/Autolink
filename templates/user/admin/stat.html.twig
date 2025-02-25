@@ -1,0 +1,159 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Statistiques des ventes{% endblock %}
+{% block page_title %}Statistiques{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <!-- Colonne pour les graphiques des quantités et des ventes -->
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-header">Répartition des quantités des produits</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="quantityChart" class="chart-size"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">Nombre de ventes par produit</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="salesChart" class="chart-size"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne pour le graphique des paiements et liste des produits en rupture de stock -->
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-header">Répartition des paiements</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="paymentChart" class="chart-size"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+               
+            </div>
+        </div>
+    </div>
+
+    <!-- Importation de Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            const quantityCtx = document.getElementById('quantityChart').getContext('2d');
+            const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+
+            const productNoms = {{ productNoms|raw }};
+            const sales = {{ sales|raw }};
+
+            // Vérification des données pour éviter les erreurs
+            if (productNoms.length > 0 && sales.length > 0) {
+                new Chart(salesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: productNoms,
+                        datasets: [{
+                            label: 'Nombre de ventes',
+                            data: sales,
+                            backgroundColor: '#db966b',
+                            borderColor: '#e29260',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            const productNames = {{ productNames|raw }};
+            const quantities = {{ quantities|raw }};
+
+            // Filtrer les produits et quantités où la quantité est supérieure à 0
+            const filteredProducts = productNames.filter((name, index) => quantities[index] > 0);
+            const filteredQuantities = quantities.filter(quantity => quantity > 0);
+
+            if (filteredProducts.length > 0 && filteredQuantities.length > 0) {
+                new Chart(quantityCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: filteredProducts,
+                        datasets: [{
+                            label: 'Quantité Totale',
+                            data: filteredQuantities,
+                            backgroundColor: [
+                                '#fcb76e', '#c27b4f', '#f78a36', '#e9a072',
+                                '#faa666', '#d17942', '#efbf9f', '#e7a273', '#e08548'
+                            ].slice(0, filteredProducts.length),
+                            borderColor: [
+                                '#fcb76e', '#c27b4f', '#f78a36', '#e9a072',
+                                '#faa666', '#d17942', '#efbf9f', '#e7a273', '#e08548'
+                            ].slice(0, filteredProducts.length),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return tooltipItem.label + ': ' + tooltipItem.raw + ' produits';
+                                    }
+                                }
+                            }
+                        },
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            const cardPayments = {{ card|default(0) }};
+            const cashPayments = {{ especes|default(0) }};
+
+            if (cardPayments > 0 || cashPayments > 0) {
+                new Chart(paymentCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Carte', 'Espèce'],
+                        datasets: [{
+                            label: 'Répartition des paiements',
+                            data: [cardPayments, cashPayments],
+                            backgroundColor: ['#efbf9f', '#e7a273'],
+                            borderColor: ['#efbf9f', '#e7a273'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        const total = tooltipItem.dataset.data.reduce((sum, value) => sum + value, 0);
+                                        const percentage = (tooltipItem.raw / total * 100).toFixed(2);
+                                        return tooltipItem.label + ': ' + percentage + '%';
+                                    }
+                                }
+                            }
+                        },
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

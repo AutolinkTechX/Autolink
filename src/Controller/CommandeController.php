@@ -127,5 +127,41 @@ final class CommandeController extends AbstractController
         return $this->redirect($request->headers->get('referer'));
     }
 
+
+    #[Route('/factures/data', name: 'factures_data')]
+    public function getFactureData()
+    {
+        // Récupérer les articles de la base de données
+        $articles = $this->getDoctrine()
+                         ->getRepository(ListArticle::class)
+                         ->findAll();
+
+        // Calcul des totaux (vous pouvez ajuster cela en fonction de vos besoins)
+        $totalHT = 0;
+        foreach ($articles as $article) {
+            $totalHT += $article->getPrixUnitaire() * $article->getQuantite();
+        }
+
+        // Simuler la TVA et le total TTC
+        $tva = $totalHT * 0.2;  // TVA 20%
+        $totalTTC = $totalHT + $tva;
+
+        // Organiser les données
+        $data = [
+            'paniers' => array_map(function ($article) {
+                return [
+                    'nom' => $article->getNom(),
+                    'prixUnitaire' => $article->getPrixUnitaire(),
+                    'quantite' => $article->getQuantite(),
+                ];
+            }, $articles),
+            'totalHT' => $totalHT,
+            'tva' => $tva,
+            'totalTTC' => $totalTTC,
+        ];
+
+        // Retourner les données sous forme de réponse JSON
+        return new JsonResponse($data);
+    }
     
 }

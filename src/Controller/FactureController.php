@@ -21,32 +21,6 @@ class FactureController extends AbstractController
         $this->factureRepository = $factureRepository;
     }
 
-    /*#[Route('/factures', name: 'factures_index', methods: ['GET'])]
-    public function index(Request $request, Security $security): Response
-    {
-        $user = $security->getUser();
-        $factures = [];
-    
-        if ($user) {
-            $searchDate = $request->query->get('date_facture');
-    
-            $qb = $this->factureRepository->createQueryBuilder('f')
-                ->where('f.client = :client')
-                ->setParameter('client', $user);
-    
-            if ($searchDate) {
-                $qb->andWhere('DATE(f.dateFacture) = :date')
-                   ->setParameter('date', new \DateTime($searchDate));
-            }
-    
-            $factures = $qb->getQuery()->getResult();
-        }
-    
-        return $this->render('facture/index.html.twig', [
-            'factures' => $factures,
-        ]);
-    }*/
-
     #[Route('/factures', name: 'factures_index', methods: ['GET'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')] // Assure que l'utilisateur est connecté
     public function index(Request $request, Security $security): Response
@@ -132,4 +106,41 @@ class FactureController extends AbstractController
 
         return $this->redirectToRoute('factures_index');
     }
+    
+    #[Route('/factures/data', name: 'factures_data')]
+    public function getFactureData()
+    {
+        // Récupérer les articles de la base de données
+        $articles = $this->getDoctrine()
+                         ->getRepository(ListArticle::class)
+                         ->findAll();
+
+        // Calcul des totaux (vous pouvez ajuster cela en fonction de vos besoins)
+        $totalHT = 0;
+        foreach ($articles as $article) {
+            $totalHT += $article->getPrixUnitaire() * $article->getQuantite();
+        }
+
+        // Simuler la TVA et le total TTC
+        $tva = $totalHT * 0.2;  // TVA 20%
+        $totalTTC = $totalHT + $tva;
+
+        // Organiser les données
+        $data = [
+            'paniers' => array_map(function ($article) {
+                return [
+                    'nom' => $article->getNom(),
+                    'prixUnitaire' => $article->getPrixUnitaire(),
+                    'quantite' => $article->getQuantite(),
+                ];
+            }, $articles),
+            'totalHT' => $totalHT,
+            'tva' => $tva,
+            'totalTTC' => $totalTTC,
+        ];
+
+        // Retourner les données sous forme de réponse JSON
+        return new JsonResponse($data);
+    }
+    
 }

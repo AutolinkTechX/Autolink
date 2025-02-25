@@ -11279,3 +11279,58 @@ footer.sticky-footer .copyright {
 body.sidebar-toggled footer.sticky-footer {
   width: 100%;
 }
+
+/* Style pour les graphiques */
+.chart-container {
+  margin-bottom: 30px;
+}
+
+.chart-size {
+  width: 100%;
+  height: 300px; /* Ajuste cette hauteur selon tes préférences */
+}
+
+.card {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* S'assure que toutes les cartes ont la même hauteur */
+}
+
+.card-body {
+  padding: 20px;
+  flex-grow: 1; /* Permet à la zone de contenu d'occuper tout l'espace restant */
+}
+
+.card-header {
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Alignement et dimensionnement des cartes */
+.row.justify-content-center {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Centrer les cartes horizontalement */
+}
+
+.col-md-5 {
+  margin: 10px;
+  flex: 0 0 45%; /* Chaque carte prend environ 45% de la largeur */
+  max-width: 45%;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Pour garantir que les colonnes aient toutes la même hauteur */
+}
+
+/* Ajout d'une règle pour rendre les cartes égales */
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Force la carte à occuper toute la hauteur disponible */
+}
+
+.card-body {
+  flex-grow: 1; /* Permet à la partie de contenu de grandir pour remplir la carte */
+}
+

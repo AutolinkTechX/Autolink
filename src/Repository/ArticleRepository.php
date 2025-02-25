@@ -44,20 +44,38 @@ class ArticleRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-public function deleteArticle($article)
-{
-    $entityManager = $this->getEntityManager();
+    public function deleteArticle($article)
+    {
+        $entityManager = $this->getEntityManager();
     
-    // Supprimer les favoris liés à cet article
-    $entityManager->createQuery('DELETE FROM App\Entity\Favorie f WHERE f.article = :article')
+        // Supprimer les favoris liés à cet article
+        $entityManager->createQuery('DELETE FROM App\Entity\Favorie f WHERE f.article = :article')
                   ->setParameter('article', $article)
                   ->execute();
     
-    // Maintenant, on peut supprimer l'article
-    $entityManager->remove($article);
-    $entityManager->flush();
-}
+        // Maintenant, on peut supprimer l'article
+        $entityManager->remove($article);
+        $entityManager->flush();
+    }
 
+    public function getTotalQuantitiesByProduct()
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.nom', 'SUM(a.quantitestock) as quantitestock')
+            ->groupBy('a.nom')
+            ->getQuery()
+            ->getResult();
+    }
+
+
+    public function getArticlesWithStockZero()
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.quantitestock = 0')
+            ->groupBy('a.nom')
+            ->getQuery()
+            ->getResult();
+    }
     //    /**
     //     * @return Article[] Returns an array of Article objects
     //     */

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Entreprise;
 use App\Entity\Role;
 use App\Entity\User;
+use App\Entity\Commande;
 use App\Form\CreateAccountType;
 use App\Form\LoginType;
 use App\Form\AdminLoginType;
@@ -14,6 +15,7 @@ use App\Form\SearchType;
 use App\Form\ProfileType;
 use App\Form\ChangePasswordType;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\ArticleRepository; 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +26,8 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use App\Repository\CommandeRepository;
+
 
 
 final class UserController extends AbstractController
@@ -633,4 +637,40 @@ final class UserController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+
+
+    #[Route('/admin/statistique', name: 'app_statistique')]
+    public function stat(CommandeRepository $commandeRepository, ArticleRepository $articleRepository): Response
+    {
+        // Récupérer les statistiques des ventes par produit
+        $stats = $commandeRepository->countSalesByProduct();
+    
+        // Extraire les noms des produits et le nombre de ventes pour Chart.js
+        $productNoms = array_map(fn($stat) => $stat['nom'], $stats);
+        $sales = array_map(fn($stat) => $stat['sales'], $stats);
+    
+        // Récupérer les quantités totales des produits
+        $quantites = $articleRepository->getTotalQuantitiesByProduct();
+    
+        // Extraire les noms des produits et les quantités totales pour le diagramme circulaire
+        $productNames = array_map(fn($product) => $product['nom'], $quantites);
+        $quantities = array_map(fn($product) => $product['quantitestock'], $quantites);
+    
+        // Récupérer les statistiques des paiements par mode (carte et espèces)
+        $paymentStats = $commandeRepository->countPaymentsByMode();
+        $cardPayments = $paymentStats['card'];
+        $cashPayments = $paymentStats['especes'];
+    
+        return $this->render('user/admin/stat.html.twig', [
+            'productNoms' => json_encode($productNoms),
+            'sales' => json_encode($sales),
+            'productNames' => json_encode($productNames),
+            'quantities' => json_encode($quantities),
+            'card' => $cardPayments, // Nombre de paiements par carte
+            'especes' => $cashPayments, // Nombre de paiements en espèces
+        ]);
+    }
+    
+        
 }
