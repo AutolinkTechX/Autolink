@@ -45,4 +45,7 @@ final class ProduitsController extends AbstractController
             'articles' => $articles,
         ]);
     }
+
+
+    
 }

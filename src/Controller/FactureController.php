@@ -6,11 +6,14 @@ use App\Entity\Facture;
 use App\Repository\FactureRepository;
 use App\Repository\ArticleRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 use Doctrine\ORM\EntityManagerInterface;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class FactureController extends AbstractController
 {
@@ -22,68 +25,49 @@ class FactureController extends AbstractController
     }
 
     #[Route('/factures', name: 'factures_index', methods: ['GET'])]
-    #[IsGranted('IS_AUTHENTICATED_FULLY')] // Assure que l'utilisateur est connecté
     public function index(Request $request, Security $security): Response
     {
-    
-
         $user = $security->getUser();
         if (!$user) {
-            $this->addFlash('error', 'Vous devez être connecté pour ajouter un article au panier.');
-            return $this->redirectToRoute('login'); // Redirection vers la page de connexion
+            $this->addFlash('error', 'Vous devez être connecté pour accéder à cette page.');
+            return $this->redirectToRoute('login');
         }
 
         $factures = [];
-    
-        if ($user) {
-            $searchDate = $request->query->get('date_facture');
+        $searchDate = $request->query->get('date_facture');
 
-            $qb = $this->factureRepository->createQueryBuilder('f')
+        $qb = $this->factureRepository->createQueryBuilder('f')
             ->where('f.client = :client')
             ->setParameter('client', $user);
 
-            if ($searchDate) {
-                 // Convertir la date de recherche en objet DateTime
-                $date = new \DateTime($searchDate);
-            
-                // Définir le début et la fin de la journée
-                $startOfDay = clone $date;
-                $startOfDay->setTime(0, 0, 0); // Début de la journée
-        
-                $endOfDay = clone $date;
-                $endOfDay->setTime(23, 59, 59); // Fin de la journée
-        
-                // Appliquer la condition sur la plage de la journée
-                $qb->andWhere('f.datetime >= :startOfDay AND f.datetime <= :endOfDay')
-                    ->setParameter('startOfDay', $startOfDay)
-                    ->setParameter('endOfDay', $endOfDay);
-            }
-        
+        if ($searchDate) {
+            $date = new \DateTime($searchDate);
+            $startOfDay = clone $date;
+            $startOfDay->setTime(0, 0, 0);
+            $endOfDay = clone $date;
+            $endOfDay->setTime(23, 59, 59);
 
-            $factures = $qb->getQuery()->getResult();
+            $qb->andWhere('f.datetime >= :startOfDay AND f.datetime <= :endOfDay')
+                ->setParameter('startOfDay', $startOfDay)
+                ->setParameter('endOfDay', $endOfDay);
         }
-    
+
+        $factures = $qb->getQuery()->getResult();
+
         return $this->render('facture/index.html.twig', [
             'factures' => $factures,
         ]);
     }
 
-    
-    
     #[Route('/factures/details/{id}', name: 'facture_details', methods: ['GET'])]
     public function show(int $id, FactureRepository $factureRepository, ArticleRepository $articleRepository): Response
     {
-         // Récupérer la facture
         $facture = $factureRepository->find($id);
-
         if (!$facture) {
             throw $this->createNotFoundException('Facture introuvable.');
         }
 
-        // Récupérer la commande associée
         $commande = $facture->getCommande();
-
-        // Récupérer les articles associés à partir des identifiants
         $articles = [];
         if ($commande && $commande->getArticleIds()) {
             $articles = $articleRepository->findBy(['id' => $commande->getArticleIds()]);
@@ -106,41 +90,76 @@ class FactureController extends AbstractController
 
         return $this->redirectToRoute('factures_index');
     }
-    
-    #[Route('/factures/data', name: 'factures_data')]
-    public function getFactureData()
+
+    #[Route('/factures/json/{id}', name: 'facture_json', methods: ['GET'])]
+    public function getFactureJson(int $id, FactureRepository $factureRepository, ArticleRepository $articleRepository): JsonResponse
     {
-        // Récupérer les articles de la base de données
-        $articles = $this->getDoctrine()
-                         ->getRepository(ListArticle::class)
-                         ->findAll();
-
-        // Calcul des totaux (vous pouvez ajuster cela en fonction de vos besoins)
-        $totalHT = 0;
-        foreach ($articles as $article) {
-            $totalHT += $article->getPrixUnitaire() * $article->getQuantite();
+        // Récupérer la facture par son ID
+        $facture = $factureRepository->find($id);
+        if (!$facture) {
+            throw $this->createNotFoundException('Facture introuvable.');
         }
-
-        // Simuler la TVA et le total TTC
-        $tva = $totalHT * 0.2;  // TVA 20%
-        $totalTTC = $totalHT + $tva;
-
-        // Organiser les données
-        $data = [
-            'paniers' => array_map(function ($article) {
+    
+        // Récupérer le nom du client
+        $clientName = $facture->getClient()->getName();
+    
+        // Récupérer les articles associés à la commande
+        $commande = $facture->getCommande();
+        $articles = [];
+        if ($commande && $commande->getArticleIds()) {
+            $articles = $articleRepository->findBy(['id' => $commande->getArticleIds()]);
+        }
+    
+        // Structurer les données en JSON
+        $factureData = [
+            'id' => $facture->getId(),
+            'montant' => $facture->getMontant(),
+            'date' => $facture->getDatetime()->format('Y-m-d H:i'),
+            'client' => [
+                'id' => $facture->getClient()->getId(),
+                'nom' => $clientName,
+            ],
+            'articles' => array_map(function ($article) {
                 return [
                     'nom' => $article->getNom(),
-                    'prixUnitaire' => $article->getPrixUnitaire(),
-                    'quantite' => $article->getQuantite(),
+                    'prix_unitaire' => $article->getPrix(),
                 ];
             }, $articles),
-            'totalHT' => $totalHT,
-            'tva' => $tva,
-            'totalTTC' => $totalTTC,
         ];
-
-        // Retourner les données sous forme de réponse JSON
-        return new JsonResponse($data);
-    }
     
+        // Retourner une réponse JSON
+        return new JsonResponse($factureData);
+    }
+
+    #[Route('/factures/telecharger-pdf-from-json/{id}', name: 'facture_telecharger_pdf_from_json', methods: ['GET'])]
+    public function telechargerFacturePdfFromJson(int $id, FactureRepository $factureRepository, ArticleRepository $articleRepository): Response
+    {
+        // Appeler la méthode JSON pour récupérer les données
+        $jsonResponse = $this->getFactureJson($id, $factureRepository, $articleRepository);
+        $factureData = json_decode($jsonResponse->getContent(), true);
+
+        // Générer le HTML pour le PDF à partir des données JSON
+        $html = $this->renderView('facture/pdf.html.twig', [
+            'facture' => $factureData,
+        ]);
+
+        // Configurer Dompdf
+        $options = new Options();
+        $options->set('defaultFont', 'Arial');
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
+
+        // Charger le HTML dans Dompdf
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        // Générer le fichier PDF
+        $output = $dompdf->output();
+        $response = new Response($output);
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->headers->set('Content-Disposition', 'attachment; filename="facture_' . $factureData['id'] . '.pdf"');
+
+        return $response;
+    }
 }
