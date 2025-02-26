@@ -55,6 +55,15 @@ class FavorieRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findExpiredFavories(\DateTime $currentDate)
+{
+    return $this->createQueryBuilder('f')
+        ->where('f.dateExpiration < :currentDate')
+        ->setParameter('currentDate', $currentDate)
+        ->getQuery()
+        ->getResult();
+}
+
 //    /**
 //     * @return Favorie[] Returns an array of Favorie objects
 //     */

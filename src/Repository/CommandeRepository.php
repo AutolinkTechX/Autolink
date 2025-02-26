@@ -16,6 +16,15 @@ class CommandeRepository extends ServiceEntityRepository
         parent::__construct($registry, Commande::class);
     }
 
+    public function findByUser($user)
+{
+    return $this->createQueryBuilder('a')
+        ->andWhere('a.user = :user')
+        ->setParameter('user', $user)
+        ->getQuery()
+        ->getResult();
+}
+
     public function countSalesByProduct(): array
     {
         $conn = $this->getEntityManager()->getConnection();

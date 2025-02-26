@@ -650,30 +650,30 @@ final class UserController extends AbstractController
     ): Response {
         // Récupérer les statistiques des ventes par produit
         $stats = $commandeRepository->countSalesByProduct();
-    
+
         // Extraire les noms des produits et le nombre de ventes pour Chart.js
         $productNoms = array_map(fn($stat) => $stat['nom'], $stats);
         $sales = array_map(fn($stat) => $stat['sales'], $stats);
-    
+
         // Récupérer les quantités totales des produits
         $quantites = $articleRepository->getTotalQuantitiesByProduct();
-    
+
         // Extraire les noms des produits et les quantités totales pour le diagramme circulaire
         $productNames = array_map(fn($product) => $product['nom'], $quantites);
         $quantities = array_map(fn($product) => $product['quantitestock'], $quantites);
-    
+
         // Récupérer les statistiques des paiements par mode (carte et espèces)
         $paymentStats = $commandeRepository->countPaymentsByMode();
-        $cardPayments = $paymentStats['card'];
-        $cashPayments = $paymentStats['especes'];
-    
+        $cardPayments = $paymentStats['card'] ?? 0;
+        $cashPayments = $paymentStats['especes'] ?? 0;
+
         // Récupérer les produits en rupture de stock (stock = 0)
         $outOfStockProducts = $articleRepository->findBy(['quantitestock' => 0]);
         $outOfStockProductNames = array_map(fn($product) => $product->getNom(), $outOfStockProducts);
-    
+
         // Récupérer les données des favoris (clients et articles)
         $favoriteData = $favorieRepository->findFavoriteClientsAndArticles();
-    
+
         // Grouper les articles favoris par client
         $groupedFavoriteData = [];
         foreach ($favoriteData as $favorite) {
@@ -686,7 +686,37 @@ final class UserController extends AbstractController
             }
             $groupedFavoriteData[$clientId]['articles'][] = $favorite['articleName'];
         }
-    
+
+        // Calculer le nombre d'articles favoris par client
+        $clientFavoriteCounts = [];
+        foreach ($groupedFavoriteData as $clientId => $clientData) {
+            $clientFavoriteCounts[$clientData['clientName']] = count($clientData['articles']);
+        }
+
+        // Trier les clients par nombre d'articles favoris (ordre décroissant)
+        arsort($clientFavoriteCounts);
+
+        // Convertir les données en tableaux pour Chart.js
+        $clientNames = array_keys($clientFavoriteCounts);
+        $clientFavoriteCountsData = array_values($clientFavoriteCounts);
+
+        // Calculer le nombre d'occurrences de chaque produit dans les favoris
+        $productOccurrences = [];
+        foreach ($favoriteData as $favorite) {
+            $productName = $favorite['articleName'];
+            if (!isset($productOccurrences[$productName])) {
+                $productOccurrences[$productName] = 0;
+            }
+            $productOccurrences[$productName]++;
+        }
+
+        // Trier les occurrences par ordre décroissant
+        arsort($productOccurrences);
+
+        // Convertir les occurrences en tableaux pour Chart.js
+        $favoriteProductNames = array_keys($productOccurrences);
+        $favoriteProductCounts = array_values($productOccurrences);
+
         return $this->render('user/admin/stat.html.twig', [
             'productNoms' => json_encode($productNoms),
             'sales' => json_encode($sales),
@@ -696,9 +726,15 @@ final class UserController extends AbstractController
             'especes' => $cashPayments,
             'outOfStockProductNames' => json_encode($outOfStockProductNames),
             'groupedFavoriteData' => $groupedFavoriteData, // Données groupées des favoris
+            'favoriteProductNames' => json_encode($favoriteProductNames), // Noms des produits favoris
+            'favoriteProductCounts' => json_encode($favoriteProductCounts), // Nombre d'occurrences des produits favoris
+            'clientNames' => json_encode($clientNames), // Noms des clients
+            'clientFavoriteCountsData' => json_encode($clientFavoriteCountsData), // Nombre d'articles favoris par client
+            'productOccurrences' => $productOccurrences, // Occurrences des produits dans les favoris
             'currentPage' => $page, // Page actuelle
         ]);
     }
+
 
         
 }

@@ -3,180 +3,282 @@
 {% block title %}Liste des Commandes{% endblock %}
 
 {% block body %}
-<section class="product spad">
-    <div class="container">
-        <div class="row">
-            <!-- SIDEBAR -->
-            <div class="col-lg-3 col-md-5">
-                <div class="sidebar">
-                    <div class="blog__sidebar__search">
-                        <form action="#">
-                            <input type="text" placeholder="Rechercher...">
-                            <button type="submit"><span class="icon_search"></span></button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- LISTE DES COMMANDES -->
-            <div class="col-lg-9 col-md-7">
-                <div class="product__discount">
-                    <div class="section-title product__discount__title">
-                        <h2>Votre Commande</h2>
-                    </div>
-                    <div class="row">
-                        {% if paniers is empty %}
-                        <p>Aucun article dans votre commande.</p>
-                        {% else %}
-                        {% for panier in paniers %}
-                        <div class="col-lg-4 col-md-6 col-sm-6">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" style="background-image: url('{{ asset('uploads/' ~ panier.article.getImage) }}');">
-                                    <ul class="product__item__pic__hover">
-                                        <li>
-                                            <form action="{{ path('add_to_cart', {'id': panier.article.id}) }}" method="POST" style="display: inline;">
-                                                <button type="submit" class="btn btn-danger"><i class="fa fa-cart-plus"></i></button>
-                                            </form>
-                                            <form action="{{ path('decrease_quantity', {'id': panier.article.id}) }}" method="POST" style="display: inline;">
-                                                <button type="submit" class="btn btn-danger"><i class="fa fa-times"></i></button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="product__item__text">
-                                    <h5>{{ panier.article.nom }}</h5>
-                                    <h5>{{ panier.prixUnitaire }} dt</h5>
-                                    <h5>Quantité: {{ panier.quantite }}</h5>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- TOTAL PANIER -->
-<div class="row custom-row">
-    <div class="col-lg-12">
-        <div class="shoping__cart__btns">
-            <a href="{{ path('app_listarticle') }}" class="primary-btn cart-btn">Continuer les achats</a>
-        </div>
-    </div>
-
-    <div class="col-lg-6">
-        <div class="shoping__continue">
-            <div class="shoping__discount">
-                <h5>Votre Facture</h5>
-                <a href="#" class="primary-btn" data-toggle="modal" data-target="#factureModal">Voir votre Facture</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-6">
-        <div class="shoping__checkout">
-            <h5>Total du Panier</h5>
-            <ul>
-                <li>Total HT: <span>{{ totalHT }} dt</span></li>
-                <li>TVA (20%): <span>{{ tva }} dt</span></li>
-                <li>Total TTC: <span>{{ totalTTC }} dt</span></li>
-            </ul>
-            <a href="{{ path('app_payment') }}" class="primary-btn">Procéder au paiement</a>
-        </div>
-    </div>
-</div>
-
-<!-- Modal pour afficher la facture -->
-<div class="modal fade" id="factureModal" tabindex="-1" role="dialog" aria-labelledby="factureModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="factureModalLabel">Facture</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <!-- Affichage des messages flash -->
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Produit</th>
-                            <th>Prix Unitaire</th>
-                            <th>Quantité</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for panier in paniers %}
-                        <tr>
-                            <td>{{ panier.article.nom }}</td>
-                            <td>{{ panier.prixUnitaire|number_format(2, '.', ',') }} dt</td>
-                            <td>{{ panier.quantite }}</td>
-                            <td>{{ (panier.prixUnitaire * panier.quantite)|number_format(2, '.', ',') }} dt</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <hr>
-                <div><strong>Total HT:</strong> {{ totalHT|number_format(2, '.', ',') }} dt</div>
-                <hr>
-                <div><strong>TVA (20%):</strong> {{ tva|number_format(2, '.', ',') }} dt</div>
-                <hr>
-                <div><strong>Total TTC:</strong> <span class="total-ttc">{{ totalTTC|number_format(2, '.', ',') }} dt</span></div>
-                <hr>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="primary-btn" data-dismiss="modal">Fermer</button>
-                <a href="#" class="primary-btn" id="downloadInvoicePdf"
-                    data-paniers="{{ paniers|json_encode|e('html_attr') }}"
-                    data-totalht="{{ totalHT }}"
-                    data-tva="{{ tva }}"
-                    data-totalttc="{{ totalTTC }}">Télécharger PDf 
-                </a>
+        {% endfor %}
+    {% endfor %}
 
+    <section class="product spad">
+        <div class="container">
+            <div class="row">
+                <!-- SIDEBAR -->
+                <div class="col-lg-3 col-md-5">
+                    <div class="sidebar">
+                        <div class="blog__sidebar__search">
+                            <form action="#">
+                                <input type="text" placeholder="Rechercher...">
+                                <button type="submit"><span class="icon_search"></span></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LISTE DES COMMANDES -->
+                <div class="col-lg-9 col-md-7">
+                    <div class="product__discount">
+                        <div class="section-title product__discount__title">
+                            <h2>Votre Commande</h2>
+                        </div>
+                        <div class="row">
+                            {% if paniers is empty %}
+                                <p>Aucun article dans votre commande.</p>
+                            {% else %}
+                                {% for panier in paniers %}
+                                    <div class="col-lg-4 col-md-6 col-sm-6">
+                                        <div class="product__item">
+                                            <div class="product__item__pic set-bg" style="background-image: url('{{ asset('uploads/' ~ panier.article.getImage) }}');">
+                                                <ul class="product__item__pic__hover">
+                                                    <li>
+                                                        <form action="{{ path('add_cart', {'id': panier.article.id}) }}" method="POST" style="display: inline;">
+                                                            <button type="submit" class="btn btn-danger"><i class="fa fa-cart-plus"></i></button>
+                                                        </form>
+                                                        <form action="{{ path('decrease_quantity', {'id': panier.article.id}) }}" method="POST" style="display: inline;">
+                                                            <button type="submit" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button>
+                                                        </form>
+                                                       <form action="{{ path('remove_from_cart', {'id': panier.id}) }}" method="POST" style="display: inline;">
+                                                            <button type="submit" class="btn btn-danger" title="Supprimer">
+                                                                <i class="fa fa-times"></i>
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="product__item__text">
+                                                <h5>{{ panier.article.nom }}</h5>
+                                                <h5>{{ panier.prixUnitaire }} dt</h5>
+                                                <h5>Quantité: {{ panier.quantite }}</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TOTAL PANIER -->
+    <div class="row custom-row">
+        <div class="col-lg-12">
+            <div class="shoping__cart__btns">
+                <a href="{{ path('app_listarticle') }}" class="primary-btn cart-btn">Continuer les achats</a>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="shoping__continue">
+                <div class="shoping__discount">
+                    <h5>Votre Facture</h5>
+                    <a href="#" class="primary-btn" data-toggle="modal" data-target="#factureModal">Voir votre Facture</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="shoping__checkout">
+                <h5>Total du Panier</h5>
+                <ul>
+                    <li>Total HT: <span>{{ totalHT }} dt</span></li>
+                    <li>TVA (20%): <span>{{ tva }} dt</span></li>
+                    <li>Total TTC: <span>{{ totalTTC }} dt</span></li>
+                </ul>
+                <a href="{{ path('app_payment') }}" class="primary-btn">Procéder au paiement</a>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-document.querySelector("#downloadInvoicePdf").addEventListener("click", function(e) {
-    e.preventDefault();
+    <!-- Modal pour afficher la facture -->
+    <div class="modal fade" id="factureModal" tabindex="-1" role="dialog" aria-labelledby="factureModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="factureModalLabel">Facture</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Produit</th>
+                                <th>Prix Unitaire</th>
+                                <th>Quantité</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for panier in paniers %}
+                                <tr>
+                                    <td>{{ panier.article.nom }}</td>
+                                    <td>{{ panier.prixUnitaire|number_format(2, '.', ',') }} dt</td>
+                                    <td>{{ panier.quantite }}</td>
+                                    <td>{{ (panier.prixUnitaire * panier.quantite)|number_format(2, '.', ',') }} dt</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <hr>
+                    <div><strong>Total HT:</strong> {{ totalHT|number_format(2, '.', ',') }} dt</div>
+                    <hr>
+                    <div><strong>TVA (20%):</strong> {{ tva|number_format(2, '.', ',') }} dt</div>
+                    <hr>
+                    <div><strong>Total TTC:</strong> <span class="total-ttc">{{ totalTTC|number_format(2, '.', ',') }} dt</span></div>
+                    <hr>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="primary-btn" data-dismiss="modal">Fermer</button>
+                    <div id="loadingIndicator" style="display: none;">Chargement de la facture...</div>
+                    <button id="downloadInvoicePdf" class="primary-btn">Télécharger PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    const paniers = JSON.parse(this.getAttribute("data-paniers"));
-    const totalHT = parseFloat(this.getAttribute("data-totalht"));
-    const tva = parseFloat(this.getAttribute("data-tva"));
-    const totalTTC = parseFloat(this.getAttribute("data-totalttc"));
+    <!-- Script pour générer le PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.alert .close').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    this.closest('.alert').remove();
+                });
+            });
+        });
+        /*
+        document.querySelector("#downloadInvoicePdf").addEventListener("click", async function(e) {
+            e.preventDefault();
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+            // Affichage d'un indicateur de chargement
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.innerHTML = 'Chargement de la facture...';
+            loadingIndicator.style.position = 'fixed';
+            loadingIndicator.style.top = '50%';
+            loadingIndicator.style.left = '50%';
+            loadingIndicator.style.transform = 'translate(-50%, -50%)';
+            loadingIndicator.style.backgroundColor = '#000';
+            loadingIndicator.style.color = '#fff';
+            loadingIndicator.style.padding = '20px';
+            loadingIndicator.style.borderRadius = '10px';
+            loadingIndicator.style.zIndex = '9999';
+            document.body.appendChild(loadingIndicator);
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text("Facture de Commande", 105, 20, null, null, "center");
+            try {
+                // Récupérer les données depuis le serveur
+                const response = await fetch('/generate-invoice');
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP : ${response.status}`);
+                }
 
-    doc.setFontSize(12);
-    doc.text("Détails des Produits:", 20, 40);
+                const jsonData = await response.json();
+                console.log("Données reçues :", jsonData);
 
-    let y = 50;
-    paniers.forEach(panier => {
-        let total = (panier.prixUnitaire * panier.quantite).toFixed(2);
-        doc.text(`${panier.article.nom} - ${panier.prixUnitaire.toFixed(2)} dt x ${panier.quantite} = ${total} dt`, 20, y);
-        y += 10;
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Ajouter le titre
+                doc.setFontSize(16);
+                doc.text("Facture de Commande", 105, 20, null, null, "center");
+                doc.setFontSize(12);
+                doc.text("Détails des Produits:", 20, 40);
+
+                // Vérifier si les paniers sont vides
+                if (!jsonData.paniers || jsonData.paniers.length === 0) {
+                    console.log("Aucun article dans la commande.");
+                    doc.text("Aucun article dans la commande.", 20, 50);
+                } else {
+                    // Construire le tableau à partir de jsonData
+                    let tableData = jsonData.paniers.map(panier => {
+                        return [
+                            panier.nom,
+                            panier.prixUnitaire.toFixed(2) + " dt",
+                            panier.quantite,
+                            panier.total.toFixed(2) + " dt"
+                        ];
+                    });
+
+                    // Ajouter le tableau au PDF
+                    doc.autoTable({
+                        startY: 50,
+                        head: [["Produit", "Prix Unitaire", "Quantité", "Total"]],
+                        body: tableData,
+                        theme: 'grid'
+                    });
+
+                    let finalY = doc.lastAutoTable.finalY + 10;
+
+                    // Ajouter les totaux
+                    doc.setFontSize(12);
+                    doc.text(`Total HT: ${jsonData.totalHT.toFixed(2)} dt`, 20, finalY);
+                    finalY += 10;
+                    doc.text(`TVA (20%): ${jsonData.tva.toFixed(2)} dt`, 20, finalY);
+                    finalY += 10;
+                    doc.text(`Total TTC: ${jsonData.totalTTC.toFixed(2)} dt`, 20, finalY);
+                }
+
+                // Télécharger le PDF
+                doc.save("facture-commande.pdf");
+
+            } catch (error) {
+                console.error("Erreur lors de la génération du PDF :", error);
+                alert("Une erreur est survenue lors de la génération du PDF. Veuillez réessayer.");
+            } finally {
+                // Supprimer l'indicateur de chargement
+                document.body.removeChild(loadingIndicator);
+            }
+        });*/
+
+    document.addEventListener("DOMContentLoaded", function () {
+    document.querySelector("#downloadInvoicePdf").addEventListener("click", async function (e) {
+        e.preventDefault();
+
+        // Affichage de l'indicateur de chargement
+        const loadingIndicator = document.querySelector('#loadingIndicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'block';
+        }
+
+        try {
+            const response = await fetch('/generate-invoice');
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP : ${response.status}`);
+            }
+
+            const jsonData = await response.json();
+            console.log("Données reçues :", jsonData);
+
+            // ... logique de traitement de la facture
+
+        } catch (error) {
+            console.error("Erreur lors de la génération de la facture :", error);
+            alert("Une erreur est survenue lors de la génération de la facture. Veuillez réessayer.");
+        } finally {
+            // Supprimer l'indicateur de chargement
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+        }
     });
-
-    y += 10;
-    doc.text(`Total HT: ${totalHT.toFixed(2)} dt`, 20, y);
-    y += 10;
-    doc.text(`TVA (20%): ${tva.toFixed(2)} dt`, 20, y);
-    y += 10;
-    doc.text(`Total TTC: ${totalTTC.toFixed(2)} dt`, 20, y);
-
-    doc.save("facture-commande.pdf");
 });
-</script>
+
 {% endblock %}

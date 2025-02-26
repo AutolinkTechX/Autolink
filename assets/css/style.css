@@ -4180,3 +4180,46 @@ select.form-control option {
     width: 400px !important;
     height: 300px !important;
 }
+
+
+
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    max-width: 50%; /* Ajustez la largeur selon vos besoins */
+    width: 300px; /* Largeur fixe optionnelle */
+    position: fixed; /* Position fixe pour centrer sur la page */
+    top: 50%; /* Déplace le haut de l'élément à 50% de la page */
+    left: 50%; /* Déplace la gauche de l'élément à 50% de la page */
+    transform: translate(-50%, -50%); /* Centre parfaitement l'élément */
+    text-align: center; /* Centre le texte à l'intérieur de l'alerte */
+    z-index: 1000; /* Assure que l'alerte est au-dessus des autres éléments */
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+.alert-error {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+#loadingIndicator {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #000;
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 9999;
+}

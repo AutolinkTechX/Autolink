@@ -1,3 +1,5 @@
+{# templates/user/admin/stat.html.twig #}
+
 {% extends 'baseAdmin.html.twig' %}
 
 {% block title %}Statistiques des ventes{% endblock %}
@@ -69,6 +71,7 @@
                     <div class="card">
                         <div class="card-header">Favoris des clients</div>
                         <div class="card-body">
+                            <!-- Graphique des favoris -->
                             <div class="chart-container">
                                 <canvas id="favoriteChart" class="chart-size"></canvas>
                             </div>
@@ -232,21 +235,19 @@
             }
 
             // Données pour le graphique des favoris
-            const groupedFavoriteData = {{ groupedFavoriteData|json_encode|raw }};
+            const favoriteProductNames = {{ favoriteProductNames|raw }};
+            const favoriteProductCounts = {{ favoriteProductCounts|raw }};
 
-            if (favoriteCtx && Object.keys(groupedFavoriteData).length > 0) {
-                const labels = Object.keys(groupedFavoriteData).map(clientId => groupedFavoriteData[clientId].clientName);
-                const data = Object.values(groupedFavoriteData).map(clientData => clientData.articles.length);
-
+            if (favoriteCtx && favoriteProductNames.length > 0 && favoriteProductCounts.length > 0) {
                 new Chart(favoriteCtx, {
                     type: 'bar',
                     data: {
-                        labels: labels,
+                        labels: favoriteProductNames,
                         datasets: [{
-                            label: 'Nombre d\'articles favoris',
-                            data: data,
-                            backgroundColor: ['#fcb76e', '#c27b4f', '#f78a36', '#e9a072','#faa666', '#d17942', '#efbf9f', '#e7a273', '#e08548'],
-                            borderColor: ['#fcb76e', '#c27b4f', '#f78a36', '#e9a072','#faa666', '#d17942', '#efbf9f', '#e7a273', '#e08548'],
+                            label: 'Nombre de fois dans les favoris',
+                            data: favoriteProductCounts,
+                            backgroundColor: '#db966b',
+                            borderColor: '#e29260',
                             borderWidth: 1
                         }]
                     },
@@ -255,26 +256,19 @@
                         scales: {
                             y: {
                                 beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    precision: 0
+                                },
                                 title: {
                                     display: true,
-                                    text: 'Nombre d\'articles favoris'
+                                    text: 'Nombre de fois dans les favoris'
                                 }
                             },
                             x: {
                                 title: {
                                     display: true,
-                                    text: 'Clients'
-                                }
-                            }
-                        },
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: function(tooltipItem) {
-                                        const clientId = Object.keys(groupedFavoriteData)[tooltipItem.dataIndex];
-                                        const clientData = groupedFavoriteData[clientId];
-                                        return `Client: ${clientData.clientName}, Articles: ${clientData.articles.join(', ')}`;
-                                    }
+                                    text: 'Produits'
                                 }
                             }
                         }
