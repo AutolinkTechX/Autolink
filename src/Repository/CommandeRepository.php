@@ -122,6 +122,94 @@ class CommandeRepository extends ServiceEntityRepository
 
         return $commandes;
     }
+/*
+    public function findPaginatedWithClientAndArticleNames(int $page, int $limit)
+{
+    // Définir la pagination : calculer l'offset et la limite
+    $offset = ($page - 1) * $limit;
+
+    // Récupérer les commandes avec les informations du client, limitées par la pagination
+    $commandes = $this->createQueryBuilder('c')
+        ->leftJoin('c.client', 'client')
+        ->addSelect('client') // Charger l'entité client
+        ->setFirstResult($offset)
+        ->setMaxResults($limit)
+        ->getQuery()
+        ->getResult();
+
+    // Récupérer les noms des articles pour chaque commande
+    $entityManager = $this->getEntityManager();
+    $articleRepository = $entityManager->getRepository(\App\Entity\Article::class);
+
+    foreach ($commandes as &$commande) {
+        $articleIds = $commande->getArticleIds();
+        $articleNames = [];
+
+        if (!empty($articleIds)) {
+            $articles = $articleRepository->findBy(['id' => $articleIds]);
+            foreach ($articles as $article) {
+                $articleNames[] = $article->getNom();
+            }
+        }
+
+        $commande->articleNames = $articleNames; // Ajouter les noms des articles à la commande
+    }
+
+    return $commandes;
+}
+*/
+public function findPaginatedWithClientAndArticleNames(int $page, int $limit)
+{
+    // Définir la pagination : calculer l'offset et la limite
+    $offset = ($page - 1) * $limit;
+
+    // Récupérer les commandes avec les informations du client, limitées par la pagination
+    $commandes = $this->createQueryBuilder('c')
+        ->leftJoin('c.client', 'client')
+        ->addSelect('client') // Charger l'entité client
+        ->setFirstResult($offset)
+        ->setMaxResults($limit)
+        ->getQuery()
+        ->getResult();
+
+    // Récupérer les articles et leurs quantités pour chaque commande
+    $entityManager = $this->getEntityManager();
+    $articleRepository = $entityManager->getRepository(\App\Entity\Article::class);
+
+    foreach ($commandes as &$commande) {
+        // Récupérer les IDs des articles et leurs quantités
+        $articleIds = $commande->getArticleIds();
+        $quantites = $commande->getQuantites();
+
+        $articlesWithQuantities = [];
+        if (!empty($articleIds)) {
+            // Récupérer les articles correspondants
+            $articles = $articleRepository->findBy(['id' => $articleIds]);
+
+            // Associer chaque article à sa quantité
+            foreach ($articles as $article) {
+                $articleId = $article->getId();
+                $articlesWithQuantities[] = [
+                    'name' => $article->getNom(),
+                    'quantity' => $quantites[$articleId] ?? 0, // Utiliser la quantité correspondante
+                ];
+            }
+        }
+
+        // Ajouter les articles et leurs quantités à la commande
+        $commande->articlesWithQuantities = $articlesWithQuantities;
+    }
+
+    return $commandes;
+}
+public function countAll()
+{
+    return $this->createQueryBuilder('c')
+        ->select('COUNT(c.id)')
+        ->getQuery()
+        ->getSingleScalarResult();
+}
+
 
     //    /**
     //     * @return Commande[] Returns an array of Commande objects

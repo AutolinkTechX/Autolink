@@ -11334,3 +11334,21 @@ body.sidebar-toggled footer.sticky-footer {
   flex-grow: 1; /* Permet à la partie de contenu de grandir pour remplir la carte */
 }
 
+
+/* Pagination stylisée */
+.pagination .page-item .page-link {
+  color: #fcb76e;
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+.pagination .page-item.active .page-link {
+  background-color:rgb(240, 169, 94);
+  border-color: #fcb76e;
+  color: white;
+}
+
+.pagination .page-item .page-link:hover {
+  background-color: #fcb76e;
+  color: white;
+}

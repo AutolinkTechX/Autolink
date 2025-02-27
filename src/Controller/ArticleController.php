@@ -76,13 +76,28 @@ final class ArticleController extends AbstractController
     #[Route('/admin/listArticles', name: 'list_articles_admin')]
 public function listArticles(ArticleRepository $articleRepository, Request $request, EntityManagerInterface $entityManager): Response
 {
-    $articles = $articleRepository->findAll();
+    // Pagination
+    $page = $request->query->getInt('page', 1); // Récupère le numéro de la page depuis l'URL, par défaut 1
+    $pageSize = 3; // Nombre d'articles par page
 
-    // Create a new article form
+    // Récupérer les articles paginés
+    $query = $articleRepository->createQueryBuilder('a')
+        ->getQuery();
+
+    $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query);
+    $totalItems = count($paginator);
+    $pagesCount = ceil($totalItems / $pageSize);
+
+    $paginator
+        ->getQuery()
+        ->setFirstResult($pageSize * ($page - 1)) // Offset
+        ->setMaxResults($pageSize); // Limit
+
+    // Créer un nouveau formulaire pour l'article
     $article = new Article();
     $form = $this->createForm(ArticleType::class, $article);
 
-    // Handle form submission
+    // Gérer la soumission du formulaire
     $form->handleRequest($request);
     $formErrors = false; // Initialisation de la variable formErrors
 
@@ -91,7 +106,7 @@ public function listArticles(ArticleRepository $articleRepository, Request $requ
             $article = $form->getData();
             $article->setDatecreation(new \DateTimeImmutable());
 
-            // Handle image upload
+            // Gérer l'upload de l'image
             $file = $form->get('image')->getData();
             if ($file) {
                 $fileName = md5(uniqid()) . '.' . $file->guessExtension();
@@ -99,7 +114,7 @@ public function listArticles(ArticleRepository $articleRepository, Request $requ
                     $file->move($this->uploadsDirectory, $fileName);
                     $article->setImage($fileName);
                 } catch (FileException $e) {
-                    // Handle file upload error
+                    // Gérer l'erreur d'upload
                     $this->addFlash('error', 'There was an error uploading your Product image: ' . $e->getMessage());
                     return $this->redirectToRoute('list_articles_admin');
                 }
@@ -112,7 +127,7 @@ public function listArticles(ArticleRepository $articleRepository, Request $requ
             $entityManager->persist($article);
             $entityManager->flush();
 
-            // Redirect back to the list of articles
+            // Rediriger vers la liste des articles
             return $this->redirectToRoute('list_articles_admin');
         } else {
             // Si le formulaire est soumis mais non valide, nous définissons formErrors à true
@@ -122,9 +137,12 @@ public function listArticles(ArticleRepository $articleRepository, Request $requ
     }
 
     return $this->render('article/list_articles_dashboard.html.twig', [
-        'articles' => $articles,
+        'articles' => $paginator, // Passer les articles paginés au template
         'form' => $form->createView(),
         'formErrors' => $formErrors, // Passer la variable formErrors à Twig
+        'totalItems' => $totalItems, // Passer le nombre total d'articles
+        'pagesCount' => $pagesCount, // Passer le nombre total de pages
+        'currentPage' => $page, // Passer la page actuelle
     ]);
 }
 

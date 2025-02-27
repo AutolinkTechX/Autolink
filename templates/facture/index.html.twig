@@ -51,7 +51,7 @@
                                                         </form>
                                                     </li>
                                                     <li>
-                                                        <button onclick="window.location.href='{{ path('facture_telecharger_pdf_from_json', {'id': facture.id}) }}'" class="btn btn-danger">
+                                                        <button onclick="telechargerFacture('{{ facture.id }}')" class="btn btn-danger">
                                                             <i class="fa fa-file-pdf"></i> 
                                                         </button>
                                                     </li>
@@ -74,4 +74,11 @@
             </div>
         </div>
     </section>
+
+    <script>
+        function telechargerFacture(factureId) {
+            // Rediriger vers la route de génération de PDF
+            window.location.href = `/factures/telecharger-pdf-from-json/${factureId}`;
+        }
+    </script>
 {% endblock %}

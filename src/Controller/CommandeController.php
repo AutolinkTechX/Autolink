@@ -214,6 +214,48 @@ final class CommandeController extends AbstractController
     }
 
     #[Route('/admin/commandes', name: 'commandes_list')]
+public function list(Request $request, CommandeRepository $commandeRepository)
+{
+    // Récupérer la page actuelle, sinon par défaut page 1
+    $page = $request->query->getInt('page', 1);
+    $limit = 4; // Nombre de commandes par page
+
+    // Récupérer les commandes paginées avec les articles et leurs quantités
+    $commandes = $commandeRepository->findPaginatedWithClientAndArticleNames($page, $limit);
+
+    // Calculer le nombre total de commandes pour la pagination
+    $totalCommandes = $commandeRepository->countAll();
+
+    return $this->render('user/admin/order.html.twig', [
+        'commandes' => $commandes,
+        'currentPage' => $page,
+        'totalPages' => ceil($totalCommandes / $limit),
+    ]);
+}
+
+    /*
+    #[Route('/admin/commandes', name: 'commandes_list')]
+    public function list(Request $request, CommandeRepository $commandeRepository)
+    {
+        // Récupérer la page actuelle, sinon par défaut page 1
+        $page = $request->query->getInt('page', 1);
+        $limit = 6; // Nombre de commandes par page
+    
+        $commandes = $commandeRepository->findPaginatedWithClientAndArticleNames($page, $limit);
+        
+        // Calculer le nombre total de commandes pour la pagination
+        $totalCommandes = $commandeRepository->countAll();
+    
+        return $this->render('user/admin/order.html.twig', [
+            'commandes' => $commandes,
+            'currentPage' => $page,
+            'totalPages' => ceil($totalCommandes / $limit),
+        ]);
+    }
+  */  
+
+/*
+    #[Route('/admin/commandes', name: 'commandes_list')]
     public function list(CommandeRepository $commandeRepository)
     {
         $commandes = $commandeRepository->findAllWithClientAndArticleNames();
@@ -222,7 +264,7 @@ final class CommandeController extends AbstractController
             'commandes' => $commandes,
         ]);
     }
-
+*/
 /*
     #[Route('/factures/data', name: 'factures_data')]
     public function getFactureData()
@@ -264,7 +306,7 @@ final class CommandeController extends AbstractController
 
   
     
-
+/*
     #[Route('/get-logo-image', name: 'get_logo_image')]
     public function getLogoImage(): JsonResponse
     {
@@ -287,12 +329,6 @@ final class CommandeController extends AbstractController
         // Retourner la réponse en format JSON contenant l'image encodée en Base64
         return new JsonResponse(['imageData' => $imageData]);
     }
-
-
-
-
-
-
 
     #[Route('/generate-invoice', name: 'generate_invoice')]
     public function generateInvoice()
@@ -342,4 +378,5 @@ final class CommandeController extends AbstractController
             return new JsonResponse(['error' => 'Une erreur est survenue : ' . $e->getMessage()], 500);
         }
     }
+*/
 }

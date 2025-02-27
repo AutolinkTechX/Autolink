@@ -96,6 +96,7 @@ class FactureController extends AbstractController
 
         return $this->redirectToRoute('factures_index');
     }
+   
 
     #[Route('/factures/json/{id}', name: 'facture_json', methods: ['GET'])]
     public function getFactureJson(int $id, FactureRepository $factureRepository, ArticleRepository $articleRepository): JsonResponse
@@ -175,4 +176,8 @@ class FactureController extends AbstractController
     
         return $response;
     }
+    
+
+  
+
 }
