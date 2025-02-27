@@ -22,7 +22,7 @@ class Facture
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Commande $commande = null;
 
-    #[ORM\ManyToOne(inversedBy: 'factures')]  // Corrected here
+    #[ORM\ManyToOne(inversedBy: 'factures')]  
     #[ORM\JoinColumn(nullable: false)]
     private ?User $client = null;
 

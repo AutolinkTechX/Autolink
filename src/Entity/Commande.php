@@ -26,14 +26,19 @@ class Commande
     #[ORM\JoinColumn(nullable: false)]
     private ?User $client = null;
 
-    // Nouveau champ pour stocker les identifiants des articles
+    // Stocke les identifiants des articles
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $articleIds = null;
 
+    // Stocke les quantités correspondant à chaque article
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $quantites = null;
+
     public function __construct()
     {
-        // Initialisation de articleIds comme tableau vide
+        // Initialisation des tableaux
         $this->articleIds = [];
+        $this->quantites = [];
     }
 
     public function getId(): ?int
@@ -96,18 +101,56 @@ class Commande
         return $this;
     }
 
-    public function addArticleId(int $articleId): static
+    public function getQuantites(): ?array
+    {
+        return $this->quantites;
+    }
+
+    public function setQuantites(?array $quantites): self
+    {
+        $this->quantites = $quantites;
+        return $this;
+    }
+
+    /**
+     * Ajoute un article avec sa quantité
+     */
+    public function addArticle(int $articleId, int $quantite): static
     {
         if (!in_array($articleId, $this->articleIds, true)) {
             $this->articleIds[] = $articleId;
+            $this->quantites[$articleId] = $quantite;
         }
         return $this;
     }
 
-    public function removeArticleId(int $articleId): static
+    /**
+     * Supprime un article et sa quantité
+     */
+    public function removeArticle(int $articleId): static
     {
         if (($key = array_search($articleId, $this->articleIds, true)) !== false) {
             unset($this->articleIds[$key]);
+            unset($this->quantites[$articleId]);
+        }
+        return $this;
+    }
+
+    /**
+     * Récupère la quantité d'un article spécifique
+     */
+    public function getQuantiteForArticle(int $articleId): ?int
+    {
+        return $this->quantites[$articleId] ?? null;
+    }
+
+    /**
+     * Met à jour la quantité d'un article spécifique
+     */
+    public function setQuantiteForArticle(int $articleId, int $quantite): static
+    {
+        if (in_array($articleId, $this->articleIds, true)) {
+            $this->quantites[$articleId] = $quantite;
         }
         return $this;
     }

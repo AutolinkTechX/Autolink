@@ -25,7 +25,7 @@
             margin-bottom: 40px;
         }
         .header img {
-            max-height: 80px; /* Ajustez la taille du logo */
+            max-height: 80px;
         }
         .header h1 {
             color: #444;
@@ -81,6 +81,15 @@
         table tr:hover {
             background-color: #f9f9f9;
         }
+        .total {
+            text-align: right; /* Aligner le texte à gauche */
+            margin-top: 20px; /* Espacement par rapport au tableau */
+            font-size: 16px; /* Taille de la police */
+            color: #000; /* Couleur du texte en noir */
+            font-weight: bold; /* Texte en gras */
+            padding: 10px; /* Espacement interne */
+            border-top: 2px solid #eee; /* Ligne de séparation */
+        }
         .total-amount {
             text-align: right;
             margin-top: 20px;
@@ -101,9 +110,9 @@
         <div class="header">
             <img src="/uploads/logo.png" alt="Logo"> <!-- Chemin corrigé -->
             <h1>Facture</h1>
-            <div></div> <!-- Espace vide pour équilibrer -->
+            <div></div>
         </div>
-        <hr> <!-- Ligne de séparation -->
+        <hr>
 
         <div class="invoice-info">
             <div>
@@ -122,6 +131,8 @@
                 <tr>
                     <th>Nom</th>
                     <th>Prix unitaire</th>
+                    <th>Quantité</th>
+                    <th>Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -129,13 +140,26 @@
                     <tr>
                         <td>{{ article.nom }}</td>
                         <td>{{ article.prix_unitaire }} dt</td>
+                        <td>{{ article.quantite }}</td>
+                        <td>{{ article.prix_unitaire * article.quantite }} dt</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        <div class="total-amount">
-            <p>Montant total : {{ facture.montant }} dt</p>
+        <div class="total">
+            {# Calculer la somme des totaux des produits #}
+            {% set totalProduits = 0 %}
+            {% for article in facture.articles %}
+                {% set totalProduits = totalProduits + (article.prix_unitaire * article.quantite) %}
+            {% endfor %}
+
+            {# Calculer la TVA (20%) #}
+            {% set tva = totalProduits * 0.2 %}
+
+
+            <p>Total des produits (HT) : {{ totalProduits }} dt</p>
+            <p>TVA (20%) : {{ tva }} dt</p>
         </div>
 
         <div class="footer">

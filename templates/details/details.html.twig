@@ -39,6 +39,7 @@
                             <thead>
                                 <tr>
                                     <th>Produit</th>
+                                    <th>Quantité</th>
                                     <th>Prix Unitaire</th>
                                 </tr>
                             </thead>
@@ -46,6 +47,7 @@
                                 {% for article in articles %}
                                     <tr>
                                         <td>{{ article.nom }}</td>
+                                        <td>{{ article.quantite }}</td> <!-- Affichage de la quantité -->
                                         <td>{{ article.prix|number_format(2, ',', ' ') }} dt</td>
                                     </tr>
                                 {% else %}
