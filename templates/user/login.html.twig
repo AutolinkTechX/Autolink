@@ -14,8 +14,11 @@
     <div class="col-md-6">
         <div class="form-container">
             <h2 class="mb-4 text-center font-weight-bold">Connexion</h2>
-            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-                
+            <form id="form_test" action="?" method="POST">
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
                 <div class="mb-4 form-group">
                     {{ form_label(form._username, 'Email', {'attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form._username, {'attr': {'class': 'form-control'}}) }}
@@ -25,15 +28,23 @@
                 </div>
                 <div class="mb-4 form-group">
                     {{ form_label(form._password, 'Password', {'attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form._password, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_widget(form._password, {'attr': {'class': 'form-control', 'id': '_password'}}) }}
                     <div class="form-error">
                         {{ form_errors(form._password) }}
                     </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="toggle-password" class="form-check-input">
+                        <label for="toggle-password" class="form-check-label">Show Password</label>
+                    </div>
+                    <p class="mb-0" style="text-align: right;">
+                        <a href="{{ path('forgot_password') }}" class="create-account-link">Forgot your password?</a>
+                    </p>
                 </div>
                 <div class="d-grid">
                     {{ form_widget(form.submit, {'attr': {'class': 'btn btn-primary btn-lg'}}) }}
                 </div>
-            {{ form_end(form) }}
+                {{ form_end(form) }}
+            </form>
             {# Create account link #}
             <div class="text-center mt-4">
                 <p class="mb-0">New to AutoLink? <a href="{{ path('create_account') }}" class="create-account-link">Create account</a></p>
@@ -41,4 +52,26 @@
         </div>
     </div>
 </div>
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var togglePassword = document.getElementById('toggle-password');
+            var passwordField = document.getElementById('_password');
+            if (togglePassword && passwordField) {
+                togglePassword.addEventListener('change', function () {
+                    if (this.checked) {
+                        passwordField.type = "text";
+                    } else {
+                        passwordField.type = "password";
+                    }
+                });
+            } else {
+                console.error('One or both elements (toggle-password or password-field) are not found.');
+                console.log('toggle-password:', togglePassword);
+                console.log('_password:', passwordField);
+            }
+        });
+    </script>
+{% endblock %}
 {% endblock %}

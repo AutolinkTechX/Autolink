@@ -24,7 +24,13 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
+use Symfony\Component\Uid\Uuid;
+use App\Service\EmailService;
 
 final class UserController extends AbstractController
 {
@@ -37,17 +43,25 @@ final class UserController extends AbstractController
     }
 
     #[Route('/login', name: 'login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(AuthenticationUtils $authenticationUtils, Request $request): Response
     {
         $error = $authenticationUtils->getLastAuthenticationError();
         if ($error) {
             $this->addFlash('error', 'Email ou mot de passe invalide. Veuillez réessayer.');
         }
         $lastUsername = $authenticationUtils->getLastUsername();
+
         $form = $this->createForm(LoginType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            return $this->redirectToRoute('home');
+        }
+
         return $this->render('user/login.html.twig', [
             'form' => $form->createView(),
             'last_username' => $lastUsername,
+            'error' => $error,
         ]);
     }
 
@@ -107,14 +121,16 @@ final class UserController extends AbstractController
     }
 
     #[Route('/create-account', name: 'create_account')]
-    public function createAccount(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder): Response
+    public function createAccount(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder, EmailService $emailService): Response
     {
         $user = new User();
         $form = $this->createForm(CreateAccountType::class, $user);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
             // Encode the plain password
             $user->setPassword($passwordEncoder->hashPassword($user, $user->getPassword()));
+
             // Set the role to 'client'
             $role = $entityManager->getRepository(Role::class)->findOneBy(['name' => 'ROLE_CLIENT']);
             if (!$role) {
@@ -123,17 +139,26 @@ final class UserController extends AbstractController
                 $entityManager->persist($role);
             }
             $user->setRole($role);
+            $verificationToken = Uuid::v4()->__toString();
+            $user->setVerificationToken($verificationToken);
+            $user->setIsVerified(false);
+
             $user->setCreatedAt(new \DateTimeImmutable());
+
             try {
                 $entityManager->persist($user);
                 $entityManager->flush();
-                $this->addFlash('success', 'Account created successfully!');
+
+                $emailService->sendVerificationEmail($user, $verificationToken);
+
+                $this->addFlash('success', 'Account created successfully! Please check your email to verify your account.');
                 return $this->redirectToRoute('login');
-            } catch (UniqueConstraintViolationException $e) {
+            } catch (OptimisticLockException | ORMException $e) {
                 $this->addFlash('error', 'A user with this email address already exists.');
                 return $this->redirectToRoute('create_account');
             }
         }
+
         return $this->render('user/client/create_account.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -144,7 +169,6 @@ final class UserController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
         return $this->render('user/admin/dashboard.html.twig', [
-            // Pass any data you need to the template
         ]);
     }
 

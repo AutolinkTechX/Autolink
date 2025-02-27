@@ -1,5 +1,6 @@
 <?php
 namespace App\Entity;
+
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -7,7 +8,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -19,25 +19,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Name is required")]
+    #[Assert\NotBlank(message: "Name is required", groups: ["registration"])]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "LastName is required")]
+    #[Assert\NotBlank(message: "LastName is required", groups: ["registration"])]
     private ?string $lastName = null;
 
     #[ORM\Column]
-    #[Assert\NotBlank(message: "Phone number is required")]
+    #[Assert\NotBlank(message: "Phone number is required", groups: ["registration"])]
     private ?int $phone = null;
 
     #[ORM\Column(length: 255, unique: true, options: ["message" => "This email is already in use."])]
-    #[Assert\NotBlank(message: "Email is required")]
-    #[Assert\Email(message: "The email {{ value }} is not a valid email address")]
+    #[Assert\NotBlank(message: "Email is required", groups: ["registration", "reset_password"])]
+    #[Assert\Email(message: "The email {{ value }} is not a valid email address", groups: ["registration", "reset_password"])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Password is required")]
-    #[Assert\Length(min: 6, max: 255, minMessage: "Your password must contain at least {{ limit }} characters.", maxMessage: "Your password must be less than {{ limit }} characters.")]
+    #[Assert\NotBlank(message: "Password is required", groups: ["registration"])]
+    #[Assert\Length(min: 6, max: 255, minMessage: "Your password must contain at least {{ limit }} characters.", maxMessage: "Your password must be less than {{ limit }} characters.", groups: ["registration", "reset_password"])]
     private ?string $password = null;
 
     #[ORM\Column]
@@ -50,30 +50,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imagePath = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "Verification token is required", groups: ["registration"])]
+    private ?string $verificationToken = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $isVerified = false;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $resetToken = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $resetTokenExpiresAt = null;
+
     #[ORM\Embedded(class: Address::class)]
     private Address $address;
 
     #[ORM\OneToMany(targetEntity: Commande::class, mappedBy: 'client')]
     private Collection $commandes;
 
-    /**
-     * @var Collection<int, MaterielRecyclable>
-     */
     #[ORM\OneToMany(targetEntity: MaterielRecyclable::class, mappedBy: 'user')]
     private Collection $materielRecyclables;
 
-    /**
-     * @var Collection<int, ListArticle>
-     */
     #[ORM\OneToMany(targetEntity: ListArticle::class, mappedBy: 'user')]
     private Collection $listArticles;
 
-    /**
-     * @var Collection<int, Favorie>
-     */
     #[ORM\OneToMany(targetEntity: Favorie::class, mappedBy: 'user')]
     private Collection $favories;
 
+    
     public function __construct()
     {
         $this->address = new Address();
@@ -202,9 +207,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Commande>
-     */
     public function getCommandes(): Collection
     {
         return $this->commandes;
@@ -230,9 +232,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, MaterielRecyclable>
-     */
     public function getMaterielRecyclables(): Collection
     {
         return $this->materielRecyclables;
@@ -244,7 +243,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->materielRecyclables->add($materielRecyclable);
             $materielRecyclable->setUser($this);
         }
-
         return $this;
     }
 
@@ -256,13 +254,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $materielRecyclable->setUser(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, ListArticle>
-     */
     public function getListArticles(): Collection
     {
         return $this->listArticles;
@@ -274,7 +268,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->listArticles->add($listArticle);
             $listArticle->setUser($this);
         }
-
         return $this;
     }
 
@@ -286,13 +279,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $listArticle->setUser(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Favorie>
-     */
     public function getFavories(): Collection
     {
         return $this->favories;
@@ -304,7 +293,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->favories->add($favory);
             $favory->setUser($this);
         }
-
         return $this;
     }
 
@@ -316,6 +304,51 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $favory->setUser(null);
             }
         }
+        return $this;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $resetToken): static
+    {
+        $this->resetToken = $resetToken;
+        return $this;
+    }
+
+    public function getResetTokenExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->resetTokenExpiresAt;
+    }
+
+    public function setResetTokenExpiresAt(?\DateTimeInterface $resetTokenExpiresAt): static
+    {
+        $this->resetTokenExpiresAt = $resetTokenExpiresAt;
+        return $this;
+    }
+
+    public function getVerificationToken(): ?string
+    {
+        return $this->verificationToken;
+    }
+
+    public function setVerificationToken(?string $verificationToken): self
+    {
+        $this->verificationToken = $verificationToken;
+
+        return $this;
+    }
+
+    public function isVerified(): ?bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): self
+    {
+        $this->isVerified = $isVerified;
 
         return $this;
     }

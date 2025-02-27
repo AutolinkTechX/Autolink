@@ -30,6 +30,7 @@
     <style>
         .content-push {
             min-height: calc(100vh - 250px); /* Adjust the height to ensure the footer is not overlapped */
+            padding-top: 90px; /* Add padding at the top to avoid overlap with the header */
         }
         .header__cart .dropdown-menu {
             display: none;
@@ -60,11 +61,24 @@
             border-radius: 50%;
             margin-right: 5px;
         }
+
+        /* Header Styles */
+        .site-header {
+            position: fixed;
+            width: 100%;
+            background: #fff;
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+        .site-header.header-scrolled {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
     </style>
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
-    <header>
+    <header class="site-header">
         <div class="container">
             <div class="row">
                 <div class="col-lg-2">
@@ -94,7 +108,9 @@
                         <ul class="d-flex align-items-center">
                             <li><a href="{{ path('app_favorie') }}" aria-label="Favoris"><i class="fa fa-heart"></i></a></li>
                             <li><a href="{{ path('app_commande') }}" aria-label="Panier"><i class="fa fa-shopping-bag"></i></a></li>
-                            <li><a href="{{ path('factures_index') }}" aria-label="Facture"><i class="fa fa-file-invoice"></i></a></li>
+                            {% if app.user %}
+                                <li><a href="{{ path('factures_index') }}" aria-label="Facture"><i class="fa fa-file-invoice"></i></a></li>
+                            {% endif %}
                             <li class="dropdown">
                                 <a href="#" id="userDropdown" class="dropdown-toggle user-profile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     {% if app.user is not null %}
@@ -183,6 +199,17 @@
     <script src="{{ asset('js/mixitup.min.js') }}"></script>
     <script src="{{ asset('js/owl.carousel.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
-    {% block javascripts %}{% endblock %}
+    {% block javascripts %}
+        <script>
+            $(window).scroll(function() {
+                var scroll = $(window).scrollTop();
+                if (scroll >= 100) {
+                    $('.site-header').addClass('header-scrolled');
+                } else {
+                    $('.site-header').removeClass('header-scrolled');
+                }
+            });
+        </script>
+    {% endblock %}
 </body>
 </html>

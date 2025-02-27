@@ -33,20 +33,20 @@
                     </div>
                 </div>
                 <div class="col-md-6 mb-4 form-group">
-                    {{ form_label(form.password.first, 'Password', {'attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.password.first, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_label(form.phone, 'Phone', {'attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.phone, {'attr': {'class': 'form-control'}}) }}
                     <div class="form-error">
-                        {{ form_errors(form.password.first) }}
+                        {{ form_errors(form.phone) }}
                     </div>
                 </div>
             </div>
             
             <div class="row">
                 <div class="col-md-6 mb-4 form-group">
-                    {{ form_label(form.phone, 'Phone', {'attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.phone, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_label(form.password.first, 'Password', {'attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.password.first, {'attr': {'class': 'form-control'}}) }}
                     <div class="form-error">
-                        {{ form_errors(form.phone) }}
+                        {{ form_errors(form.password.first) }}
                     </div>
                 </div>
                 <div class="col-md-6 mb-4 form-group">

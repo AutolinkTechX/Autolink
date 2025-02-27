@@ -26,8 +26,23 @@
             "./migrations/.gitignore"
         ]
     },
+    "gregwar/captcha-bundle": {
+        "version": "v2.3.0"
+    },
     "knplabs/knp-paginator-bundle": {
         "version": "v6.6.1"
+    },
+    "nyholm/psr7": {
+        "version": "1.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "4a8c0345442dcca1d8a2c65633dcf0285dd5a5a2"
+        },
+        "files": [
+            "./config/packages/nyholm_psr7.yaml"
+        ]
     },
     "phpunit/phpunit": {
         "version": "9.6",
@@ -250,6 +265,18 @@
         "files": [
             "./config/packages/twig.yaml",
             "./templates/base.html.twig"
+        ]
+    },
+    "symfony/uid": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "6.2",
+            "ref": "d294ad4add3e15d7eb1bae0221588ca89b38e558"
+        },
+        "files": [
+            "./config/packages/uid.yaml"
         ]
     },
     "symfony/ux-turbo": {

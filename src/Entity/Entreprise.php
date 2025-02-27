@@ -21,7 +21,7 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank(message: "Company name is required")]
     private ?string $company_name = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Assert\NotBlank(message: "Email is required")]
     #[Assert\Email(message: "The email {{ value }} is not a valid email address")]
     private ?string $email = null;
@@ -33,7 +33,7 @@ class Entreprise implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Embedded(class: Address::class)]
     private Address $address;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Assert\NotBlank(message: "Tax Code is required")]
     #[Assert\Length(min: 7, max: 20, minMessage: "Tax Code must contain at least {{ limit }} characters.", maxMessage: "Tax Code must be less than {{ limit }} characters.")]
     private ?string $tax_code = null;
