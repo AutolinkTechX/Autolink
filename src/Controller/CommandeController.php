@@ -29,7 +29,7 @@ final class CommandeController extends AbstractController
         $this->security = $security;
         $this->listArticleRepository = $listArticleRepository;
     }
-
+/*
     #[Route('/add-to-cart/{id}', name: 'add_to_cart', methods: ['GET', 'POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')] // Assure que l'utilisateur est connecté
     public function addToCart(int $id, EntityManagerInterface $em, Request $request, Security $security): Response
@@ -78,8 +78,139 @@ final class CommandeController extends AbstractController
     
         return $this->redirect($request->headers->get('referer'));
     }
-    
-    #[Route('/add-cart/{id}', name: 'add_cart', methods: ['GET', 'POST'])]
+  */
+  #[Route('/add-to-cart/{id}', name: 'add_to_cart', methods: ['GET', 'POST'])]
+#[IsGranted('IS_AUTHENTICATED_FULLY')] // Assure que l'utilisateur est connecté
+public function addToCart(int $id, EntityManagerInterface $em, Request $request, Security $security): Response
+{
+    // Vérifier si l'utilisateur est connecté
+    $user = $security->getUser();
+    if (!$user) {
+        $this->addFlash('error', 'Vous devez être connecté pour ajouter un article au panier.');
+        return $this->redirectToRoute('login'); // Redirection vers la page de connexion
+    }
+
+    // Récupérer l'article à partir de l'ID
+    $article = $em->getRepository(Article::class)->find($id);
+
+    if (!$article) {
+        $this->addFlash('error', 'Article non trouvé.');
+        return $this->redirect($request->headers->get('referer'));
+    }
+
+    // Vérifier la quantité de stock
+    $stockDisponible = $article->getQuantiteStock();
+    if ($stockDisponible == 0) {
+        $this->addFlash('error', 'Cet article est épuisé.');
+        return $this->redirect($request->headers->get('referer')); // Retour à la page précédente
+    }
+
+    // Vérifier si l'article est déjà dans le panier pour cet utilisateur
+    $existingCartItem = $em->getRepository(ListArticle::class)->findOneBy([
+        'article' => $article,
+        'user' => $user // Assurez-vous que la relation User est bien définie dans ListArticle
+    ]);
+
+    if ($existingCartItem) {
+        $nouvelleQuantite = $existingCartItem->getQuantite() + 1;
+
+        // Vérifier si la nouvelle quantité dépasse le stock disponible
+        if ($nouvelleQuantite > $stockDisponible) {
+            $this->addFlash('error', 'Quantité maximale atteinte. Il ne reste que ' . $stockDisponible . ' article(s) en stock.');
+            return $this->redirect($request->headers->get('referer'));
+        }
+
+        // Sinon, mettre à jour la quantité dans le panier
+        $existingCartItem->setQuantite($nouvelleQuantite);
+    } else {
+        // Vérifier si on peut ajouter au moins 1 article
+        if ($stockDisponible < 1) {
+            $this->addFlash('error', 'Stock insuffisant pour ajouter cet article.');
+            return $this->redirect($request->headers->get('referer'));
+        }
+
+        // Ajouter un nouvel article au panier
+        $cartItem = new ListArticle();
+        $cartItem->setArticle($article);
+        $cartItem->setPrixUnitaire($article->getPrix());
+        $cartItem->setQuantite(1);
+        $cartItem->setUser($user);
+        $em->persist($cartItem);
+    }
+
+    $em->flush();
+
+    $this->addFlash('success', 'Article ajouté au panier.');
+
+    return $this->redirect($request->headers->get('referer'));
+}
+#[Route('/add-cart/{id}', name: 'add_cart', methods: ['GET', 'POST'])]
+#[IsGranted('IS_AUTHENTICATED_FULLY')] // Assure que l'utilisateur est connecté
+public function addCart(int $id, EntityManagerInterface $em, Request $request, Security $security): Response
+{
+    // Vérifier si l'utilisateur est connecté
+    $user = $security->getUser();
+    if (!$user) {
+        $this->addFlash('error', 'Vous devez être connecté pour ajouter un article au panier.');
+        return $this->redirectToRoute('login'); // Redirection vers la page de connexion
+    }
+
+    // Récupérer l'article à partir de l'ID
+    $article = $em->getRepository(Article::class)->find($id);
+
+    if (!$article) {
+        $this->addFlash('error', 'Article non trouvé.');
+        return $this->redirect($request->headers->get('referer'));
+    }
+
+    // Vérifier la quantité de stock
+    $stockDisponible = $article->getQuantiteStock();
+    if ($stockDisponible == 0) {
+        $this->addFlash('error', 'Cet article est épuisé.');
+        return $this->redirect($request->headers->get('referer'));
+    }
+
+    // Vérifier si l'article est déjà dans le panier pour cet utilisateur
+    $existingCartItem = $em->getRepository(ListArticle::class)->findOneBy([
+        'article' => $article,
+        'user' => $user // Assurez-vous que la relation User est bien définie dans ListArticle
+    ]);
+
+    if ($existingCartItem) {
+        $nouvelleQuantite = $existingCartItem->getQuantite() + 1;
+
+        // Vérifier si la nouvelle quantité dépasse le stock disponible
+        if ($nouvelleQuantite > $stockDisponible) {
+            $this->addFlash('error', 'Stock insuffisant. Il ne reste que ' . $stockDisponible . ' article(s).');
+            return $this->redirect($request->headers->get('referer'));
+        }
+
+        // Sinon, mettre à jour la quantité dans le panier
+        $existingCartItem->setQuantite($nouvelleQuantite);
+    } else {
+        // Vérifier si on peut ajouter au moins 1 article
+        if ($stockDisponible < 1) {
+            $this->addFlash('error', 'Stock insuffisant pour ajouter cet article.');
+            return $this->redirect($request->headers->get('referer'));
+        }
+
+        // Ajouter un nouvel article au panier
+        $cartItem = new ListArticle();
+        $cartItem->setArticle($article);
+        $cartItem->setPrixUnitaire($article->getPrix());
+        $cartItem->setQuantite(1);
+        $cartItem->setUser($user);
+        $em->persist($cartItem);
+    }
+
+    $em->flush();
+
+    $this->addFlash('success', 'Article ajouté au panier.');
+
+    return $this->redirect($request->headers->get('referer'));
+}
+
+   /* #[Route('/add-cart/{id}', name: 'add_cart', methods: ['GET', 'POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')] // Assure que l'utilisateur est connecté
     public function addCart(int $id, EntityManagerInterface $em, Request $request, Security $security): Response
     {
@@ -127,7 +258,7 @@ final class CommandeController extends AbstractController
     
         return $this->redirect($request->headers->get('referer'));
     } 
-    
+    */
     #[Route('/commande', name: 'app_commande')]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function index(ListArticleRepository $listarticleRepository, Security $security): Response
