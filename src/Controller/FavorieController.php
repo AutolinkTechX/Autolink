@@ -24,7 +24,7 @@ final class FavorieController extends AbstractController
 
         if (!$user) {
             // Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
-            return $this->redirectToRoute('app_login');
+            return $this->redirectToRoute('login');
         }
 
         // Récupérer les favoris non expirés de l'utilisateur connecté
@@ -42,6 +42,13 @@ public function addToFavorites(
     ArticleRepository $articleRepository,
     Security $security
 ): RedirectResponse {
+    // Récupérer l'utilisateur connecté
+    $user = $this->getUser();
+
+    if (!$user) {
+        // Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
+        return $this->redirectToRoute('login');
+    }
     // Récupérer l'article
     $article = $articleRepository->find($articleId);
 
