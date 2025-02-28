@@ -22,10 +22,6 @@ class LoginType extends AbstractType
                 'label' => 'Password',
                 'attr' => ['class' => 'form-control'],
                 'required' => true,
-            ])
-            ->add('submit', SubmitType::class, [
-                'label' => 'Connexion',
-                'attr' => ['class' => 'btn btn-primary btn-lg'],
             ]);
     }
 

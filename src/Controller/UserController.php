@@ -53,15 +53,40 @@ final class UserController extends AbstractController
 
         $form = $this->createForm(LoginType::class);
         $form->handleRequest($request);
+        $recaptchaSiteKey = $_ENV['RECAPTCHA_SITE_KEY'];
 
         if ($form->isSubmitted() && $form->isValid()) {
-            return $this->redirectToRoute('home');
+            if(isset($_POST['g-recaptcha-response']) && !empty($_POST['g-recaptcha-response'])){
+                $api_url = 'https://www.google.com/recaptcha/api/siteverify';
+                $resq_data = array(
+                    'secret' => $_ENV['RECAPTCHA_SECRET_KEY'],
+                    'response' => $_POST['g-recaptcha-response'],
+                    'remoteip' => $_SERVER['REMOTE_ADDR']
+                );
+                $curlConfig = array(
+                    CURLOPT_URL => $api_url,
+                    CURLOPT_POST => true,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_POSTFIELDS => $resq_data
+                );
+                $ch = curl_init();
+                curl_setopt_array($ch, $curlConfig);
+                $response = curl_exec($ch);
+                curl_close($ch);
+                $responseData = json_decode($response);
+                if($responseData->success){
+                    
+                }else{
+                    $this->addFlash('error', 'reCAPTCHA verification failed. Please try again.');
+                }
+            }
         }
 
         return $this->render('user/login.html.twig', [
             'form' => $form->createView(),
             'last_username' => $lastUsername,
             'error' => $error,
+            'recaptchaSiteKey' => $recaptchaSiteKey,
         ]);
     }
 

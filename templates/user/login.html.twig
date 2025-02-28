@@ -14,7 +14,7 @@
     <div class="col-md-6">
         <div class="form-container">
             <h2 class="mb-4 text-center font-weight-bold">Connexion</h2>
-            <form id="form_test" action="?" method="POST">
+            <form id="login-form" action="?" method="POST">
                 {% for message in app.flashes('error') %}
                     <div class="alert alert-danger">{{ message }}</div>
                 {% endfor %}
@@ -41,7 +41,7 @@
                     </p>
                 </div>
                 <div class="d-grid">
-                    {{ form_widget(form.submit, {'attr': {'class': 'btn btn-primary btn-lg'}}) }}
+                    <button class="g-recaptcha btn btn-primary btn-lg" data-sitekey="{{ recaptchaSiteKey }}" data-callback='onSubmit' data-action='submit'>Login</button>
                 </div>
                 {{ form_end(form) }}
             </form>
@@ -72,6 +72,12 @@
                 console.log('_password:', passwordField);
             }
         });
+    </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+        function onSubmit(token) {
+            document.getElementById('login-form').submit();
+        }
     </script>
 {% endblock %}
 {% endblock %}
