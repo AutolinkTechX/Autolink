@@ -54,6 +54,12 @@
                         <div class="form-group text-center">
                             {{ form_widget(form.submit, { 'attr': {'class': 'btn-submit w-100'} }) }}
                         </div>
+
+                        <br>
+                    <br>
+                      {{ form_row(form.recaptcha) }} 
+
+                        {{ form_errors(form.recaptcha) }}
                         
                         {{ form_end(form) }}
                     </div>

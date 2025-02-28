@@ -1,31 +1,48 @@
-<div class="col-md-11">
-    <div class="card p-3">
-        <canvas id="statutPieChart" style="width: 200%; height: 250px;"></canvas>
-    </div>
-</div>
+<div class="col-md-11">     
+    <div class="card p-3">         
+        <canvas id="statutPieChart" style="width: 200%; height: 250px;"></canvas>     
+    </div> 
+</div>  
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let countByStatut = {{ countByStatut|json_encode()|raw }};
-        let labels = countByStatut.map(item => item.statut);
-        let data = countByStatut.map(item => item.count);
+<script>     
+    document.addEventListener("DOMContentLoaded", function () {         
+        let countByStatut = {{ countByStatut|json_encode()|raw }};         
+        let labels = countByStatut.map(item => item.statut);         
+        let data = countByStatut.map(item => item.count);          
 
-        let ctx = document.getElementById("statutPieChart").getContext("2d");
-        new Chart(ctx, {
-            type: "pie",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: "Répartition des statuts",
-                    data: data,
-                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-                    hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
-    });
+        let ctx = document.getElementById("statutPieChart").getContext("2d");         
+        new Chart(ctx, {             
+            type: "pie",             
+            data: {                 
+                labels: labels,                 
+                datasets: [{                     
+                    label: "Répartition des statuts",                     
+                    data: data,                     
+                    backgroundColor: ["#d5966f", "#b5602c", "#b5602c"],                     
+                    hoverOffset: 4                 
+                }]             
+            },             
+            options: {                 
+                responsive: true,                 
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Nombre de demandes par statut",
+                        font: {
+                            size: 16
+                        },
+                        padding: {
+                            bottom: 10
+                        }
+                    },
+                    legend: {
+                        display: true
+                    }
+                }
+            }         
+        });     
+    }); 
 </script>
+
+

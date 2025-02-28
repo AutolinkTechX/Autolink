@@ -17,6 +17,7 @@ use App\Entity\Entreprise;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Validator\Constraints\File;
+use VictorPrdh\RecaptchaBundle\Form\ReCaptchaType;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -45,6 +46,7 @@ class MaterielRecyclableType extends AbstractType
                     'Caoutchouc' => 'caoutchouc',
                     'Aluminium' => 'aluminium',
                     'Verre' => 'verre',
+                    'Cuivre' => 'cuivre',
                 ],
                 'constraints' => [
                     new Assert\NotBlank(),
@@ -82,8 +84,10 @@ class MaterielRecyclableType extends AbstractType
                 },
                 'placeholder' => 'Sélectionnez un type'
             ])
-            ->add('submit', SubmitType::class, ['label' => 'Save'])
-        ;
+            ->add("recaptcha", ReCaptchaType::class)
+            ->add('submit', SubmitType::class, ['label' => 'Save']);
+           
+        
     }
 
     public function configureOptions(OptionsResolver $resolver): void

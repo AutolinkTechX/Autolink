@@ -14,8 +14,8 @@ class EmailService
     }
 
     public function envoyerRefusEmail(string $destinataire)
-{
-    dump('Envoi de l\'email à : ' . $destinataire); // ✅ Vérifie si la fonction est bien appelée
+    {
+    error_log('Envoi de l\'email à : ' . $destinataire); // ✅ Vérifie si la fonction est bien appelée
 
     $email = (new Email())
         ->from('farahbaklouti007@gmail.com')
@@ -25,7 +25,7 @@ class EmailService
 
     $this->mailer->send($email);
 
-    dump('Email envoyé avec succès'); // ✅ Vérifie si l'email a été bien envoyé
+    error_log('Email envoyé avec succès'); // ✅ Vérifie si l'email a été bien envoyé
 }
 
 }

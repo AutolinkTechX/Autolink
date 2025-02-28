@@ -22,6 +22,7 @@ use App\Entity\User;
 
 
 
+
 class MaterielRecyclableController extends AbstractController
 {
     private string $uploadsDirectory;
@@ -103,7 +104,7 @@ public function filterByStatut(
     PaginatorInterface $paginator,
     Request $request
 ): Response {
-    if (!in_array($statut, ['en_attente', 'valide'])) {
+    if (!in_array($statut, ['en_attente', 'valide','refuse'])) {
         throw $this->createNotFoundException('Statut invalide.');
     }
 

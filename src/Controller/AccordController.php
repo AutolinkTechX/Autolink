@@ -67,39 +67,6 @@ public function search(Request $request, AccordRepository $accordRepository, Mat
 
 
 
-    /*#[Route('/entreprise/accords', name: 'entreprise_accords')]
-    public function listeAccords(EntityManagerInterface $entityManager): Response
-    {
-        // Vérifier que l'utilisateur est connecté
-        $user = $this->getUser();
-        if (!$user) {
-            throw $this->createAccessDeniedException('Vous devez être connecté pour voir cette page.');
-        }
-    
-    
-        // Vérifier si l'utilisateur a le rôle ENTREPRISE
-        if (!in_array('ROLE_ENTREPRISE', $user->getRoles())) {
-            throw $this->createAccessDeniedException('Seules les entreprises peuvent voir cette page.');
-        }
-    
-        // Récupérer les matériaux recyclables de l'entreprise
-        $materiaux = $entityManager->getRepository(MaterielRecyclable::class)->findBy([
-            'entreprise' => $user
-        ]);
-        
-    
-        // Récupérer les accords liés aux matériaux trouvés
-        $accords = $entityManager->getRepository(Accord::class)->findBy([
-            'materielRecyclable' => $materiaux
-        ]);
-    
-        return $this->render('accord/accord.html.twig', [
-            'accords' => $accords,
-            
-        ]);
-    }
-*/
-
 
 
 #[Route('/entreprise/accords', name: 'entreprise_accords')]
@@ -132,20 +99,22 @@ public function listeAccords(EntityManagerInterface $entityManager): Response
     ]);
 }
 
-#[Route('/accord/refuser/{id}', name: 'accord_refuser', methods: ['GET'])]
+/*#[Route('/accord/refuser/{id}', name: 'accord_refuser', methods: ['GET'])]
 public function refuser(Accord $accord, EntityManagerInterface $entityManager, EmailService $emailService): Response
 {
-    dump('La méthode refuser() est exécutée'); // ✅ Vérifie si la fonction est bien appelée
+    console.loh('La méthode refuser() est exécutée');// ✅ Vérifie si la fonction est bien appelée
 
     $materiel = $accord->getMaterielRecyclable();
     $materiel->setStatut(StatutEnum::REFUSE);
+
+    $utilisateur = $materiel->getUser();
 
     $entityManager->persist($materiel);
     $entityManager->remove($accord);
     $entityManager->flush();
 
     // Récupérer l'email de l'utilisateur et envoyer l'email
-    $utilisateur = $materiel->getUser();
+   
 
     if ($utilisateur && !empty($utilisateur->getEmail())) {
         dump('Utilisateur trouvé: ' . $utilisateur->getEmail()); // ✅ Vérifie si l'utilisateur a un email
@@ -161,7 +130,7 @@ public function refuser(Accord $accord, EntityManagerInterface $entityManager, E
     }
 
     return $this->redirectToRoute('entreprise_accords');
-}
+}*/
 
 
 /*private function envoyerRefusEmail(Accord $accord, MailerInterface $mailer): void
@@ -181,130 +150,12 @@ public function refuser(Accord $accord, EntityManagerInterface $entityManager, E
 
 
     $mailer->send($email);
-}
-
-
-
-
-/*private function envoyerRefusEmail(Accord $accord, MailerInterface $mailer): void
-{
-    $utilisateur = $accord->getMaterielRecyclable()->getUser();
-
-    if (!$utilisateur) {
-        throw new \Exception('Utilisateur non trouvé pour cet accord.');
-    }
-
-    $email = (new Email())
-        ->from('no-reply@votre-site.com') // Utilise une adresse générique
-        ->to($utilisateur->getEmail())
-        ->subject('Accord refusé')
-        ->text('Votre demande d’accord a été refusée.');
-
-    $mailer->send($email);
 }*/
 
 
 
 
 
-
-   /* #[Route('/accord/accepter/{id}', name: 'accord_accepter', methods: ['GET'])]
-    public function accepter(Accord $accord, EntityManagerInterface $entityManager): Response
-    {
-        $materiel = $accord->getMaterielRecyclable();
-        $materiel->setStatut(StatutEnum::VALIDE); // 🔹 Mettre à jour le statut
-
-        $entityManager->persist($materiel);
-        $entityManager->flush();
-
-        return $this->redirectToRoute('list_materials'); // 🔹 Redirection après validation
-    }*/
-
-   /* #[Route('/accord/refuser/{id}', name: 'accord_refuser', methods: ['GET'])]
-    public function refuser(Accord $accord, EntityManagerInterface $entityManager): Response
-    {
-        $materiel = $accord->getMaterielRecyclable();
-        $materiel->setStatut(StatutEnum::REFUSE); // 🔹 Mettre à jour le statut
-
-        $entityManager->remove($accord); // 🔹 Supprimer l'accord si refusé
-        $entityManager->flush();
-
-        return $this->redirectToRoute('entreprise_accords'); // 🔹 Redirection après suppression
-    }*/
-
-
-
-
-
-/*
-    #[Route('/accord/accepter/{id}', name: 'accord_accepter', methods: ['GET'])]
-public function accepter(Accord $accord, EntityManagerInterface $entityManager): Response
-{
-    // Récupérer le matériel associé à l'accord
-    $materiel = $accord->getMaterielRecyclable();
-
-    // Mettre à jour le statut du matériel à "VALIDE"
-    $materiel->setStatut(StatutEnum::VALIDE);
-
-    // Supprimer l'accord car il est maintenant accepté
-    $entityManager->remove($accord);
-    
-    // Sauvegarder les changements
-    $entityManager->flush();
-
-    return $this->redirectToRoute('list_materials'); // Redirection après validation
-}
-
-
-
-  /*  #[Route('/materials', name: 'list_materials')]
-    public function listMaterials(EntityManagerInterface $entityManager): Response
-    {
-        // Vérifier que l'utilisateur est connecté
-        $user = $this->getUser();
-        if (!$user) {
-            throw $this->createAccessDeniedException('Vous devez être connecté pour voir cette page.');
-        }
-    
-        // Vérifier si l'utilisateur a le rôle ENTREPRISE
-        if (!in_array('ROLE_ENTREPRISE', $user->getRoles())) {
-            throw $this->createAccessDeniedException('Seules les entreprises peuvent voir cette page.');
-        }
-    
-        // Récupérer les matériaux recyclables de l'entreprise
-        $materiaux = $entityManager->getRepository(MaterielRecyclable::class)->findBy([
-            'entreprise' => $user
-        ]);
-    
-        // Filtrer uniquement les matériaux ayant le statut VALIDE
-        $materiauxValides = array_filter($materiaux, function ($materiel) {
-            return $materiel->getStatut() === StatutEnum::VALIDE;
-        });
-    
-        return $this->render('accord/listdemande.html.twig', [
-            'materiels' => $materiauxValides,
-        ]);
-    }*/
-
-
-   /* #[Route('/accord/accepter/{id}', name: 'accord_accepter', methods: ['GET'])]
-    public function accepter(Accord $accord, EntityManagerInterface $entityManager): Response
-    {
-        
-
-        $materiel = $accord->getMaterielRecyclable();
-        $materiel->setStatut(StatutEnum::VALIDE); // 🔹 Mettre à jour le statut
-    
-        $entityManager->persist($materiel); // 💡 Corrigé : Persister le matériel, pas l'accord
-        $entityManager->flush();
-    
-        return $this->redirectToRoute('accords_acceptes'); // 🔹 Redirection après validation
-    }*/
-
-    /**
-     * 
- * @Route("/accord/accepter/{id}/{statut}", name="accord_accepter")
- */
 
 
  #[Route('/accord/accepter/{id}', name: 'accord_accepter', methods: ['GET'])]
@@ -339,6 +190,132 @@ public function accepterAccord(int $id, EntityManagerInterface $entityManager): 
 }
 
 
+
+
+
+/*#[Route('/accord/accepter/{id}', name: 'accord_accepter', methods: ['GET'])]
+public function accepterAccord(
+    int $id, 
+    EntityManagerInterface $entityManager,
+    EmailService $emailService // Injection du service EmailService
+): Response {
+    // 🔍 Recherche de l'accord en base de données
+    $accord = $entityManager->getRepository(Accord::class)->find($id);
+
+    // ❌ Vérification si l'accord existe
+    if (!$accord) {
+        throw $this->createNotFoundException('Accord non trouvé.');
+    }
+
+    // 🔍 Récupération du matériel recyclable lié à cet accord
+    $materiel = $accord->getMaterielRecyclable();
+
+    // ❌ Vérification si le matériel existe
+    if (!$materiel) {
+        throw $this->createNotFoundException('Matériel recyclable non trouvé.');
+    }
+
+    // 🔍 Récupération de l'utilisateur depuis le matériel
+    $user = $materiel->getUser();
+
+    // ❌ Vérification si l'utilisateur existe
+    if (!$user) {
+        throw $this->createNotFoundException('Utilisateur non trouvé pour ce matériel.');
+    }
+
+    // ✅ Mise à jour du statut du matériel
+    $materiel->setStatut(StatutEnum::VALIDE);
+    
+    // ✅ Mise à jour de la date de réception de l'accord
+    $accord->setDateReception(new \DateTimeImmutable());
+
+    // 💾 Sauvegarde des modifications
+    $entityManager->persist($materiel);
+    $entityManager->persist($accord);
+    $entityManager->flush();
+
+    // 📧 Envoi de l'email à l'utilisateur
+    $emailService->envoyerRefusEmail($user->getEmail()); 
+
+    // 🔄 Redirection vers la liste des accords acceptés
+    return $this->redirectToRoute('accords_acceptes');
+}
+*/
+
+
+#[Route('/accord/refuser/{id}', name: 'accord_refuser', methods: ['GET'])]
+public function refuserAccord(
+    int $id, 
+    EntityManagerInterface $entityManager, 
+    EmailService $emailService // Injection du service EmailService
+): Response {
+    // 🔍 Recherche de l'accord en base de données
+    $accord = $entityManager->getRepository(Accord::class)->find($id);
+
+    // ❌ Vérification si l'accord existe
+    if (!$accord) {
+        throw $this->createNotFoundException('Accord non trouvé.');
+    }
+
+    // 🔍 Récupération du matériel recyclable lié à cet accord
+    $materiel = $accord->getMaterielRecyclable();
+
+    // ❌ Vérification si le matériel existe
+    if (!$materiel) {
+        throw $this->createNotFoundException('Matériel recyclable non trouvé.');
+    }
+
+    // 🔍 Récupération de l'utilisateur depuis le matériel
+    $user = $materiel->getUser();
+
+    // ❌ Vérification si l'utilisateur existe
+    if (!$user) {
+        throw $this->createNotFoundException('Utilisateur non trouvé pour ce matériel.');
+    }
+
+    // ✅ Mise à jour du statut du matériel en REFUSÉ
+    $materiel->setStatut(StatutEnum::REFUSE); // Assure-toi que StatutEnum::REFUSE est bien défini
+
+    // ✅ Mise à jour de la date de refus de l'accord
+    $accord->setDateReception(new \DateTimeImmutable());
+
+    // 💾 Sauvegarde des modifications
+    $entityManager->persist($materiel);
+    $entityManager->persist($accord);
+    $entityManager->flush();
+
+    // 📧 Envoi de l'email à l'utilisateur
+    $emailService->envoyerRefusEmail($user->getEmail()); 
+
+    // 🔄 Redirection vers la liste des accords refusés
+    return $this->redirectToRoute('accords_refuses');
+}
+
+
+#[Route('/accords/refuses', name: 'accords_refuses')]
+public function accordsRefuses(EntityManagerInterface $entityManager): Response
+{
+    // Vérifier que l'utilisateur est connecté
+    $user = $this->getUser();
+    if (!$user) {
+        throw $this->createAccessDeniedException('Vous devez être connecté pour voir cette page.');
+    }
+
+    // Vérifier si l'utilisateur a le rôle ENTREPRISE
+    if (!in_array('ROLE_ENTREPRISE', $user->getRoles())) {
+        throw $this->createAccessDeniedException('Seules les entreprises peuvent voir cette page.');
+    }
+
+    // Récupérer les matériaux recyclables refusés
+    $materiels = $entityManager->getRepository(MaterielRecyclable::class)->findBy([
+        'entreprise' => $user,
+        'statut' => StatutEnum::REFUSE // ❌ Filtrer uniquement les matériaux refusés
+    ]);
+
+    return $this->render('accord/accords_refuses.html.twig', [
+        'materiels' => $materiels,
+    ]);
+}
     
 
 

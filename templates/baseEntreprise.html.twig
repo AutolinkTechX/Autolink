@@ -59,13 +59,26 @@
             {% if app.user and app.user.isSupplier %}
             <li class="nav-item">
                 <a class="nav-link" href="{{ path('accords_acceptes') }}">
-                    <i class="fas fa-fw fa-box"></i>
-                    <span>Materials List</span></a>
+                    <i class="fas fa-check"></i>
+                    <span>Accords acceptés</span></a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_calendar') }}">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Calendrier</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('accords_refuses') }}">
+                    <i class="fas fa-times"></i>
+                    <span>Accords refusés</span></a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ path('dashboard_supplier') }}">
                     <i class="fas fa-fw fa-chart-line"></i> <!-- Nouvelle icône -->
-                    <span>Dashboard</span>
+                    <span>Statistiques</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -296,7 +309,7 @@
                      Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">{% block page_title %}Dashboard{% endblock %}</h1>
-                        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                        <a href={{path('dashboard_export_pdf')}} class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                 class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
                     </div>
                     <!-- Content Row -->

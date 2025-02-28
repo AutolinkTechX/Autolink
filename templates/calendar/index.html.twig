@@ -1,0 +1,40 @@
+{% extends 'baseEntreprise.html.twig' %}
+
+{% block title %}Calendrier{% endblock %}
+
+{% block content %}
+    <h1>Mon Calendrier</h1>
+    <div id="calendar"></div>
+
+    <!-- FullCalendar CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/fr.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth', // Vue par défaut : Mois
+                locale: 'fr', // Langue française
+                
+                // Ajout du header avec les boutons pour changer de vue
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay' // Ajoute les vues Mois, Semaine et Jour
+                },
+
+                events: '/calendar/events', // Récupération des événements via Symfony
+                
+                eventClick: function(info) {
+                    alert("Nom du produit : " + info.event.title + 
+                          "\nDate de création : " + info.event.extendedProps.date_creation + 
+                          "\nDate d'acceptation : " + (info.event.extendedProps.date_acceptation ?? 'Non acceptée'));
+                }
+            });
+
+            calendar.render();
+        });
+    </script>
+{% endblock %}

@@ -24,7 +24,7 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         entreprise:
-            pattern: ^/(entreprise|accords|dashboard)
+            pattern: ^/(entreprise|accords|dashboard|calendar)
             lazy: true
             provider: app_entreprise_provider
             form_login:

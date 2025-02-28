@@ -1,0 +1,39 @@
+{% extends 'baseEntreprise.html.twig' %}
+
+{% block title %}Accords Refusés{% endblock %}
+
+{% block content %}
+<h1>Accords Refusés</h1>
+
+{% if materiels is empty %}
+    <p>Aucun accord accepté.</p>
+{% else %}
+    <div class="row featured__filter">
+        {% for materiel in materiels %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mix valide">
+            <div class="featured__item">
+                <div class="featured__item__pic">
+                    {% if materiel.image %}
+                        <img src="{{ asset('/uploads/' ~ materiel.image) }}" 
+                             alt="{{ materiel.name }}" 
+                             class="img-fluid" style="max-width: 100px;">
+                    {% else %}
+                        <p>No Image</p>
+                    {% endif %}
+                </div>
+                <div class="featured__item__text">
+                    <h6>{{ materiel.name }}</h6>
+                   
+                    <p><strong>Client :</strong> {{ materiel.user.name }}</p>
+                    <p><strong>Type de matériel :</strong> {{ materiel.typemateriel }}</p>
+                    <p><strong>Date de Création :</strong> {{ materiel.dateCreation|date('d/m/Y H:i') }}</p>
+                    <p><strong>Statut :</strong> <span class="badge bg-danger">Refusé</span></p>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% endblock %}

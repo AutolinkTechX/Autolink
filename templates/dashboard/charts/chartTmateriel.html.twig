@@ -17,8 +17,8 @@
                 datasets: [{
                     label: 'Nombre de demandes',
                     data: data,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: '#db966b',
+                    borderColor: '#b5602c',
                     borderWidth: 1
                 }]
             },
@@ -28,6 +28,26 @@
                 scales: {
                     y: {
                         beginAtZero: true
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Nombre de demandes par type de matériel',
+                        font: {
+                            size: 16
+                        },
+                        padding: {
+                            bottom: 10
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
                     }
                 }
             }

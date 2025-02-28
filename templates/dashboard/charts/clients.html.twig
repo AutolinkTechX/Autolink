@@ -1,6 +1,5 @@
-<div class="col-md-10">
+<div class="col-md-16">
     <div class="card p-3">
-        <h5 class="text-center">📊 Nombre de Demandes par Client</h5>
         <canvas id="chartDemandesClients"></canvas>
     </div>
 </div>
@@ -25,6 +24,19 @@
                 responsive: true,
                 scales: {
                     y: { beginAtZero: true }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Histogramme des Demandes par Client",
+                        font: {
+                            size: 16,
+                            weight: "bold"
+                        },
+                        padding: {
+                            bottom: 15
+                        }
+                    }
                 }
             }
         });

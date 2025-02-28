@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Accord;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
 use Symfony\UX\Chartjs\Model\Chart;
+use Knp\Snappy\Pdf;
 
 final class DashboardController extends AbstractController
 {
@@ -70,6 +71,43 @@ public function index(EntityManagerInterface $entityManager, MaterielRecyclableR
     ]);}
 
 
+    #[Route('/dashboard/export-pdf', name: 'dashboard_export_pdf')]
+    public function exportPdf(Pdf $snappy, MaterielRecyclableRepository $repo, AccordRepository $accordRepository): Response
+    {
+        // Vérifier que l'utilisateur est connecté
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté pour voir cette page.');
+        }
+
+        if (!in_array('ROLE_ENTREPRISE', $user->getRoles())) {
+            throw $this->createAccessDeniedException('Seules les entreprises peuvent voir cette page.');
+        }
+
+        // Récupérer les statistiques
+        $statsByDate = $repo->countByDate($user);
+        $countByStatut = $repo->countByStatut($user);
+        $countByTypeMateriel = $repo->countByTypeMateriel($user);
+        $totalDemandes = $accordRepository->countDemandesByEntreprise($user);
+        $demandesParClient = $accordRepository->countDemandesByClient($user);
+
+        // Générer le HTML du PDF
+        $html = $this->renderView('dashboard/pdf_template.html.twig', [
+            'statsByDate' => $statsByDate,
+            'countByStatut' => $countByStatut,
+            'countByTypeMateriel' => $countByTypeMateriel,
+            'totalDemandes' => $totalDemandes,
+            'demandesParClient' => $demandesParClient,
+        ]);
+
+        // Générer le PDF avec Snappy
+        $pdfContent = $snappy->getOutputFromHtml($html);
+
+        return new Response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="statistiques.pdf"',
+        ]);
+    }
 
 
     public function dashboard(AccordRepository $accordRepository): Response

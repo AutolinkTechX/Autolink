@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistiques</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h2>Statistiques des matériaux recyclables</h2>
+
+    <h3>Statistiques par Date</h3>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Nombre</th>
+        </tr>
+        {% for stat in statsByDate %}
+            <tr>
+                <td>{{ stat.date|default('Non défini') }}</td>
+                <td>{{ stat.count|default(0) }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Statistiques par Statut</h3>
+    <table>
+        <tr>
+            <th>Statut</th>
+            <th>Nombre</th>
+        </tr>
+        {% for stat in countByStatut %}
+            <tr>
+                <td>{{ stat.statut.value|default('Inconnu') }}</td> {# Utilisation de `.value` pour éviter l'erreur #}
+                <td>{{ stat.count|default(0) }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Statistiques par Type de Matériel</h3>
+    <table>
+        <tr>
+            <th>Type</th>
+            <th>Nombre</th>
+        </tr>
+        {% for stat in countByTypeMateriel %}
+            <tr>
+                <td>{{ stat.type|default('Non spécifié') }}</td>
+                <td>{{ stat.count|default(0) }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Autres Statistiques</h3>
+    <p>Total des demandes: {{ totalDemandes|default(0) }}</p>
+
+    <h3>Demandes par Client</h3>
+    <table>
+        <tr>
+            <th>Client</th>
+            <th>Nombre de demandes</th>
+        </tr>
+        {% for demande in demandesParClient %}
+            <tr>
+                <td>{{ demande.client|default('Anonyme') }}</td>
+                <td>{{ demande.count|default(0) }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

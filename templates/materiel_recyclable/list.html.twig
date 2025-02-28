@@ -43,6 +43,12 @@
                                     Validé
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ path('list_materiaux_by_statut', { 'statut': 'refuse' }) }}" 
+                                   class="{% if statut == 'refuse' %}btn btn-primary btn-small{% endif %}">
+                                    refusé
+                                </a>
+                            </li>
                         </ul>
                         
                 </div>
@@ -73,7 +79,9 @@
                         <p>Entreprise : {{ materiel.entreprise.getCompanyName() }}</p>
                         <p><strong>Statut :</strong> {{ materiel.statut.value|trans }}</p>
                         <div class="featured__item__actions">
-                            {% if app.user and (materiel.user == app.user or is_granted('ROLE_CLIENT')) %}
+                           
+                            {% if app.user and (materiel.user == app.user or is_granted('ROLE_CLIENT')) and materiel.statut.value != 'refuse' and materiel.statut.value != 'valide' %}
+
                                 <a href="{{ path('materiel_edit', {'id': materiel.id}) }}"><i class="fa fa-edit"></i></a>
                                 <a href="{{ path('materiel_delete', {'id': materiel.id}) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');"><i class="fa fa-trash"></i></a>
                             {% endif %}
