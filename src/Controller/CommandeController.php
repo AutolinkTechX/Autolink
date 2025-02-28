@@ -184,7 +184,7 @@ final class CommandeController extends AbstractController
         // Rediriger vers la même page pour actualiser le panier
         return $this->redirect($request->headers->get('referer'));
     }
-
+/*
     #[Route('/remove-from-cart/{id}', name: 'remove_from_cart', methods: ['POST'])]
     public function removeFromCart(
         int $id,
@@ -212,6 +212,33 @@ final class CommandeController extends AbstractController
         // Rediriger l'utilisateur vers la page précédente
         return $this->redirect($request->headers->get('referer'));
     }
+*/
+#[Route('/remove-from-cart/{id}', name: 'remove_from_cart', methods: ['POST'])]
+public function removeFromCart(
+    int $id,
+    ListArticleRepository $listArticleRepository,
+    EntityManagerInterface $entityManager,
+    Request $request
+): RedirectResponse {
+    // Récupérer l'article dans la table listearticle
+    $article = $listArticleRepository->find($id);
+
+    // Vérifier si l'article existe
+    if ($article) {
+        // Supprimer l'article uniquement de la table listearticle
+        $entityManager->remove($article);
+        $entityManager->flush();
+
+        // Ajouter un message flash de succès
+        $this->addFlash('success', 'L\'article a été supprimé de la liste.');
+    } else {
+        // Si l'article n'existe pas, afficher un message d'erreur
+        $this->addFlash('error', 'Cet article n\'existe pas dans la liste.');
+    }
+
+    // Rediriger l'utilisateur vers la page précédente
+    return $this->redirect($request->headers->get('referer'));
+}
 
     #[Route('/admin/commandes', name: 'commandes_list')]
 public function list(Request $request, CommandeRepository $commandeRepository)

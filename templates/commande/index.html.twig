@@ -46,6 +46,11 @@
                                             <div class="product__item__pic set-bg" style="background-image: url('{{ asset('uploads/' ~ panier.article.getImage) }}');">
                                                 <ul class="product__item__pic__hover">
                                                     <li>
+                                                        <form action="http://127.0.0.1:8000/details/{{panier.article.id }}" method="GET" style="display: inline;">
+                                                            <button type="submit" class="btn btn-danger">
+                                                                <i class="fa fa-retweet"></i>
+                                                            </button>
+                                                        </form>
                                                         <form action="{{ path('add_cart', {'id': panier.article.id}) }}" method="POST" style="display: inline;">
                                                             <button type="submit" class="btn btn-danger"><i class="fa fa-cart-plus"></i></button>
                                                         </form>
